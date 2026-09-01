@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" fill="none" role="img" aria-label="Pairband">
+  <!-- Interlocking pill mark: two stadium shapes linked diagonally -->
+  <g transform="translate(4, 8)">
+    <!-- Pill A  upper-left, teal -->
+    <rect x="0" y="0" width="44" height="20" rx="10" fill="#3D9B8F"/>
+    <!-- Pill B  lower-right, lighter teal, interlock -->
+    <rect x="18" y="12" width="44" height="20" rx="10" fill="#4FB3A5"/>
+    <!-- Link bridge  charcoal notch for interlock -->
+    <path d="M28 10 C32 10 34 14 34 16 C34 18 32 22 28 22 L24 22 C20 22 18 18 18 16 C18 14 20 10 24 10 Z" fill="#F5F5F2"/>
+    <ellipse cx="26" cy="16" rx="4" ry="3" fill="#1A1A1A" opacity="0.15"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="76" y="32" font-family="Manrope, system-ui, sans-serif" font-size="22" font-weight="800" fill="#1A1A1A" letter-spacing="-0.5">Pairband</text>
+</svg>
