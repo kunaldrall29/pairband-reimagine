@@ -7,9 +7,9 @@
       "status": 200,
       "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
       "hasCanvas": false,
-      "bodyTextLen": 1743,
-      "bodyTextHash": "828c0f0af582a2a1da5392b3a5c740b2a9b1362b63e12adce9605ddc19a63f04",
-      "bodyTextPrefix": "Pairband Markets Docs Security Open app LAUNCH IN USDC. GRADUATE",
+      "bodyTextLen": 1742,
+      "bodyTextHash": "bee2e2e7b9baf651ef9575142ff55d8c21ee84d9beadd9ee56559e006bf6657b",
+      "bodyTextPrefix": "pairband Markets Docs Security Open app STABLECOIN LAUNCHPAD ON ",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -21,9 +21,9 @@
       "status": 200,
       "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
       "hasCanvas": false,
-      "bodyTextLen": 1656,
-      "bodyTextHash": "abcd49f47bfd0806f86f2c09a7ce6335ec8fd5f56b3d8dfcff7219faf18b580c",
-      "bodyTextPrefix": "Pairband Open app LAUNCH IN USDC. GRADUATE TO UNISWAP. The Arc l",
+      "bodyTextLen": 1655,
+      "bodyTextHash": "6d36ac5fb3237e0c5729c3f30f77a7bf608fc337de2b2a753509b84a6c1c8e85",
+      "bodyTextPrefix": "pairband Open app STABLECOIN LAUNCHPAD ON ARC Cover the downside",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -33,9 +33,6 @@
   "brandWarnings": [],
   "authWarnings": [],
   "verdictFile": "/workspace/screenshots/app-builder-built.json",
-  "divergesFromBaseline": true,
-  "baselineReasons": [
-    "desktop: canvas disappeared",
-    "mobile: canvas disappeared"
-  ]
+  "divergesFromBaseline": false,
+  "baselineReasons": []
 }

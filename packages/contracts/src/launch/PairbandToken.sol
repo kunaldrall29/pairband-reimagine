@@ -28,9 +28,18 @@ contract PairbandToken {
     function mint(address to, uint256 amount) external {
         if (msg.sender != minter) revert NotMinter();
         if (to == address(0)) revert ZeroAddress();
+        // Soft cap: 1B tokens. Launchpad burns on curve sell so rebuy cannot inflate past this.
+        require(totalSupply + amount <= 1_000_000_000 ether, "cap");
         totalSupply += amount;
         balanceOf[to] += amount;
         emit Transfer(address(0), to, amount);
+    }
+
+    function burn(address from, uint256 amount) external {
+        if (msg.sender != minter) revert NotMinter();
+        balanceOf[from] -= amount;
+        totalSupply -= amount;
+        emit Transfer(from, address(0), amount);
     }
 
     function approve(address spender, uint256 amount) external returns (bool) {

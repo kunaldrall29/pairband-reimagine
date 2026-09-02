@@ -6,7 +6,7 @@ import { Wordmark } from "@/components/ui/wordmark";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
-import { BandField } from "@/components/marketing/band-field";
+import { HeroPills } from "@/components/marketing/hero-pills";
 import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
 import { graduateProgress, marketCap, priceOf, protocolStats, raisedOf } from "@/lib/engine/launchpad.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
@@ -61,7 +61,8 @@ export function MarketingPage() {
       if (reverted || !root.current) return;
       gsap.registerPlugin(ScrollTrigger);
       ctx = gsap.context(() => {
-        gsap.from(".hero-copy", { y: 24, opacity: 0, duration: 0.8, ease: "power2.out" });
+        gsap.from(".hero-copy", { y: 28, opacity: 0, duration: 0.85, ease: "power2.out" });
+        gsap.from(".hero-visual", { opacity: 0, scale: 0.97, duration: 1, ease: "power2.out", delay: 0.1 });
         gsap.utils.toArray<HTMLElement>(".step-card").forEach((el, i) => {
           gsap.from(el, {
             y: 40,
@@ -86,13 +87,13 @@ export function MarketingPage() {
         <GlassPanel className="flex items-center justify-between px-4 py-2.5 md:px-5">
           <Wordmark />
           <div className="hidden items-center gap-6 text-sm text-muted md:flex">
-            <a href="#markets" className="hover:text-ink">
+            <a href="#markets" className="transition-colors hover:text-ink">
               Markets
             </a>
-            <Link to="/docs" className="hover:text-ink">
+            <a href="https://docs.pairband.com" className="transition-colors hover:text-ink">
               Docs
-            </Link>
-            <Link to="/security" className="hover:text-ink">
+            </a>
+            <Link to="/security" className="transition-colors hover:text-ink">
               Security
             </Link>
           </div>
@@ -102,43 +103,46 @@ export function MarketingPage() {
         </GlassPanel>
       </nav>
 
-      <section className="relative mx-auto flex max-w-6xl flex-col gap-8 px-5 pt-28 pb-12 md:min-h-[88vh] md:flex-row md:items-center md:gap-12 md:pt-28 md:pb-16">
-        <div className="hero-copy max-w-xl">
-          <p className="font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            Any chain. Settlement on Arc.
-          </p>
-          <h1 className="mt-3 font-display text-5xl leading-[1.08] text-ink md:text-6xl">
-            Pay USDC. Fill the Arc book.
-          </h1>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-muted sm:text-lg">
-            Launch on a USDC curve. Graduate into a locked Uniswap pair. CCTP brings cash from any chain; the token
-            stays on Arc.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/app">
-              <ClayButton>Trade</ClayButton>
-            </Link>
-            <Link to="/app/create">
-              <ClayButton variant="secondary">Create token</ClayButton>
-            </Link>
+      <section className="relative min-h-[100svh] overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(42,46,50,0.18),transparent_42%),radial-gradient(ellipse_at_88%_70%,rgba(79,179,165,0.22),transparent_48%)]" />
+        <div className="relative mx-auto grid max-w-6xl gap-10 px-5 pt-28 pb-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-8 md:pt-32 md:pb-20">
+          <div className="hero-copy max-w-xl">
+            <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">
+              Stablecoin launchpad on Arc
+            </p>
+            <h1 className="mt-4 text-5xl leading-[1.05] tracking-tight text-ink md:text-6xl lg:text-[4.25rem]">
+              Cover the downside.
+              <br />
+              Keep the upside.
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg">
+              Pay USDC from any CCTP chain. Fill the Arc book. Tokens never leave.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link to="/app">
+                <ClayButton>Trade</ClayButton>
+              </Link>
+              <Link to="/app/create">
+                <ClayButton variant="secondary">Create token</ClayButton>
+              </Link>
+            </div>
+            <p className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted">
+              <span className="inline-flex items-center gap-1.5">
+                <UsdcMark size={16} />
+                <span className="font-mono text-[11px] tracking-wide uppercase">USDC</span>
+              </span>
+              <span aria-hidden className="text-paper-3">
+                /
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <ArcMark size={14} />
+                <span>Quoted in USDC · Settled on Arc</span>
+              </span>
+            </p>
           </div>
-          <dl className="mt-8 grid grid-cols-3 gap-4 font-mono text-sm">
-            <div>
-              <dt className="text-[11px] text-muted uppercase">Markets</dt>
-              <dd className="tabular">{stats.count}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] text-muted uppercase">Books</dt>
-              <dd className="tabular">{stats.graduated}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] text-muted uppercase">Volume</dt>
-              <dd className="tabular">{formatCompact(stats.volume)}</dd>
-            </div>
-          </dl>
-        </div>
-        <div className="aspect-[4/3] w-full overflow-hidden rounded-[24px] shadow-clay md:aspect-auto md:h-[480px] md:flex-1">
-          <BandField className="h-full w-full" />
+          <div className="hero-visual aspect-[5/4] w-full md:aspect-auto md:h-[min(520px,70vh)]">
+            <HeroPills className="h-full shadow-clay" />
+          </div>
         </div>
       </section>
 
@@ -150,20 +154,25 @@ export function MarketingPage() {
             className="mx-auto h-auto max-h-52 w-full object-contain sm:max-h-64"
           />
         </figure>
-        <p className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[11px] text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <UsdcMark size={12} /> Quoted in USDC
-          </span>
-          <span aria-hidden>·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <ArcMark size={12} /> Settled on Arc · CCTP 26
-          </span>
-        </p>
+        <dl className="mt-8 grid grid-cols-3 gap-4 font-mono text-sm">
+          <div>
+            <dt className="text-[11px] text-muted uppercase">Markets</dt>
+            <dd className="mt-1 tabular text-lg font-medium">{stats.count}</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] text-muted uppercase">Books</dt>
+            <dd className="mt-1 tabular text-lg font-medium">{stats.graduated}</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] text-muted uppercase">Volume</dt>
+            <dd className="mt-1 tabular text-lg font-medium">{formatCompact(stats.volume)}</dd>
+          </div>
+        </dl>
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-24">
-        <p className="font-mono text-[11px] tracking-[0.22em] text-muted uppercase">How it works</p>
-        <h2 className="mt-3 font-display text-4xl">Curve. Pair. Lock.</h2>
+        <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">How it works</p>
+        <h2 className="mt-3 text-4xl tracking-tight">Curve. Pair. Lock.</h2>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {STEPS.map((s) => (
             <article key={s.n} className="step-card">
@@ -174,8 +183,8 @@ export function MarketingPage() {
                   className="aspect-[4/3] w-full object-cover outline outline-1 -outline-offset-1 outline-ink/10"
                 />
                 <div className="p-5">
-                  <p className="font-mono text-[11px] text-amber-2">{s.n}</p>
-                  <h3 className="mt-2 font-display text-2xl">{s.title}</h3>
+                  <p className="font-mono text-[11px] text-teal">{s.n}</p>
+                  <h3 className="mt-2 text-2xl tracking-tight">{s.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{s.body}</p>
                 </div>
               </GlassPanel>
@@ -187,15 +196,15 @@ export function MarketingPage() {
       <section id="markets" className="mx-auto max-w-6xl px-5 py-16">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] tracking-[0.22em] text-muted uppercase">Live in this preview</p>
-            <h2 className="mt-3 font-display text-4xl">Markets on Arc</h2>
+            <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">Live markets</p>
+            <h2 className="mt-3 text-4xl tracking-tight">Markets on Arc</h2>
           </div>
-          <Link to="/app" className="hidden text-sm text-teal-2 sm:block">
+          <Link to="/app" className="hidden text-sm text-teal-2 transition-colors hover:text-ink sm:block">
             Open discover
           </Link>
         </div>
         <p className="mt-3 max-w-xl text-sm text-muted">
-          Numbers are this demo book, not a published TVL. Teal Machine is one buy from Uniswap.
+          Preview book mirrors the contracts. Connect a wallet on Arc testnet to broadcast when the factory is live.
         </p>
         <div className="mt-8 overflow-hidden rounded-[24px] border border-ink/8 bg-paper-2">
           <table className="w-full text-left text-sm">
@@ -210,7 +219,7 @@ export function MarketingPage() {
             </thead>
             <tbody>
               {featured.map((l) => (
-                <tr key={l.id} className="border-t border-ink/8">
+                <tr key={l.id} className="border-t border-ink/8 transition-colors hover:bg-paper/80">
                   <td className="px-4 py-3">
                     <Link to="/app/t/$id" params={{ id: l.id }} className="flex items-center gap-3">
                       <TokenGlyph symbol={l.symbol} hue={l.hue} size={28} />
@@ -238,9 +247,9 @@ export function MarketingPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-16">
-        <p className="font-mono text-[11px] tracking-[0.22em] text-muted uppercase">Policy, not vibes</p>
-        <h2 className="mt-3 font-display text-4xl">The pair is the lock.</h2>
-        <div className="mt-8 overflow-hidden rounded-[24px] bg-paper-2 p-6 shadow-[20px_20px_40px_rgba(11,15,20,0.18)] md:p-8">
+        <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">Policy, not vibes</p>
+        <h2 className="mt-3 text-4xl tracking-tight">The pair is the lock.</h2>
+        <div className="mt-8 overflow-hidden rounded-[24px] border border-ink/6 bg-paper-2 p-6 shadow-clay-sm md:p-8">
           <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
               ["Quote", "USDC (Arc native)"],
@@ -264,12 +273,13 @@ export function MarketingPage() {
       <footer className="mx-auto max-w-6xl px-5 py-20">
         <Wordmark size="lg" className="footer-mark" />
         <p className="mt-4 max-w-md text-sm text-muted">
-          Pairband. Any chain in. Settlement on Arc. Testnet only until the factory is funded. No audit.
+          Pairband. Any chain in. Settlement on Arc. Testnet live. No audit. Mainnet when testnet hashes hold.
         </p>
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted">
-          <Link to="/docs">Docs</Link>
+          <a href="https://docs.pairband.com">Docs</a>
           <Link to="/security">Security</Link>
           <Link to="/app/trade">Trade</Link>
+          <a href="https://testnet.arcscan.app/address/0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0">Arcscan</a>
         </div>
       </footer>
     </div>

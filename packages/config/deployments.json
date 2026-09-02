@@ -21,10 +21,14 @@
     "rpc": "https://rpc.testnet.arc.io",
     "usdc": "0x3600000000000000000000000000000000000000",
     "deployer": "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
-    "launchpad": null,
-    "ammFactory": null,
+    "launchpad": "0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0",
+    "ammFactory": "0x11E21E0d87b6d8f697B34bF1fA1B923dc2e65670",
     "graduateAt": "80000000",
-    "note": "Production bytecode. Fund deployer from https://faucet.circle.com then DeployLaunch.s.sol"
+    "note": "Live on Arc testnet with supply-cap burn-on-sell. Verify on https://testnet.arcscan.app",
+    "settler": "0x1D117354187FD5719201B77b04467EB5f3733A91",
+    "deployedAt": "2026-09-13T05:05:00Z",
+    "deployTxNote": "DeployLaunch.s.sol broadcast on Arc testnet 5042002",
+    "previousLaunchpad": "0xb0e09E98006A55258F1683EC94de8ce169374815"
   },
   "5042": {
     "name": "Arc",
@@ -35,7 +39,7 @@
     "launchpad": null,
     "ammFactory": null,
     "graduateAt": "80000000",
-    "note": "Same bytecode as testnet. Do not broadcast until testnet factory is live and verified."
+    "note": "Same bytecode as testnet. Do not broadcast until testnet verified and usage validated."
   },
   "1301": {
     "name": "Unichain Sepolia",
@@ -64,7 +68,7 @@
     "hook": null,
     "factory": null,
     "pairs": [],
-    "note": "PHASE 1 — config only, do not deploy until Sepolia tests pass"
+    "note": "PHASE 1 \u2014 config only, do not deploy until Sepolia tests pass"
   },
   "8453": {
     "name": "Base",
@@ -74,6 +78,6 @@
     "hook": null,
     "factory": null,
     "pairs": [],
-    "note": "PHASE 1 — config only"
+    "note": "PHASE 1 \u2014 config only"
   }
 }

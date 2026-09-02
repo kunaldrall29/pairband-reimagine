@@ -20,7 +20,7 @@ export function Security() {
       </header>
       <article className="mx-auto max-w-3xl px-5 pb-24">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">Threat model</p>
-        <h1 className="mt-2 font-display text-5xl">What graduation cannot undo.</h1>
+        <h1 className="mt-2 text-5xl tracking-tight">What graduation cannot undo.</h1>
 
         <div className="mt-10 space-y-5">
           <GlassPanel className="p-6">
@@ -40,8 +40,9 @@ export function Security() {
           <GlassPanel className="p-6">
             <h2 className="font-display text-2xl">Creator cannot mint extra</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              The token minter is the launchpad. Supply cap is one billion. Buys mint. Graduation mints the remainder
-              into the pair. There is no admin mint.
+              The token minter is the launchpad. Supply is capped at one billion. Buys mint; curve sells burn returned
+              inventory so churn cannot inflate supply. Graduation mints the remainder into the pair. There is no admin
+              mint.
             </p>
           </GlassPanel>
           <GlassPanel className="p-6">

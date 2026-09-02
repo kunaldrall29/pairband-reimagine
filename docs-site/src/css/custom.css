@@ -1,0 +1,173 @@
+/**
+ * Pairband docs theme — light-first, paper + charcoal + teal
+ * Fonts: Manrope (sans), IBM Plex Mono (mono)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Brand tokens */
+  --pairband-paper: #f5f5f2;
+  --pairband-ink: #1a1a1a;
+  --pairband-muted: #5c5c58;
+  --pairband-teal: #3d9b8f;
+  --pairband-teal-light: #4fb3a5;
+  --pairband-glass: rgba(255, 255, 255, 0.72);
+  --pairband-glass-border: rgba(26, 26, 26, 0.08);
+  --pairband-clay-shadow: 0 1px 2px rgba(26, 26, 26, 0.04),
+    0 8px 24px rgba(26, 26, 26, 0.06);
+
+  /* Docusaurus infima mapping — light primary */
+  --ifm-color-primary: #3d9b8f;
+  --ifm-color-primary-dark: #358a7f;
+  --ifm-color-primary-darker: #328277;
+  --ifm-color-primary-darkest: #296b62;
+  --ifm-color-primary-light: #4fb3a5;
+  --ifm-color-primary-lighter: #5bb9ac;
+  --ifm-color-primary-lightest: #7ecabb;
+
+  --ifm-background-color: var(--pairband-paper);
+  --ifm-background-surface-color: #fafaf8;
+  --ifm-font-color-base: var(--pairband-ink);
+  --ifm-font-color-secondary: var(--pairband-muted);
+  --ifm-font-family-base: 'Manrope', system-ui, -apple-system, Segoe UI, sans-serif;
+  --ifm-font-family-monospace: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ifm-heading-font-family: 'Manrope', system-ui, sans-serif;
+  --ifm-heading-font-weight: 700;
+  --ifm-code-font-size: 90%;
+  --ifm-global-radius: 12px;
+  --ifm-link-color: var(--pairband-teal);
+  --ifm-link-hover-color: var(--pairband-teal-light);
+  --ifm-navbar-background-color: rgba(245, 245, 242, 0.92);
+  --ifm-navbar-shadow: none;
+  --ifm-navbar-height: 4rem;
+  --ifm-footer-background-color: #eeeee9;
+  --ifm-footer-color: var(--pairband-muted);
+  --ifm-footer-link-color: var(--pairband-ink);
+  --ifm-footer-title-color: var(--pairband-ink);
+  --ifm-menu-color: var(--pairband-ink);
+  --ifm-menu-color-active: var(--pairband-teal);
+  --ifm-toc-link-color: var(--pairband-muted);
+  --ifm-code-background: rgba(26, 26, 26, 0.05);
+  --ifm-hr-background-color: var(--pairband-glass-border);
+  --docusaurus-highlighted-code-line-bg: rgba(61, 155, 143, 0.12);
+}
+
+html[data-theme='dark'] {
+  --ifm-background-color: #1a1a1a;
+  --ifm-background-surface-color: #222220;
+  --ifm-font-color-base: #f5f5f2;
+  --ifm-font-color-secondary: #a8a8a4;
+  --ifm-navbar-background-color: rgba(26, 26, 26, 0.92);
+  --ifm-footer-background-color: #141414;
+  --ifm-color-primary: #4fb3a5;
+  --ifm-link-color: #4fb3a5;
+  --ifm-code-background: rgba(255, 255, 255, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--pairband-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Navbar — glass/clay */
+.navbar {
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--pairband-glass-border);
+}
+
+.navbar__title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.navbar__logo {
+  height: 2rem;
+}
+
+/* Sidebar */
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--pairband-glass-border) !important;
+}
+
+.menu__link {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.menu__link--active {
+  background: rgba(61, 155, 143, 0.12);
+  color: var(--pairband-teal);
+  font-weight: 600;
+}
+
+/* Content cards — subtle clay panels for admonitions */
+.alert {
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--pairband-glass-border);
+  box-shadow: var(--pairband-clay-shadow);
+}
+
+.markdown h1:first-child {
+  font-size: 2.5rem;
+  letter-spacing: -0.03em;
+}
+
+.markdown h2 {
+  letter-spacing: -0.02em;
+  margin-top: 2rem;
+}
+
+.markdown table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--pairband-glass-border);
+  border-radius: var(--ifm-global-radius);
+  overflow: hidden;
+  box-shadow: var(--pairband-clay-shadow);
+}
+
+.markdown table th {
+  background: rgba(61, 155, 143, 0.08);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.markdown table th,
+.markdown table td {
+  border: none;
+  border-bottom: 1px solid var(--pairband-glass-border);
+  padding: 0.75rem 1rem;
+}
+
+.markdown table tr:last-child td {
+  border-bottom: none;
+}
+
+code {
+  border: 1px solid var(--pairband-glass-border);
+  border-radius: 6px;
+  padding: 0.1em 0.35em;
+}
+
+.theme-code-block {
+  border-radius: var(--ifm-global-radius);
+  box-shadow: var(--pairband-clay-shadow);
+}
+
+.footer {
+  border-top: 1px solid var(--pairband-glass-border);
+}
+
+.footer__title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}

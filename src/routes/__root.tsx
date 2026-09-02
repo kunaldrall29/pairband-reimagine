@@ -15,7 +15,7 @@ export const Route = createRootRoute({
         name: "description",
         content: "Launch on Arc. Trade in USDC. Fill the curve, graduate to a locked Uniswap pair.",
       },
-      { name: "theme-color", content: "#0B0F14" },
+      { name: "theme-color", content: "#F5F5F2" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap",
       },
     ],
   }),

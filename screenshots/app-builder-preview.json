@@ -6,10 +6,10 @@
       "height": 800,
       "status": 200,
       "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
-      "hasCanvas": true,
-      "bodyTextLen": 1743,
-      "bodyTextHash": "828c0f0af582a2a1da5392b3a5c740b2a9b1362b63e12adce9605ddc19a63f04",
-      "bodyTextPrefix": "Pairband Markets Docs Security Open app LAUNCH IN USDC. GRADUATE",
+      "hasCanvas": false,
+      "bodyTextLen": 1742,
+      "bodyTextHash": "bee2e2e7b9baf651ef9575142ff55d8c21ee84d9beadd9ee56559e006bf6657b",
+      "bodyTextPrefix": "pairband Markets Docs Security Open app STABLECOIN LAUNCHPAD ON ",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -20,20 +20,17 @@
       "height": 844,
       "status": 200,
       "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
-      "hasCanvas": true,
-      "bodyTextLen": 1656,
-      "bodyTextHash": "abcd49f47bfd0806f86f2c09a7ce6335ec8fd5f56b3d8dfcff7219faf18b580c",
-      "bodyTextPrefix": "Pairband Open app LAUNCH IN USDC. GRADUATE TO UNISWAP. The Arc l",
+      "hasCanvas": false,
+      "bodyTextLen": 1655,
+      "bodyTextHash": "6d36ac5fb3237e0c5729c3f30f77a7bf608fc337de2b2a753509b84a6c1c8e85",
+      "bodyTextPrefix": "pairband Open app STABLECOIN LAUNCHPAD ON ARC Cover the downside",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
       "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
     }
   },
-  "brandWarnings": [
-    "BRAND WARNING: this looks like a game/canvas app but src/lib/og/site.json is missing \"type\": \"x:game\". X uses og:type=x:game to present the unfurl as a game card — set it in /workspace/src/lib/og/site.json per /workspace/.grok/skills/og/SKILL.md. Do not invent x:type or overload twitter:card as the game signal.",
-    "BRAND WARNING: this looks like a game/canvas app but /workspace/public/x-banner.jpg is missing. Games need a 50:11 X feed card (1200×264 JPEG) at public/x-banner.jpg — open /workspace/.grok/skills/og/SKILL.md and finish the brand-asset pass."
-  ],
+  "brandWarnings": [],
   "authWarnings": [],
   "verdictFile": "/workspace/screenshots/app-builder-preview.json"
 }

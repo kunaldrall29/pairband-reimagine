@@ -181,6 +181,8 @@ contract PairbandLaunchpad {
         if (net < minUsdcOut) revert Slippage();
 
         PairbandToken(l.token).transferFrom(msg.sender, address(this), tokensIn);
+        // Burn returned inventory so buy→sell→buy cannot inflate totalSupply past TOTAL_SUPPLY.
+        PairbandToken(l.token).burn(address(this), tokensIn);
 
         l.virtualTokens += tokensIn;
         l.virtualUsdc -= gross;
