@@ -256,6 +256,8 @@ export function MarketingPage() {
               ["Settle", "Arc CCTP domain 26"],
               ["In", "ETH · Base · UNI · ARB · OP · SOL"],
               ["Graduate", formatUsdc(GRADUATE_AT)],
+              ["Launch fee", "$1 USDC"],
+              ["Agent fee", "$0.25 / propose"],
               ["Curve fee", "1.0% + 0.5%"],
               ["Uniswap fee", "0.30%"],
               ["LP", "Burned to 0xdead"],
@@ -277,6 +279,7 @@ export function MarketingPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted">
           <a href="https://docs.pairband.com">Docs</a>
+          <a href="https://docs.pairband.com/docs/business-model">Business model</a>
           <Link to="/security">Security</Link>
           <Link to="/app/trade">Trade</Link>
           <a href="https://testnet.arcscan.app/address/0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0">Arcscan</a>

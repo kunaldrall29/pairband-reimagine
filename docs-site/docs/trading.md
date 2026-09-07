@@ -51,9 +51,13 @@ Available only when `status == graduated`:
 
 | Venue | Fee | Paid in | Notes |
 | --- | --- | --- | --- |
+| Token launch | $1.00 flat | USDC on Arc | One-time at create — see [Business model](./business-model.md) |
 | Bonding curve | 1.0% protocol + 0.5% creator | USDC | Skimmed on curve trades |
 | Uniswap pair | 0.30% | Input token | Stays in pool reserves |
+| Vault agent proposal | $0.25 flat | USDC on Arc | When `policy.agent` is set |
 | Code cap | 2.00% max | — | No fee charged on failed swap |
+
+Full economics (treasury routing, agent incentives, examples): **[Business model](./business-model.md)**.
 
 ## UI chips (preview app)
 

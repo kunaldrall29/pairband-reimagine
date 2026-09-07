@@ -41,8 +41,12 @@ When **$80 USDC** is raised on the curve, the system seeds a constant-product pa
 
 | Phase | Fees |
 | --- | --- |
+| Launch | $1.00 USDC flat on Arc |
 | Curve | 1.0% protocol + 0.5% creator (USDC) |
 | AMM | 0.30% on swaps |
+| Vault agent | $0.25 USDC per rebalance proposal |
+
+See [Business model](./business-model.md) for treasury routing and examples.
 
 ---
 

@@ -13,7 +13,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Protocol',
       collapsed: false,
-      items: ['architecture', 'trading', 'cctp'],
+      items: ['architecture', 'business-model', 'trading', 'cctp'],
     },
     {
       type: 'category',

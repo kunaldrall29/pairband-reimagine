@@ -64,7 +64,7 @@ export function errorCopy(code: string | null): string {
     case "InsufficientRealUsdc":
       return "Not enough USDC in the curve.";
     case "InsufficientBalance":
-      return "Not enough balance.";
+      return "Not enough USDC on Arc (launch fee, buy, or agent fee).";
     case "AlreadyGraduated":
       return "Already on Uniswap.";
     case "NotGraduated":
