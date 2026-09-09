@@ -8,7 +8,7 @@ description: Launch fees, trading fees, and agent fees — all settled in USDC o
 
 Pairband monetizes through **minimal, transparent USDC fees on Arc**. There are no hidden spreads: every charge is quoted before you confirm, and trading fees are enforced in bytecode.
 
-All fees below are denominated in **native Arc USDC** (18 decimals on the launchpad; vault wallets may use 6-decimal USDC where noted).
+All fees below are denominated in **native Arc USDC** (6 decimals on-chain; the preview engine mirrors the same dollar amounts at 18 decimals).
 
 ## Fee overview
 
@@ -25,7 +25,7 @@ Launch and agent fees are **flat USDC charges** — not percentage skim — so s
 
 ## Launch fee
 
-Creating a token on Pairband costs **$1 USDC** on Arc. This covers:
+Creating a token on Pairband costs **$1 USDC** on Arc (`LAUNCH_FEE = 1e6` in the launchpad). This covers:
 
 - On-chain registration and metadata anchoring
 - Anti-spam gatekeeping without KYC
@@ -33,8 +33,8 @@ Creating a token on Pairband costs **$1 USDC** on Arc. This covers:
 
 The fee is deducted from the creator’s Arc USDC balance at launch. If you also make a first buy, you need **launch fee + buy size + curve fees** in the same wallet.
 
-:::info Preview vs live
-The preview app deducts the launch fee in the local engine today. On-chain collection via the launchpad treasury is the production path — same amount, same asset (Arc USDC).
+:::tip Live on Arc testnet
+The launchpad charges `LAUNCH_FEE = 1e6` (\$1 USDC) in `create()`. Connected wallets approve USDC, then broadcast create — the fee is pulled to the on-chain treasury. The preview engine mirrors the same \$1 debit locally.
 :::
 
 ## Trading fees
@@ -102,8 +102,8 @@ Arc is the **settlement layer** for Pairband:
 
 ## Roadmap
 
-- On-chain launch fee hook in `PairbandLaunchpad` (preview already models the charge)
-- Agent fee escrow in vault bytecode (preview debits agent USDC today)
+- ~~On-chain launch fee in `PairbandLaunchpad.create`~~ — **live** on Arc testnet (`LAUNCH_FEE = 1e6`)
+- ~~Agent fee on `proposeRebalance` when `policy.agent` is set~~ — **in vault bytecode** (`AGENT_FEE = 2.5e5`)
 - Optional creator fee share buyback — not live; curve creator fee is the current creator revenue
 
 Questions? See [FAQ](./faq.md) or open an issue on GitHub.

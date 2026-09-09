@@ -31,11 +31,15 @@ export const ARC_USDC = "0x3600000000000000000000000000000000000000";
 export const BOOK_MM = "0xB00C00000000000000000000000000000000B00C";
 export const DEPLOYER = "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23";
 
-/** One-time token launch registration — paid in native Arc USDC (18 decimals). */
+/** One-time token launch registration — paid in native Arc USDC (18 decimals in preview). */
 export const LAUNCH_FEE_USDC = 1n * WAD;
 
-/** Per vault rebalance proposal when an on-chain agent is configured (18-decimal Arc USDC). */
+/** Per vault rebalance proposal when an on-chain agent is configured (18-decimal preview USDC). */
 export const AGENT_FEE_USDC = 25n * (WAD / 100n);
 
 /** Same agent fee for 6-decimal USDC vault wallets (0.25 USDC). */
 export const AGENT_FEE_VAULT_USDC = AGENT_FEE_USDC / 1_000_000_000_000n;
+
+/** On-chain Arc USDC amounts (6 decimals) — must match PairbandLaunchpad / PairbandVault. */
+export const LAUNCH_FEE_ONCHAIN_USDC = 1_000_000n;
+export const AGENT_FEE_ONCHAIN_USDC = 250_000n;

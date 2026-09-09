@@ -18,10 +18,12 @@ export type ArcDeployment = {
   rpc?: string;
   usdc: string;
   deployer?: string;
+  treasury?: string;
   launchpad: string | null;
   ammFactory: string | null;
   settler?: string | null;
   graduateAt?: string;
+  launchFeeUsdc?: string;
 };
 
 /** Mirrors packages/config/deployments.json — keep in sync after broadcast. */
@@ -32,10 +34,12 @@ export const DEPLOYMENTS: Record<string, ArcDeployment> = {
     rpc: "https://rpc.testnet.arc.io",
     usdc: "0x3600000000000000000000000000000000000000",
     deployer: "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
-    launchpad: "0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0",
-    settler: "0x1D117354187FD5719201B77b04467EB5f3733A91",
-    ammFactory: "0x11E21E0d87b6d8f697B34bF1fA1B923dc2e65670",
+    launchpad: "0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4",
+    settler: "0x229BD1BcdE44c26E0c7741B46854Ccfb4e54CC40",
+    ammFactory: "0x0769121558BB51Fb71Edb933010D294D770e6e18",
     graduateAt: "80000000",
+    launchFeeUsdc: "1000000",
+    treasury: "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
   },
   "5042": {
     name: "Arc",

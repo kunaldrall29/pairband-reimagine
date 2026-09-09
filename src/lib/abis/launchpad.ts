@@ -40,6 +40,20 @@ export const erc20Abi = [
 export const launchpadAbi = [
   {
     type: "function",
+    name: "LAUNCH_FEE",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "treasury",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
     name: "create",
     stateMutability: "nonpayable",
     inputs: [
@@ -49,6 +63,15 @@ export const launchpadAbi = [
     outputs: [
       { name: "id", type: "uint256" },
       { name: "token", type: "address" },
+    ],
+  },
+  {
+    type: "event",
+    name: "LaunchFeePaid",
+    inputs: [
+      { name: "creator", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "treasury", type: "address", indexed: true },
     ],
   },
   {

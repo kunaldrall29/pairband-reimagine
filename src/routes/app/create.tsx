@@ -7,22 +7,63 @@ import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { suggestTokenFromDescription } from "@/lib/ai/suggest-token";
-import { AGENT_FEE_USDC, GRADUATE_AT, LAUNCH_FEE_USDC, TOTAL_SUPPLY, WAD } from "@/lib/engine/constants.ts";
+import {
+  AGENT_FEE_USDC,
+  GRADUATE_AT,
+  LAUNCH_FEE_USDC,
+  VIRTUAL_TOKENS,
+  VIRTUAL_USDC,
+} from "@/lib/engine/constants.ts";
 import { previewBuy } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
+import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
-import { parseUnits } from "@/lib/utils";
 import { useLiveTrade } from "@/lib/live-trade";
+import { parseUnits } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/create")({ component: Create });
+
+function emptyCurveLaunch(): Launch {
+  return {
+    id: "preview",
+    token: "0x0",
+    curve: "0x0",
+    pair: null,
+    book: null,
+    name: "",
+    symbol: "",
+    description: "",
+    hue: 0,
+    creator: "",
+    createdAt: 0,
+    status: "curve",
+    virtualUsdc: VIRTUAL_USDC,
+    virtualTokens: VIRTUAL_TOKENS,
+    realUsdc: 0n,
+    tokensSold: 0n,
+    reserveUsdc: 0n,
+    reserveToken: 0n,
+    lpSupply: 0n,
+    lpBurned: 0n,
+    graduatedAt: null,
+    protocolFees: 0n,
+    creatorFees: 0n,
+    holders: 0,
+    volumeUsdc: 0n,
+    txCount: 0,
+    lastTradeAt: 0,
+  };
+}
 
 function Create() {
   const navigate = useNavigate();
   const create = useLaunchpad((s) => s.create);
   const lastError = useLaunchpad((s) => s.lastError);
+  const account = useLaunchpad((s) => s.account);
   const usdcBalance = useLaunchpad((s) => s.engine.usdc[s.account] ?? 0n);
   const { live, busy, createToken } = useLiveTrade();
+
   const [brief, setBrief] = useState("");
   const [name, setName] = useState("");
   const [symbol, setSymbol] = useState("");
@@ -43,14 +84,7 @@ function Create() {
   const firstQuote = useMemo(() => {
     if (firstAmt <= 0n) return null;
     try {
-      return previewBuy(
-        {
-          status: "curve",
-          virtualUsdc: 80n * WAD,
-          virtualTokens: TOTAL_SUPPLY,
-        } as never,
-        firstAmt,
-      );
+      return previewBuy(emptyCurveLaunch(), firstAmt);
     } catch {
       return null;
     }
@@ -74,7 +108,11 @@ function Create() {
       setName(result.suggestion.name);
       setSymbol(result.suggestion.symbol);
       setDescription(result.suggestion.description);
-      toast.success("Token draft ready — review and launch.");
+      toast.success(
+        result.source === "grok"
+          ? "Token draft ready — review and launch."
+          : "Draft ready (local fallback) — review and launch.",
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "AI generation failed");
     } finally {
@@ -159,7 +197,7 @@ function Create() {
               <dd>{formatUsdc(totalDue)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt>Your Arc USDC</dt>
+              <dt>Your Arc USDC ({account.slice(0, 6)}…)</dt>
               <dd className={usdcBalance < totalDue ? "text-danger" : "text-teal"}>{formatUsdc(usdcBalance)}</dd>
             </div>
           </dl>
@@ -229,7 +267,7 @@ function Create() {
               onChange={(e) => setOnChain(e.target.checked)}
               className="size-4 rounded border-ink/20"
             />
-            Broadcast create to Arc testnet launchpad
+            Broadcast create to Arc testnet launchpad ($1 USDC fee on-chain)
           </label>
         ) : null}
         {lastError ? <p className="text-sm text-danger">{errorCopy(lastError)}</p> : null}
@@ -238,8 +276,8 @@ function Create() {
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
           After graduation, swaps use Uniswap constant-product math (0.30%). LP cannot be withdrawn. Vault agents pay{" "}
-          {formatUsdc(AGENT_FEE_USDC)} USDC per rebalance proposal on Arc. Preview executes locally; connected
-          wallets can broadcast to the live testnet factory.
+          {formatUsdc(AGENT_FEE_USDC)} USDC per rebalance proposal on Arc. Preview executes locally; connected wallets can
+          broadcast to the live testnet factory.
         </p>
       </form>
     </div>

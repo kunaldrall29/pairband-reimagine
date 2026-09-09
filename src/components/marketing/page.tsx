@@ -282,7 +282,7 @@ export function MarketingPage() {
           <a href="https://docs.pairband.com/docs/business-model">Business model</a>
           <Link to="/security">Security</Link>
           <Link to="/app/trade">Trade</Link>
-          <a href="https://testnet.arcscan.app/address/0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0">Arcscan</a>
+          <a href="https://testnet.arcscan.app/address/0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4">Arcscan</a>
         </div>
       </footer>
     </div>

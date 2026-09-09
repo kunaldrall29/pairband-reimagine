@@ -8,9 +8,9 @@ Pairband is the Arc launchpad: create a token, fill a USDC bonding curve, gradua
 
 | Contract | Address |
 | --- | --- |
-| Launchpad | [`0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0`](https://testnet.arcscan.app/address/0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0) |
-| Settler | [`0x1D117354187FD5719201B77b04467EB5f3733A91`](https://testnet.arcscan.app/address/0x1D117354187FD5719201B77b04467EB5f3733A91) |
-| AMM factory | [`0x11E21E0d87b6d8f697B34bF1fA1B923dc2e65670`](https://testnet.arcscan.app/address/0x11E21E0d87b6d8f697B34bF1fA1B923dc2e65670) |
+| Launchpad | [`0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4`](https://testnet.arcscan.app/address/0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4) |
+| Settler | [`0x229BD1BcdE44c26E0c7741B46854Ccfb4e54CC40`](https://testnet.arcscan.app/address/0x229BD1BcdE44c26E0c7741B46854Ccfb4e54CC40) |
+| AMM factory | [`0x0769121558BB51Fb71Edb933010D294D770e6e18`](https://testnet.arcscan.app/address/0x0769121558BB51Fb71Edb933010D294D770e6e18) |
 | USDC | `0x3600000000000000000000000000000000000000` |
 
 Mainnet (`5042`) uses the same bytecode — do not broadcast until testnet is verified.
