@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {ARC_TESTNET_DEPLOYMENT?.launchpad ? "Testnet live" : "Simulation"}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex max-w-[min(100%,calc(100vw-8rem))] items-center justify-end gap-1.5 sm:gap-2">
             <Link
               to="/app/me"
               className="hidden min-h-10 items-center gap-2 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs tabular dark:border-paper/15 dark:bg-ink-2 sm:inline-flex"
@@ -128,16 +128,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span>{formatUsdc(usdc)}</span>
             </Link>
             <ConnectWallet />
-            <ClayButton variant="ghost" className="min-h-10 px-3" onClick={() => setDark(!dark)} aria-label="Toggle theme">
+            <ClayButton variant="ghost" className="min-h-10 min-w-10 px-2.5 sm:px-3" onClick={() => setDark(!dark)} aria-label="Toggle theme">
               {dark ? <Sun size={16} /> : <Moon size={16} />}
             </ClayButton>
-            <ClayButton variant="ghost" className="min-h-10 px-3" onClick={reset} aria-label="Reset demo">
+            <ClayButton variant="ghost" className="hidden min-h-10 min-w-10 px-2.5 sm:inline-flex sm:px-3" onClick={reset} aria-label="Reset demo">
               <RotateCcw size={16} />
             </ClayButton>
             <button
               type="button"
               onClick={copyAddr}
-              className="min-h-10 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs dark:border-paper/15 dark:bg-ink-2"
+              className="hidden min-h-10 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs sm:inline-flex dark:border-paper/15 dark:bg-ink-2"
               title="Demo book address"
             >
               {copied ? "Copied" : shortAddr(account, 3)}
@@ -146,9 +146,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="pb-24 md:ml-[72px] md:pb-8">{children}</main>
+      <main className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:ml-[72px] md:pb-8">{children}</main>
 
-      <nav className="fixed right-0 bottom-0 left-0 z-30 flex justify-around border-t border-ink/8 bg-paper/95 px-1 py-2 backdrop-blur md:hidden dark:border-paper/10 dark:bg-ink/95">
+      <nav className="fixed right-0 bottom-0 left-0 z-30 flex justify-around border-t border-ink/8 bg-paper/95 px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden dark:border-paper/10 dark:bg-ink/95">
         {NAV.map((n) => {
           const Icon = n.icon;
           const active = n.to === "/app" ? path === "/app" : path.startsWith(n.to);

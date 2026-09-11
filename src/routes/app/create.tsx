@@ -141,7 +141,7 @@ function Create() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-8">
+    <div className="mx-auto max-w-xl px-4 py-8 pb-10">
       <p className="font-mono text-[11px] tracking-[0.18em] text-teal uppercase">Launch</p>
       <h1 className="text-4xl tracking-tight">Create a token</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">

@@ -110,7 +110,7 @@ export function MarketingPage() {
             <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">
               Stablecoin launchpad on Arc
             </p>
-            <h1 className="mt-4 text-5xl leading-[1.05] tracking-tight text-ink md:text-6xl lg:text-[4.25rem]">
+            <h1 className="mt-4 text-[2.35rem] leading-[1.05] tracking-tight text-ink sm:text-5xl md:text-6xl lg:text-[4.25rem]">
               Cover the downside.
               <br />
               Keep the upside.
