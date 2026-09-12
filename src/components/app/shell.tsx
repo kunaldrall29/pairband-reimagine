@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={cn("min-h-screen bg-paper text-ink dark:bg-ink dark:text-paper", dark && "dark")}>
+    <div className={cn("min-h-screen overflow-x-hidden bg-paper text-ink dark:bg-ink dark:text-paper", dark && "dark")}>
       <Toaster position="top-center" richColors={false} />
       <aside className="fixed top-0 bottom-0 left-0 z-30 hidden w-[72px] flex-col items-center border-r border-ink/8 bg-paper-2 py-4 dark:border-paper/10 dark:bg-ink-2 md:flex">
         <Link to="/" className="mb-6" aria-label="Pairband home">

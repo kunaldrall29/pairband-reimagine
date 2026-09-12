@@ -21,8 +21,8 @@ export function Tape({
     return <p className="py-8 text-center text-sm text-muted">No prints yet.</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-[20px] border border-ink/8 dark:border-paper/10">
-      <table className="w-full min-w-[28rem] text-left text-sm">
+    <div className="max-w-full overflow-x-auto rounded-[20px] border border-ink/8 dark:border-paper/10">
+      <table className="w-full min-w-[22rem] text-left text-sm sm:min-w-[28rem]">
         <thead className="bg-ink/5 font-mono text-[11px] text-muted uppercase dark:bg-paper/5">
           <tr>
             {showMarket ? <th className="px-3 py-2">Market</th> : null}

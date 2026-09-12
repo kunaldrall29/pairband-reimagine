@@ -41,7 +41,7 @@ function Trade() {
   const trades = engine.trades.filter((t) => t.launchId === launch.id);
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[260px_minmax(0,1fr)_340px]">
+    <div className="mx-auto grid max-w-7xl gap-6 overflow-x-hidden px-4 py-6 lg:grid-cols-[260px_minmax(0,1fr)_340px]">
       <div className="order-3 max-h-[40vh] overflow-hidden lg:order-none lg:max-h-none">
         <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Trade</p>
         <h1 className="inline-flex items-center gap-2 font-display text-3xl tracking-tight">
