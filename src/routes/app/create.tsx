@@ -9,7 +9,6 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { suggestTokenFromDescription } from "@/lib/ai/suggest-token";
 import {
-  AGENT_FEE_USDC,
   GRADUATE_AT,
   LAUNCH_FEE_USDC,
   VIRTUAL_TOKENS,
@@ -294,9 +293,9 @@ function Create() {
           {busy ? "Confirm in wallet…" : onChain ? "Launch on Arc testnet" : `Launch · ${formatUsdc(LAUNCH_FEE_USDC)} fee`}
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
-          After graduation, swaps use Uniswap constant-product math (0.30%). LP cannot be withdrawn. Vault agents pay{" "}
-          {formatUsdc(AGENT_FEE_USDC)} USDC per rebalance proposal on Arc. Preview executes locally; connected wallets can
-          broadcast to the live testnet factory.
+          On-chain launches pay a flat $1 USDC fee. Curve trading takes 1.0% protocol + 0.5% creator in USDC. At graduation
+          the remaining inventory seeds a constant-product pair, LP is burned, and an on-chain book opens. Local preview
+          stays available when you uncheck broadcast.
         </p>
       </form>
     </div>

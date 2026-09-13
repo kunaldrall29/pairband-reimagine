@@ -59,13 +59,13 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
             FDV {formatCompact(cap)} · vol {formatUsdc(launch.volumeUsdc, 0)}
           </p>
         </div>
-        <Sparkline values={prices.length > 1 ? prices : [1, 1.02, 0.99, 1.04]} />
+        <Sparkline values={prices} />
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
         {graduated ? (
           <p className="font-mono text-[11px] text-teal-2">LP locked · book live</p>
         ) : (
-          <CurveMeter progress={graduateProgress(launch)} label="To Uniswap" className="flex-1" />
+          <CurveMeter progress={graduateProgress(launch)} label="To book" className="flex-1" />
         )}
         <button
           type="button"

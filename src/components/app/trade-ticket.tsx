@@ -101,10 +101,11 @@ export function TradeTicket({ launch }: { launch: Launch }) {
   async function submit() {
     if (parsed <= 0n) return;
     const onChainIdOk = /^\d+$/.test(live.id);
+    // Launchpad buy/sell route to the curve before graduation and to the on-chain book after.
     const useChainBuy =
-      preferLive && walletLive && side === "buy" && mode === "market" && !graduated && onChainIdOk;
+      preferLive && walletLive && side === "buy" && mode === "market" && onChainIdOk;
     const useChainSell =
-      preferLive && walletLive && side === "sell" && mode === "market" && !graduated && onChainIdOk;
+      preferLive && walletLive && side === "sell" && mode === "market" && onChainIdOk;
     if (useChainBuy && quote && "tokensOut" in quote) {
       try {
         const onChainId = Number(live.id);
@@ -309,7 +310,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
       <ClayButton className="mt-4 w-full" type="submit" disabled={parsed <= 0n || busy}>
         {busy
           ? "Confirm in wallet…"
-          : preferLive && walletLive && mode === "market" && !graduated && /^\d+$/.test(live.id)
+          : preferLive && walletLive && mode === "market" && /^\d+$/.test(live.id)
             ? `${side === "buy" ? "Buy" : "Sell"} on Arc · ${live.symbol}`
             : mode === "limit"
               ? `Post ${side}`
@@ -326,7 +327,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
             onChange={(e) => setPreferLive(e.target.checked)}
             className="size-4 rounded border-ink/20"
           />
-          Broadcast market buy/sell to Arc testnet (wallet signs USDC / token approvals)
+          Broadcast market orders to the Arc launchpad (curve before graduation, book after)
         </label>
       ) : (
         <p className="mt-3 text-xs text-muted">Connect a wallet to broadcast. Until then fills use this preview book.</p>

@@ -27,3 +27,11 @@ Broadcast on Arc Testnet (`5042002`). Mainnet `5042` stays undeployed until test
 4. CCTP settler path for cross-domain USDC (ingest / settle)
 
 Ops keys stay in `deployer.local.json` / env — never `VITE_`, never the browser.
+
+
+## App integrity
+
+- Live create / buy / sell go through the Arc launchpad ABI (6-dec USDC in, 18-dec token amounts).
+- Sell slippage is scaled 18→6 before broadcast so curve sells do not revert as Slippage.
+- Discover separates on-chain (numeric ids) from local demo seed markets.
+- Connected wallets become the active account; faucet USDC is demo-only.

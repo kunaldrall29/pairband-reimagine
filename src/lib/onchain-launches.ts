@@ -1,6 +1,5 @@
 import type { PublicClient } from "viem";
 import { launchpadAbi } from "@/lib/abis/launchpad";
-import { emptyBook } from "@/lib/engine/book.ts";
 import type { Launch } from "@/lib/engine/types.ts";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi";
 
@@ -12,6 +11,9 @@ const metaAbi = [
   { type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
 ] as const;
 
+/** First-seen timestamps so Discover sort stays stable across polls. */
+const firstSeenAt = new Map<string, number>();
+
 function hueOf(symbol: string): number {
   return [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
 }
@@ -21,6 +23,15 @@ export type OnchainLaunchRow = {
   launch: Launch;
 };
 
+export function isOnchainLaunchId(id: string): boolean {
+  return /^\d+$/.test(id);
+}
+
+/**
+ * Read every launch from the Arc testnet launchpad into engine-shaped rows.
+ * Only fields that exist on-chain are treated as authoritative. Holder /
+ * volume / tx counts are left at zero rather than inventing UI numbers.
+ */
 export async function fetchOnchainLaunches(client: PublicClient): Promise<OnchainLaunchRow[]> {
   const pad = ARC_TESTNET_DEPLOYMENT.launchpad;
   if (!pad) return [];
@@ -32,6 +43,8 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
   })) as bigint;
 
   const rows: OnchainLaunchRow[] = [];
+  const zero = "0x0000000000000000000000000000000000000000";
+
   for (let i = 0n; i < count; i++) {
     const g = (await client.readContract({
       address: pad as `0x${string}`,
@@ -62,11 +75,13 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       name = n;
       symbol = s;
     } catch {
-      /* keep fallbacks */
+      /* token metadata optional */
     }
 
     const id = String(i);
-    const zero = "0x0000000000000000000000000000000000000000";
+    if (!firstSeenAt.has(id)) firstSeenAt.set(id, Date.now());
+
+    const realUsdc18 = g.realUsdc * USDC_SCALE;
     const launch: Launch = {
       id,
       token: g.token,
@@ -75,30 +90,30 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       book: g.book.toLowerCase() === zero ? null : g.book,
       name,
       symbol,
-      description: "Live on Arc testnet · Pairband launchpad",
+      description: "",
       hue: hueOf(symbol),
       creator: g.creator,
-      createdAt: Date.now(),
+      createdAt: firstSeenAt.get(id)!,
       status: g.graduated ? "graduated" : "curve",
       virtualUsdc: g.virtualUsdc * USDC_SCALE,
       virtualTokens: g.virtualTokens,
-      realUsdc: g.realUsdc * USDC_SCALE,
+      realUsdc: realUsdc18,
       tokensSold: g.tokensSold,
       reserveUsdc: 0n,
       reserveToken: 0n,
       lpSupply: 0n,
       lpBurned: 0n,
-      graduatedAt: g.graduated ? Date.now() : null,
+      graduatedAt: g.graduated ? firstSeenAt.get(id)! : null,
       protocolFees: g.protocolFees * USDC_SCALE,
       creatorFees: g.creatorFees * USDC_SCALE,
-      holders: g.tokensSold > 0n ? 1 : 0,
-      volumeUsdc: g.realUsdc * USDC_SCALE,
-      txCount: g.tokensSold > 0n ? 1 : 0,
-      lastTradeAt: Date.now(),
+      // Unknown without indexing Transfer logs — do not invent.
+      holders: 0,
+      volumeUsdc: realUsdc18,
+      txCount: 0,
+      lastTradeAt: 0,
     };
     rows.push({ id, launch });
   }
+
   return rows;
 }
-
-export { emptyBook };

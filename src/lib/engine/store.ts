@@ -88,6 +88,9 @@ export interface LaunchStore {
   limitSell: (id: string, price: bigint, tokensIn: bigint) => boolean;
   cancel: (id: string, orderId: number) => boolean;
   bridgeOut: (destDomain: number, amount: bigint) => boolean;
+  setAccount: (account: string) => void;
+  setUsdcBalance: (account: string, amount: bigint) => void;
+  setTokenBalance: (launchId: string, account: string, amount: bigint) => void;
   upsertOnchainLaunches: (launches: Launch[]) => void;
 }
 
@@ -236,12 +239,40 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
       return false;
     }
   },
+  setAccount: (account) => set({ account }),
+  setUsdcBalance: (account, amount) => {
+    const engine = structuredClone(get().engine);
+    engine.usdc[account] = amount;
+    persist(engine);
+    set({ engine, version: get().version + 1 });
+  },
+  setTokenBalance: (launchId, account, amount) => {
+    const engine = structuredClone(get().engine);
+    if (!engine.tokens[launchId]) engine.tokens[launchId] = {};
+    engine.tokens[launchId][account] = amount;
+    persist(engine);
+    set({ engine, version: get().version + 1 });
+  },
   upsertOnchainLaunches: (launches) => {
     const engine = structuredClone(get().engine);
     for (const launch of launches) {
       const idx = engine.launches.findIndex((l) => l.id === launch.id);
-      if (idx >= 0) engine.launches[idx] = { ...engine.launches[idx], ...launch };
-      else engine.launches.unshift(launch);
+      if (idx >= 0) {
+        const prev = engine.launches[idx]!;
+        engine.launches[idx] = {
+          ...prev,
+          ...launch,
+          // Keep stable discovery order and any user-authored description.
+          createdAt: prev.createdAt > 0 ? prev.createdAt : launch.createdAt,
+          description: prev.description.trim() ? prev.description : launch.description,
+          holders: Math.max(prev.holders, launch.holders),
+          volumeUsdc: launch.realUsdc > prev.volumeUsdc ? launch.realUsdc : prev.volumeUsdc,
+          txCount: Math.max(prev.txCount, launch.txCount),
+          lastTradeAt: Math.max(prev.lastTradeAt, launch.lastTradeAt),
+        };
+      } else {
+        engine.launches.unshift(launch);
+      }
       if (!engine.books[launch.id]) {
         engine.books[launch.id] = { bids: [], asks: [], nextId: 1 };
       }
