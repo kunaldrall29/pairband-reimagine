@@ -1,0 +1,29 @@
+Welcome to Pairband — the USDC-native launchpad on Arc.
+
+Cover the downside. Keep the upside.
+
+Most token launches price risk into a volatile quote asset, let liquidity leave after soft locks, and abandon graduates on thin AMMs. Pairband is different. One ticket. One quote asset — USDC. Settlement on Arc, where USDC is gas.
+
+Create on Arc with a one dollar USDC launch fee. Fill a constant-product USDC bonding curve — one percent to the protocol, half a percent to the creator. At eighty dollars raised, inventory and USDC mint a locked pair, LP burns to dead, and an on-chain order book opens on the same ticket. CCTP-ready so buyers can pay from connected chains and settle on Arc.
+
+Here is the live desk.
+
+This is the marketing site — paper, ink, and teal. Open the app. Discover lists live bonding-curve markets and graduated books. Search and filter by new listings, market cap, volume, or tokens approaching graduation.
+
+Open a market. Chart, graduation meter, holders, and a trade ticket on one screen. Buy ten USDC on the curve — you see the fill, the USDC fee split, and the meter advance toward graduation.
+
+Trade is the multi-market desk. Pick a USDC pair, size the order, and execute. Tape shows creates, buys, sells, and graduations across the protocol.
+
+Wallet is your book — Arc balances, positions, and watchlist. Launch is the fee engine: describe a token in plain language, draft name and ticker, review the one dollar fee and an optional first buy, then launch into the curve.
+
+On mobile, Pairband keeps a compact header and bottom nav for Discover, Launch, Trade, Tape, and Wallet — with the trade ticket first so you can execute without hunting.
+
+Fees stay in the asset everyone already holds. Beachhead is Arc builders and USDC-native traders — live today on Arc testnet at pairband.com. Docs at docs.pairband.com.
+
+Business model is simple: one dollar to launch, one percent protocol and half a percent creator on the curve, thirty basis points on the post-grad pair. No emissions. No unlock extraction.
+
+Mainnet target: twenty-six September, twenty twenty-six. Same bytecode. Hardened first.
+
+Check it out live on testnet — pairband.com.
+
+Pairband. Cover the downside. Launch the market.

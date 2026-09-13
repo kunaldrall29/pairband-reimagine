@@ -2,6 +2,8 @@
 
 **[`Pairband-Pitch-Deck.pptx`](./Pairband-Pitch-Deck.pptx)** — 12-slide investor / partner deck in Pairband paper · ink · teal theme, with live product screenshots.
 
+**[`../../screenshots/pairband-pitch-demo.mp4`](../../screenshots/pairband-pitch-demo.mp4)** — ~2:41 narrated pitch + working product demo (desktop + mobile). Rebuild with `python3 scripts/render-pitch-slides.py && node scripts/record-demo.mjs && python3 scripts/assemble-pitch-demo.py`.
+
 ## Slide map
 
 | # | Title | Content |
@@ -19,4 +21,4 @@
 | 11 | Roadmap | Hardening → **mainnet 26 Sep 2026** → Q4 |
 | 12 | Close | CTA |
 
-Open in PowerPoint, Keynote, or Google Slides.
+Open the deck in PowerPoint, Keynote, or Google Slides. Share the MP4 for a self-contained walkthrough.
