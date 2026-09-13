@@ -2,22 +2,22 @@ Welcome to Pairband — the USDC-native launchpad on Arc.
 
 This is the marketing site. Pairband is built for founders and traders who want downside cover in stablecoins while keeping upside in the token. Every market quotes and settles in USDC. Bridging uses Circle CCTP so capital can arrive from Ethereum, Base, Solana, and other connected chains.
 
-Tap Open app. On mobile you get a bottom nav with Discover, Launch, Trade, Tape, and Wallet. The header stays compact so charts and tickets keep the screen.
+Open the app. Discover lists live bonding-curve markets and graduated books. Search and filter by new listings, market cap, volume, or tokens approaching graduation. Each card shows price, raised USDC, and progress toward Uniswap.
 
-Discover lists live bonding-curve markets and graduated books. Search and filter by new listings, market cap, volume, or tokens approaching graduation. Each card shows price, raised USDC, and curve progress.
+Open a market. The token page combines chart, graduation meter, holders, and a trade ticket. Buy ten USDC on the curve. You see the fill, the USDC fee split, and the meter advance toward the eighty dollar graduation threshold.
 
-Open Teal Machine. The token page combines chart, graduation meter, holders, and a trade ticket. Buy ten USDC on the curve. You will see the fill, the USDC fee split, and the meter advance toward the eighty dollar graduation threshold.
+When a market fills that threshold, Pairband graduates it automatically. Inventory and USDC seed a locked Uniswap pair, the on-chain order book opens, and LP is burned. The same ticket then routes through the book with the AMM as backstop.
 
-When a market fills that threshold, Pairband graduates it automatically: inventory and USDC seed a locked Uniswap pair, the on-chain order book opens, and LP is burned. The same ticket now routes through the book with the AMM as backstop.
+Trade is the multi-market desk. Pick a USDC pair, size the order, and execute. Watch raised progress and the public tape of fills.
 
-Trade is the multi-market desk. On a phone the ticket comes first, then the chart, then the market list — so you can execute without hunting. Filter pairs, watch the tape, and switch between curve and graduated venues.
-
-Tape shows the public feed of creates, buys, sells, and graduations across the protocol.
+Tape shows creates, buys, sells, and graduations across the protocol — a live feed of Arc settlement.
 
 Wallet is your book. Faucet demo USDC for the preview engine, inspect Arc balances, CCTP source-chain balances, open positions, and watchlist. Bridge controls show how USDC moves to and from Arc.
 
-Launch is the fee engine. Describe a token idea in plain language. Pairband’s AI drafts a name, ticker, and blurb — powered by Grok when configured, or a local fallback so demos never block. Review the one dollar USDC launch fee and any first buy, then launch into the curve. Later, vault agent rebalance proposals pay twenty five cents USDC on Arc.
+Launch is the fee engine. Describe a token idea in plain language. Pairband’s AI drafts a name, ticker, and blurb — powered by Grok when configured, or a local fallback so demos never block. Review the one dollar USDC launch fee and an optional first buy, then launch into the curve. Later, vault agent rebalance proposals pay twenty five cents USDC on Arc.
 
-That is the full loop: discover, buy the curve, graduate to book and Uniswap, trade, and launch with USDC fees — polished for mobile and live on Vercel.
+On mobile, Pairband keeps a compact header and a bottom nav for Discover, Launch, Trade, Tape, and Wallet. The trade ticket comes first so you can execute without hunting. Safe-area padding clears the home indicator.
+
+That is the full loop: discover, buy the curve, graduate to book and Uniswap, trade the tape, manage the wallet, and launch with USDC fees — polished for phone and desktop, live on Vercel.
 
 Pairband — cover the downside. Keep the upside.

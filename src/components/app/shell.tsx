@@ -2,7 +2,7 @@
 
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Compass, Plus, ArrowLeftRight, Wallet, Moon, Sun, RotateCcw, Activity } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast, Toaster } from "sonner";
 import { Wordmark, PairMark } from "@/components/ui/wordmark";
 import { ClayButton } from "@/components/ui/clay-button";
@@ -12,7 +12,7 @@ import { ConnectWallet } from "@/components/app/connect-wallet";
 import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
 import { totalUsdc, usdcBalance } from "@/lib/engine/launchpad.ts";
 import { formatUsdc } from "@/lib/format.ts";
-import { shortAddr, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi";
 
 const NAV = [
@@ -33,7 +33,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const version = useLaunchpad((s) => s.version);
   const lastEvent = useLaunchpad((s) => s.lastEvent);
   const clearEvent = useLaunchpad((s) => s.clearEvent);
-  const [copied, setCopied] = useState(false);
   void version;
   const usdc = usdcBalance(engine, account);
   const allUsdc = totalUsdc(engine, account);
@@ -57,16 +56,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     clearEvent();
   }, [lastEvent, clearEvent]);
-
-  async function copyAddr() {
-    try {
-      await navigator.clipboard.writeText(account);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    } catch {
-      /* preview may block clipboard */
-    }
-  }
 
   return (
     <div className={cn("min-h-screen overflow-x-hidden bg-paper text-ink dark:bg-ink dark:text-paper", dark && "dark")}>
@@ -134,19 +123,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ClayButton variant="ghost" className="hidden min-h-10 min-w-10 px-2.5 sm:inline-flex sm:px-3" onClick={reset} aria-label="Reset demo">
               <RotateCcw size={16} />
             </ClayButton>
-            <button
-              type="button"
-              onClick={copyAddr}
-              className="hidden min-h-10 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs sm:inline-flex dark:border-paper/15 dark:bg-ink-2"
-              title="Demo book address"
-            >
-              {copied ? "Copied" : shortAddr(account, 3)}
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:ml-[72px] md:pb-8">{children}</main>
+      <main className="pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:ml-[72px] md:pb-8">{children}</main>
 
       <nav className="fixed right-0 bottom-0 left-0 z-30 flex justify-around border-t border-ink/8 bg-paper/95 px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden dark:border-paper/10 dark:bg-ink/95">
         {NAV.map((n) => {

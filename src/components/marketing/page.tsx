@@ -147,14 +147,7 @@ export function MarketingPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-4">
-        <figure className="overflow-hidden rounded-[24px] bg-ink shadow-clay">
-          <img
-            src="/brand/arc-hero.jpg"
-            alt="Arc"
-            className="mx-auto h-auto max-h-52 w-full object-contain sm:max-h-64"
-          />
-        </figure>
-        <dl className="mt-8 grid grid-cols-3 gap-4 font-mono text-sm">
+        <dl className="grid grid-cols-3 gap-4 font-mono text-sm">
           <div>
             <dt className="text-[11px] text-muted uppercase">Markets</dt>
             <dd className="mt-1 tabular text-lg font-medium">{stats.count}</dd>
