@@ -75,6 +75,17 @@ export const launchpadAbi = [
     ],
   },
   {
+    type: "event",
+    name: "Created",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "token", type: "address", indexed: true },
+      { name: "creator", type: "address", indexed: true },
+      { name: "name", type: "string", indexed: false },
+      { name: "symbol", type: "string", indexed: false },
+    ],
+  },
+  {
     type: "function",
     name: "buy",
     stateMutability: "nonpayable",

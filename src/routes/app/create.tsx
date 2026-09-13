@@ -3,6 +3,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
@@ -19,6 +20,9 @@ import { useLaunchpad } from "@/lib/engine/store.ts";
 import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
 import { useLiveTrade } from "@/lib/live-trade";
+import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
+import { arcTestnet } from "@/lib/chains";
 import { parseUnits } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -59,6 +63,7 @@ function emptyCurveLaunch(): Launch {
 function Create() {
   const navigate = useNavigate();
   const create = useLaunchpad((s) => s.create);
+  const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
   const lastError = useLaunchpad((s) => s.lastError);
   const account = useLaunchpad((s) => s.account);
   const usdcBalance = useLaunchpad((s) => s.engine.usdc[s.account] ?? 0n);
@@ -69,7 +74,7 @@ function Create() {
   const [symbol, setSymbol] = useState("");
   const [description, setDescription] = useState("");
   const [first, setFirst] = useState("0");
-  const [onChain, setOnChain] = useState(false);
+  const [onChain, setOnChain] = useState(true);
   const [aiBusy, setAiBusy] = useState(false);
 
   const hue = [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
@@ -128,9 +133,23 @@ function Create() {
     }
     if (onChain && live) {
       try {
-        await createToken(name.trim(), symbol.trim().toUpperCase());
-        toast.message("Token created on Arc — open Discover after indexing");
-        void navigate({ to: "/app" });
+        const result = await createToken(name.trim(), symbol.trim().toUpperCase());
+        try {
+          const client = createPublicClient({
+            chain: arcTestnet,
+            transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
+          });
+          const rows = await fetchOnchainLaunches(client);
+          upsertOnchainLaunches(rows.map((r) => r.launch));
+        } catch {
+          /* navigate even if index sync lags */
+        }
+        if (result.launchId != null) {
+          void navigate({ to: "/app/t/$id", params: { id: String(result.launchId) } });
+        } else {
+          toast.message("Token created on Arc — open Discover after indexing");
+          void navigate({ to: "/app" });
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Create failed");
       }

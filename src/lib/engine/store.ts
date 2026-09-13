@@ -15,7 +15,7 @@ import {
   limitSell,
   sell,
 } from "./launchpad.ts";
-import type { EngineState, LaunchEvent } from "./types.ts";
+import type { EngineState, Launch, LaunchEvent } from "./types.ts";
 import { LaunchError } from "./types.ts";
 
 const KEY = "pairband.launch.v4";
@@ -88,6 +88,7 @@ export interface LaunchStore {
   limitSell: (id: string, price: bigint, tokensIn: bigint) => boolean;
   cancel: (id: string, orderId: number) => boolean;
   bridgeOut: (destDomain: number, amount: bigint) => boolean;
+  upsertOnchainLaunches: (launches: Launch[]) => void;
 }
 
 export const useLaunchpad = create<LaunchStore>((set, get) => ({
@@ -234,6 +235,19 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
       set({ lastError: e instanceof LaunchError ? e.code : "Bridge failed" });
       return false;
     }
+  },
+  upsertOnchainLaunches: (launches) => {
+    const engine = structuredClone(get().engine);
+    for (const launch of launches) {
+      const idx = engine.launches.findIndex((l) => l.id === launch.id);
+      if (idx >= 0) engine.launches[idx] = { ...engine.launches[idx], ...launch };
+      else engine.launches.unshift(launch);
+      if (!engine.books[launch.id]) {
+        engine.books[launch.id] = { bids: [], asks: [], nextId: 1 };
+      }
+    }
+    persist(engine);
+    set({ engine, version: get().version + 1 });
   },
 }));
 

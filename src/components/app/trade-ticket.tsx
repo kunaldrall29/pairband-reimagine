@@ -23,6 +23,10 @@ import { LaunchError, type Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc, impactLabel, toInput } from "@/lib/format.ts";
 import { parseUnits } from "@/lib/utils";
 import { useLiveTrade } from "@/lib/live-trade";
+import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
+import { arcTestnet } from "@/lib/chains";
+import { createPublicClient, http } from "viem";
 import { toast } from "sonner";
 
 export function TradeTicket({ launch }: { launch: Launch }) {
@@ -36,8 +40,9 @@ export function TradeTicket({ launch }: { launch: Launch }) {
   const doLimitSell = useLaunchpad((s) => s.limitSell);
   const doCancel = useLaunchpad((s) => s.cancel);
   const sourceDomain = useLaunchpad((s) => s.sourceDomain);
-  const { live: walletLive, busy, approveAndBuy } = useLiveTrade();
-  const [preferLive, setPreferLive] = useState(false);
+  const { live: walletLive, busy, approveAndBuy, approveAndSell } = useLiveTrade();
+  const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
+  const [preferLive, setPreferLive] = useState(true);
   void version;
 
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -80,15 +85,43 @@ export function TradeTicket({ launch }: { launch: Launch }) {
     }
   }, [live, parsed, side, mode, book, version]);
 
+  async function refreshOnchain() {
+    try {
+      const client = createPublicClient({
+        chain: arcTestnet,
+        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
+      });
+      const rows = await fetchOnchainLaunches(client);
+      upsertOnchainLaunches(rows.map((r) => r.launch));
+    } catch {
+      /* Discover sync will catch up */
+    }
+  }
+
   async function submit() {
     if (parsed <= 0n) return;
-    const useChain =
-      preferLive && walletLive && side === "buy" && mode === "market" && !graduated && /^\d+$/.test(live.id);
-    if (useChain && quote && "tokensOut" in quote) {
+    const onChainIdOk = /^\d+$/.test(live.id);
+    const useChainBuy =
+      preferLive && walletLive && side === "buy" && mode === "market" && !graduated && onChainIdOk;
+    const useChainSell =
+      preferLive && walletLive && side === "sell" && mode === "market" && !graduated && onChainIdOk;
+    if (useChainBuy && quote && "tokensOut" in quote) {
       try {
         const onChainId = Number(live.id);
         await approveAndBuy(onChainId, parsed, minOut(quote.tokensOut, BigInt(slip)));
         setRaw("");
+        void refreshOnchain();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Transaction failed");
+      }
+      return;
+    }
+    if (useChainSell && quote && "usdcOut" in quote) {
+      try {
+        const onChainId = Number(live.id);
+        await approveAndSell(onChainId, parsed, minOut(quote.usdcOut, BigInt(slip)));
+        setRaw("");
+        void refreshOnchain();
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Transaction failed");
       }
@@ -276,8 +309,8 @@ export function TradeTicket({ launch }: { launch: Launch }) {
       <ClayButton className="mt-4 w-full" type="submit" disabled={parsed <= 0n || busy}>
         {busy
           ? "Confirm in wallet…"
-          : preferLive && walletLive && side === "buy" && mode === "market"
-            ? `Buy on Arc · ${live.symbol}`
+          : preferLive && walletLive && mode === "market" && !graduated && /^\d+$/.test(live.id)
+            ? `${side === "buy" ? "Buy" : "Sell"} on Arc · ${live.symbol}`
             : mode === "limit"
               ? `Post ${side}`
               : side === "buy"
@@ -293,7 +326,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
             onChange={(e) => setPreferLive(e.target.checked)}
             className="size-4 rounded border-ink/20"
           />
-          Broadcast buy to Arc testnet factory (needs USDC + wallet popup)
+          Broadcast market buy/sell to Arc testnet (wallet signs USDC / token approvals)
         </label>
       ) : (
         <p className="mt-3 text-xs text-muted">Connect a wallet to broadcast. Until then fills use this preview book.</p>

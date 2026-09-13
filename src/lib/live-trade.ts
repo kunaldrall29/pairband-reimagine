@@ -139,7 +139,78 @@ export function useLiveTrade() {
           chainId: arcTestnet.id,
         });
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        toast.success(`Created · $1 USDC fee paid · ${hash.slice(0, 10)}…`);
+        let launchId: number | null = null;
+        for (const log of receipt.logs) {
+          try {
+            const topics = log.topics;
+            // Created(uint256 indexed id, address indexed token, address indexed creator, ...)
+            if (
+              log.address.toLowerCase() === deployment.launchpad.toLowerCase() &&
+              topics[0] ===
+                "0xf9fbf11d9944d5b7bd8a5950a0d11a22b99b2c04c22fa4e500d4b34c75cc9a42" &&
+              topics[1]
+            ) {
+              launchId = Number(BigInt(topics[1]));
+              break;
+            }
+          } catch {
+            /* skip undecodable logs */
+          }
+        }
+        toast.success(
+          launchId != null
+            ? `Created #${launchId} · $1 USDC fee · ${hash.slice(0, 10)}…`
+            : `Created · $1 USDC fee paid · ${hash.slice(0, 10)}…`,
+        );
+        return { hash, receipt, launchId };
+      } finally {
+        setBusy(false);
+      }
+    },
+    [address, deployment, publicClient, writeContractAsync, ensureArc],
+  );
+
+  const approveAndSell = useCallback(
+    async (launchId: number, tokensIn: bigint, minUsdcOut: bigint) => {
+      if (!address || !deployment?.launchpad || !publicClient) {
+        throw new Error("Wallet or factory not ready");
+      }
+      setBusy(true);
+      try {
+        await ensureArc();
+        const launch = (await publicClient.readContract({
+          address: deployment.launchpad as `0x${string}`,
+          abi: launchpadAbi,
+          functionName: "getLaunch",
+          args: [BigInt(launchId)],
+        })) as { token: `0x${string}` };
+
+        const allowance = (await publicClient.readContract({
+          address: launch.token,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address, deployment.launchpad as `0x${string}`],
+        })) as bigint;
+        if (allowance < tokensIn) {
+          const approveHash = await writeContractAsync({
+            address: launch.token,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [deployment.launchpad as `0x${string}`, maxUint256],
+            chainId: arcTestnet.id,
+          });
+          await publicClient.waitForTransactionReceipt({ hash: approveHash });
+        }
+
+        const hash = await writeContractAsync({
+          address: deployment.launchpad as `0x${string}`,
+          abi: launchpadAbi,
+          functionName: "sell",
+          args: [BigInt(launchId), tokensIn, minUsdcOut],
+          chainId: arcTestnet.id,
+        });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        toast.success(`Sell confirmed · ${hash.slice(0, 10)}…`);
         return { hash, receipt };
       } finally {
         setBusy(false);
@@ -148,5 +219,5 @@ export function useLiveTrade() {
     [address, deployment, publicClient, writeContractAsync, ensureArc],
   );
 
-  return { live, busy, approveAndBuy, createToken, deployment, address };
+  return { live, busy, approveAndBuy, approveAndSell, createToken, deployment, address };
 }
