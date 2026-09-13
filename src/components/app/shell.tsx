@@ -1,0 +1,166 @@
+"use client";
+
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Compass, Plus, ArrowLeftRight, Wallet, Moon, Sun, RotateCcw, Activity } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
+import { Wordmark } from "@/components/ui/wordmark";
+import { ClayButton } from "@/components/ui/clay-button";
+import { ArcMark } from "@/components/ui/arc-mark";
+import { UsdcMark } from "@/components/ui/usdc-mark";
+import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
+import { totalUsdc, usdcBalance } from "@/lib/engine/launchpad.ts";
+import { formatUsdc } from "@/lib/format.ts";
+import { shortAddr, cn } from "@/lib/utils";
+
+const NAV = [
+  { to: "/app", label: "Discover", icon: Compass },
+  { to: "/app/create", label: "Launch", icon: Plus },
+  { to: "/app/trade", label: "Trade", icon: ArrowLeftRight },
+  { to: "/app/activity", label: "Tape", icon: Activity },
+  { to: "/app/me", label: "Wallet", icon: Wallet },
+] as const;
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const account = useLaunchpad((s) => s.account);
+  const dark = useLaunchpad((s) => s.dark);
+  const setDark = useLaunchpad((s) => s.setDark);
+  const reset = useLaunchpad((s) => s.resetDemo);
+  const engine = useLaunchpad((s) => s.engine);
+  const version = useLaunchpad((s) => s.version);
+  const lastEvent = useLaunchpad((s) => s.lastEvent);
+  const clearEvent = useLaunchpad((s) => s.clearEvent);
+  const [copied, setCopied] = useState(false);
+  void version;
+  const usdc = usdcBalance(engine, account);
+  const allUsdc = totalUsdc(engine, account);
+
+  useEffect(() => {
+    hydrateLaunchpad();
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+  }, [dark]);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+    if (lastEvent.kind === "graduate") {
+      toast.success(`${lastEvent.symbol} graduated. Book is live. LP burned.`);
+    } else if (lastEvent.kind === "create") {
+      toast(`${lastEvent.symbol} is live on the curve.`);
+    } else if (lastEvent.kind === "trade") {
+      toast.success(`${lastEvent.symbol} filled. Settled on Arc.`);
+    }
+    clearEvent();
+  }, [lastEvent, clearEvent]);
+
+  async function copyAddr() {
+    try {
+      await navigator.clipboard.writeText(account);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      /* preview may block clipboard */
+    }
+  }
+
+  return (
+    <div className={cn("min-h-screen bg-paper text-ink dark:bg-ink dark:text-paper", dark && "dark")}>
+      <Toaster position="top-center" richColors={false} />
+      <aside className="fixed top-0 bottom-0 left-0 z-30 hidden w-[72px] flex-col items-center border-r border-ink/8 bg-paper-2 py-4 dark:border-paper/10 dark:bg-ink-2 md:flex">
+        <Link to="/" className="mb-6" aria-label="Pairband home">
+          <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden>
+            <path d="M2 9.5c4-3 8 3 12 0s8 3 8 3" fill="none" stroke="#E8B86D" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M2 14.5c4-3 8 3 12 0s8 3 8 3" fill="none" stroke="#3D9B8F" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+        </Link>
+        <nav className="flex flex-1 flex-col items-center gap-1">
+          {NAV.map((n) => {
+            const active = n.to === "/app" ? path === "/app" : path.startsWith(n.to);
+            const Icon = n.icon;
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                title={n.label}
+                className={cn(
+                  "flex size-12 items-center justify-center rounded-2xl transition-colors",
+                  active ? "bg-ink text-paper dark:bg-paper dark:text-ink" : "text-muted hover:bg-ink/5 dark:hover:bg-paper/10",
+                )}
+              >
+                <Icon size={20} strokeWidth={1.75} />
+              </Link>
+            );
+          })}
+        </nav>
+        <ArcMark size={18} className="mt-auto text-ink/50 dark:text-paper/50" />
+      </aside>
+
+      <header className="sticky top-0 z-20 border-b border-ink/8 bg-paper/80 backdrop-blur-xl dark:border-paper/10 dark:bg-ink/80 md:ml-[72px]">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-2 md:hidden">
+            <Wordmark size="sm" />
+            <ArcMark size={14} className="text-ink/60 dark:text-paper/60" />
+          </div>
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-2.5 py-1 font-mono text-[11px] text-paper dark:bg-paper dark:text-ink">
+              <ArcMark size={12} />
+              Arc · 26
+            </span>
+            <span className="rounded-full bg-amber/20 px-2.5 py-1 font-mono text-[11px] text-amber-2">
+              Simulation
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/app/me"
+              className="hidden min-h-10 items-center gap-2 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs tabular dark:border-paper/15 dark:bg-ink-2 sm:inline-flex"
+              title={`Arc ${formatUsdc(usdc)} · all chains ${formatUsdc(allUsdc)}`}
+            >
+              <UsdcMark size={16} />
+              <span>{formatUsdc(usdc)}</span>
+            </Link>
+            <ClayButton variant="ghost" className="min-h-10 px-3" onClick={() => setDark(!dark)} aria-label="Toggle theme">
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </ClayButton>
+            <ClayButton variant="ghost" className="min-h-10 px-3" onClick={reset} aria-label="Reset demo">
+              <RotateCcw size={16} />
+            </ClayButton>
+            <button
+              type="button"
+              onClick={copyAddr}
+              className="min-h-10 rounded-2xl border border-ink/10 bg-paper-2 px-3 py-2 font-mono text-xs dark:border-paper/15 dark:bg-ink-2"
+              title="Copy address"
+            >
+              {copied ? "Copied" : shortAddr(account, 3)}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="pb-24 md:ml-[72px] md:pb-8">{children}</main>
+
+      <nav className="fixed right-0 bottom-0 left-0 z-30 flex justify-around border-t border-ink/8 bg-paper/95 px-1 py-2 backdrop-blur md:hidden dark:border-paper/10 dark:bg-ink/95">
+        {NAV.map((n) => {
+          const Icon = n.icon;
+          const active = n.to === "/app" ? path === "/app" : path.startsWith(n.to);
+          return (
+            <Link
+              key={n.to}
+              to={n.to}
+              className={cn(
+                "flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px]",
+                active ? "text-ink dark:text-paper" : "text-muted",
+              )}
+            >
+              <Icon size={18} />
+              {n.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}

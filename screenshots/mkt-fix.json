@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1762,
+      "bodyTextHash": "d2fa745afb1d95ff20d5e0b01d265027b79a57bb6b12b78980dbb71964038492",
+      "bodyTextPrefix": "Pairband Markets Docs Security Open app ANY CHAIN. SETTLEMENT ON",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/mkt-fix.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1675,
+      "bodyTextHash": "480133542e9b75adc3a50aac7a1c698acd7231477d678f880c98e7770f5a4f51",
+      "bodyTextPrefix": "Pairband Open app ANY CHAIN. SETTLEMENT ON ARC. Pay USDC. Fill t",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/mkt-fix-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/mkt-fix.json"
+}

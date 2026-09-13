@@ -1,0 +1,12 @@
+{
+  "name": "@pairband/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "pairband": "./src/cli.ts"
+  },
+  "scripts": {
+    "pairband": "node --experimental-strip-types src/cli.ts"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/app",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Pairband",
+      "hasCanvas": false,
+      "bodyTextLen": 1182,
+      "bodyTextHash": "1f89a38654de56623d15443a6a1509af667fcfb3c97d14883e767bbb3e1abc62",
+      "bodyTextPrefix": "Arc Testnet Local simulation $10,000.66 USDC 0xA11…A11 DISCOVER ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-discover.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Pairband",
+      "hasCanvas": false,
+      "bodyTextLen": 1180,
+      "bodyTextHash": "4e4adf00bba068dfa02bde44156af5d5aa23b5f1d8b60e9852e72b1a30d137a9",
+      "bodyTextPrefix": "Pairband 0xA11…A11 DISCOVER Markets on Arc 8 tokens · 2 books · ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-discover-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-discover.json"
+}

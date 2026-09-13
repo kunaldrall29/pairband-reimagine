@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1743,
+      "bodyTextHash": "828c0f0af582a2a1da5392b3a5c740b2a9b1362b63e12adce9605ddc19a63f04",
+      "bodyTextPrefix": "Pairband Markets Docs Security Open app LAUNCH IN USDC. GRADUATE",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1656,
+      "bodyTextHash": "abcd49f47bfd0806f86f2c09a7ce6335ec8fd5f56b3d8dfcff7219faf18b580c",
+      "bodyTextPrefix": "Pairband Open app LAUNCH IN USDC. GRADUATE TO UNISWAP. The Arc l",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "desktop: canvas disappeared",
+    "mobile: canvas disappeared"
+  ]
+}

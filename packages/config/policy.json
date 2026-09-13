@@ -1,0 +1,26 @@
+{
+  "defaults": {
+    "maxWidth": 400,
+    "maxShift": 200,
+    "minCooldown": 1800,
+    "proposalDelay": 600,
+    "protocolFeeBps": 50,
+    "performanceFeeBps": 1000,
+    "agent": "0x0000000000000000000000000000000000000000",
+    "notes": {
+      "shift": "L1: |ΔtickLower| + |ΔtickUpper|",
+      "protocolFee": "of collected swap fees only, cap 200 bps",
+      "performanceFee": "of remaining collected fees, paid in vault shares",
+      "agent": "address(0) = anyone may propose; executeRebalance is curator-only"
+    }
+  },
+  "demoPreview": {
+    "maxWidth": 400,
+    "maxShift": 200,
+    "minCooldown": 20,
+    "proposalDelay": 15,
+    "protocolFeeBps": 50,
+    "performanceFeeBps": 1000,
+    "note": "Shortened delay/cooldown so the preview is completable. On-chain policy uses `defaults`."
+  }
+}

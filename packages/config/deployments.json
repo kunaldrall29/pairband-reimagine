@@ -1,0 +1,79 @@
+{
+  "31337": {
+    "name": "Anvil",
+    "launchpad": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "ammFactory": "0x75537828f2ce51be7289709686A69CbFDbB714F1",
+    "usdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "poolManager": "0x0000000000000000000000000000000000000000",
+    "positionManager": "0x0000000000000000000000000000000000000000",
+    "stateView": "0x0000000000000000000000000000000000000000",
+    "quoter": "0x0000000000000000000000000000000000000000",
+    "universalRouter": "0x0000000000000000000000000000000000000000",
+    "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "hook": "0x0000000000000000000000000000000000002A40",
+    "factory": "0x0000000000000000000000000000000000000000",
+    "protocolFeeRecipient": "0x0000000000000000000000000000000000000000",
+    "pairs": []
+  },
+  "5042002": {
+    "name": "Arc Testnet",
+    "explorer": "https://testnet.arcscan.app",
+    "rpc": "https://rpc.testnet.arc.io",
+    "usdc": "0x3600000000000000000000000000000000000000",
+    "deployer": "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
+    "launchpad": null,
+    "ammFactory": null,
+    "graduateAt": "80000000",
+    "note": "Production bytecode. Fund deployer from https://faucet.circle.com then DeployLaunch.s.sol"
+  },
+  "5042": {
+    "name": "Arc",
+    "explorer": "https://arcscan.app",
+    "rpc": "https://rpc.arc.network",
+    "usdc": "0x3600000000000000000000000000000000000000",
+    "deployer": "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
+    "launchpad": null,
+    "ammFactory": null,
+    "graduateAt": "80000000",
+    "note": "Same bytecode as testnet. Do not broadcast until testnet factory is live and verified."
+  },
+  "1301": {
+    "name": "Unichain Sepolia",
+    "explorer": "https://sepolia.uniscan.xyz",
+    "rpc": "https://sepolia.unichain.org",
+    "poolManager": "0x00b036b58a818b1bc34d502d3fe730db729e62ac",
+    "positionManager": "0xf969aee60879c54baaed9f3ed26147db216fd664",
+    "stateView": "0xc199f1072a74d4e905aba1a84d9a45e2546b6222",
+    "quoter": "0x56dcd40a3f2d466f48e7f48bdbe5cc9b92ae4472",
+    "universalRouter": "0xf70536b3bcc1bd1a972dc186a2cf84cc6da6be5d",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "usdc": "0x31d0220469e10c4E71834a79b1f276d740d3768F",
+    "hook": null,
+    "factory": null,
+    "protocolFeeRecipient": null,
+    "pairs": []
+  },
+  "130": {
+    "name": "Unichain",
+    "explorer": "https://uniscan.xyz",
+    "rpc": "https://mainnet.unichain.org",
+    "poolManager": "0x1F98400000000000000000000000000000000004",
+    "positionManager": "0x4529a01c7a0410167c5740c487a8de60232617bf",
+    "stateView": "0x86e8631a016f9068c3f085faf484ee3f5fdee8f2",
+    "quoter": "0x333e3c607b141b18ff6de9f258db6e77fe7491e0",
+    "hook": null,
+    "factory": null,
+    "pairs": [],
+    "note": "PHASE 1 — config only, do not deploy until Sepolia tests pass"
+  },
+  "8453": {
+    "name": "Base",
+    "explorer": "https://basescan.org",
+    "poolManager": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+    "positionManager": "0x7C5f5A4bBd8fD63184577525326123B519429bDc",
+    "hook": null,
+    "factory": null,
+    "pairs": [],
+    "note": "PHASE 1 — config only"
+  }
+}
