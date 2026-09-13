@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32" fill="none" role="img" aria-label="Pairband">
+  <rect x="0" y="0" width="44" height="20" rx="10" fill="#3D9B8F"/>
+  <rect x="18" y="12" width="44" height="20" rx="10" fill="#4FB3A5"/>
+  <path d="M28 10C32 10 34 14 34 16C34 18 32 22 28 22H24C20 22 18 18 18 16C18 14 20 10 24 10H28Z" fill="#F5F5F2"/>
+  <ellipse cx="26" cy="16" rx="4" ry="3" fill="#1A1A1A" opacity="0.15"/>
+</svg>

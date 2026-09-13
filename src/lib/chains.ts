@@ -4,7 +4,7 @@ import { ARC_MAINNET_ID, ARC_TESTNET_ID, ARC_USDC } from "@/lib/engine/constants
 export const arcTestnet = defineChain({
   id: ARC_TESTNET_ID,
   name: "Arc Testnet",
-  nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
+  nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 6 },
   rpcUrls: {
     default: {
       http: ["https://rpc.testnet.arc.io", "https://rpc.testnet.arc.network"],
@@ -19,7 +19,7 @@ export const arcTestnet = defineChain({
 export const arcMainnet = defineChain({
   id: ARC_MAINNET_ID,
   name: "Arc",
-  nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 18 },
+  nativeCurrency: { name: "USD Coin", symbol: "USDC", decimals: 6 },
   rpcUrls: {
     default: { http: ["https://rpc.arc.network"] },
   },

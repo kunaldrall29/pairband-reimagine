@@ -41,6 +41,8 @@ contract PairbandLaunchpad {
     uint256 public constant TOTAL_SUPPLY = 1_000_000_000 ether;
     uint256 public constant MIN_LP_TOKENS = 200_000_000 ether;
     uint256 public constant MAX_FEE_BPS = 200;
+    /// @notice Flat launch registration fee in Arc USDC (6 decimals) — $1.00.
+    uint256 public constant LAUNCH_FEE = 1e6;
     address public constant DEAD = 0x000000000000000000000000000000000000dEaD;
 
     IERC20Usdc public immutable usdc;
@@ -67,6 +69,7 @@ contract PairbandLaunchpad {
     Launch[] public launches;
 
     event Created(uint256 indexed id, address indexed token, address indexed creator, string name, string symbol);
+    event LaunchFeePaid(address indexed creator, uint256 amount, address indexed treasury);
     event Buy(uint256 indexed id, address indexed account, uint256 usdcIn, uint256 tokensOut, bool graduated);
     event Sell(uint256 indexed id, address indexed account, uint256 tokensIn, uint256 usdcOut);
     event Graduated(
@@ -107,6 +110,12 @@ contract PairbandLaunchpad {
             bool ok = (c >= 0x41 && c <= 0x5A) || (c >= 0x30 && c <= 0x39);
             if (!ok) revert InvalidMeta();
         }
+
+        // Flat $1 USDC on Arc — anti-spam registration, paid before token deploy.
+        _pullUsdc(msg.sender, LAUNCH_FEE);
+        _pushUsdc(treasury, LAUNCH_FEE);
+        emit LaunchFeePaid(msg.sender, LAUNCH_FEE, treasury);
+
         id = launches.length;
         PairbandToken t = new PairbandToken(name_, symbol_, address(this));
         token = address(t);
@@ -181,6 +190,8 @@ contract PairbandLaunchpad {
         if (net < minUsdcOut) revert Slippage();
 
         PairbandToken(l.token).transferFrom(msg.sender, address(this), tokensIn);
+        // Burn returned inventory so buy→sell→buy cannot inflate totalSupply past TOTAL_SUPPLY.
+        PairbandToken(l.token).burn(address(this), tokensIn);
 
         l.virtualTokens += tokensIn;
         l.virtualUsdc -= gross;

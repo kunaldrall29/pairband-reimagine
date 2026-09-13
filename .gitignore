@@ -3,3 +3,10 @@ node_modules/
 .github_repo
 .env
 .env.*
+packages/config/deployer.local.json
+packages/contracts/.deployer.key
+**/broadcast/
+**/cache/
+docs-site/node_modules/
+docs-site/build/
+.DS_Store

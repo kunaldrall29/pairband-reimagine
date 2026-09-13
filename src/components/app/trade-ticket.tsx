@@ -22,6 +22,12 @@ import { useLaunchpad } from "@/lib/engine/store.ts";
 import { LaunchError, type Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc, impactLabel, toInput } from "@/lib/format.ts";
 import { parseUnits } from "@/lib/utils";
+import { useLiveTrade } from "@/lib/live-trade";
+import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
+import { arcTestnet } from "@/lib/chains";
+import { createPublicClient, http } from "viem";
+import { toast } from "sonner";
 
 export function TradeTicket({ launch }: { launch: Launch }) {
   const engine = useLaunchpad((s) => s.engine);
@@ -34,6 +40,9 @@ export function TradeTicket({ launch }: { launch: Launch }) {
   const doLimitSell = useLaunchpad((s) => s.limitSell);
   const doCancel = useLaunchpad((s) => s.cancel);
   const sourceDomain = useLaunchpad((s) => s.sourceDomain);
+  const { live: walletLive, busy, approveAndBuy, approveAndSell } = useLiveTrade();
+  const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
+  const [preferLive, setPreferLive] = useState(true);
   void version;
 
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -76,8 +85,49 @@ export function TradeTicket({ launch }: { launch: Launch }) {
     }
   }, [live, parsed, side, mode, book, version]);
 
-  function submit() {
+  async function refreshOnchain() {
+    try {
+      const client = createPublicClient({
+        chain: arcTestnet,
+        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
+      });
+      const rows = await fetchOnchainLaunches(client);
+      upsertOnchainLaunches(rows.map((r) => r.launch));
+    } catch {
+      /* Discover sync will catch up */
+    }
+  }
+
+  async function submit() {
     if (parsed <= 0n) return;
+    const onChainIdOk = /^\d+$/.test(live.id);
+    // Launchpad buy/sell route to the curve before graduation and to the on-chain book after.
+    const useChainBuy =
+      preferLive && walletLive && side === "buy" && mode === "market" && onChainIdOk;
+    const useChainSell =
+      preferLive && walletLive && side === "sell" && mode === "market" && onChainIdOk;
+    if (useChainBuy && quote && "tokensOut" in quote) {
+      try {
+        const onChainId = Number(live.id);
+        await approveAndBuy(onChainId, parsed, minOut(quote.tokensOut, BigInt(slip)));
+        setRaw("");
+        void refreshOnchain();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Transaction failed");
+      }
+      return;
+    }
+    if (useChainSell && quote && "usdcOut" in quote) {
+      try {
+        const onChainId = Number(live.id);
+        await approveAndSell(onChainId, parsed, minOut(quote.usdcOut, BigInt(slip)));
+        setRaw("");
+        void refreshOnchain();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Transaction failed");
+      }
+      return;
+    }
     let ok = false;
     if (mode === "limit") {
       if (limitPx <= 0n) return;
@@ -257,10 +307,31 @@ export function TradeTicket({ launch }: { launch: Launch }) {
         </label>
       ) : null}
       {lastError ? <p className="mt-2 text-sm text-danger">{errorCopy(lastError)}</p> : null}
-      <ClayButton className="mt-4 w-full" type="submit" disabled={parsed <= 0n}>
-        {mode === "limit" ? `Post ${side}` : side === "buy" ? `Buy ${live.symbol}` : `Sell ${live.symbol}`}
-        {graduated && mode === "market" ? " · book+AMM" : ""}
+      <ClayButton className="mt-4 w-full" type="submit" disabled={parsed <= 0n || busy}>
+        {busy
+          ? "Confirm in wallet…"
+          : preferLive && walletLive && mode === "market" && /^\d+$/.test(live.id)
+            ? `${side === "buy" ? "Buy" : "Sell"} on Arc · ${live.symbol}`
+            : mode === "limit"
+              ? `Post ${side}`
+              : side === "buy"
+                ? `Buy ${live.symbol}`
+                : `Sell ${live.symbol}`}
+        {!busy && graduated && mode === "market" ? " · book+AMM" : ""}
       </ClayButton>
+      {walletLive ? (
+        <label className="mt-3 flex items-center gap-2 text-xs text-muted">
+          <input
+            type="checkbox"
+            checked={preferLive}
+            onChange={(e) => setPreferLive(e.target.checked)}
+            className="size-4 rounded border-ink/20"
+          />
+          Broadcast market orders to the Arc launchpad (curve before graduation, book after)
+        </label>
+      ) : (
+        <p className="mt-3 text-xs text-muted">Connect a wallet to broadcast. Until then fills use this preview book.</p>
+      )}
       </form>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         {live.status === "curve"

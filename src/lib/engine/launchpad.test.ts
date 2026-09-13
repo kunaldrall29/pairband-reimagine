@@ -5,9 +5,11 @@ import {
   CREATOR_FEE_BPS,
   DEMO_USER,
   GRADUATE_AT,
+  LAUNCH_FEE_USDC,
   MIN_LP_TOKENS,
   PROTOCOL_FEE_BPS,
   TOTAL_SUPPLY,
+  TREASURY,
   VIRTUAL_TOKENS,
   VIRTUAL_USDC,
   WAD,
@@ -192,5 +194,14 @@ describe("Launchpad", () => {
       () => forceGraduate(state, A, launch.id),
       (e: unknown) => e instanceof LaunchError && e.code === "NotGraduated",
     );
+  });
+
+  it("charges LAUNCH_FEE_USDC to treasury on create", () => {
+    const s = fresh();
+    const beforeTreasury = s.usdc[TREASURY] ?? 0n;
+    const beforeUser = s.usdc[A] ?? 0n;
+    const { state } = createLaunch(s, A, "Helix", "HLX", "A clean pair.");
+    assert.equal((state.usdc[TREASURY] ?? 0n) - beforeTreasury, LAUNCH_FEE_USDC);
+    assert.equal(beforeUser - (state.usdc[A] ?? 0n), LAUNCH_FEE_USDC);
   });
 });

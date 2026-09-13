@@ -41,8 +41,8 @@ function Trade() {
   const trades = engine.trades.filter((t) => t.launchId === launch.id);
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[260px_minmax(0,1fr)_340px]">
-      <div>
+    <div className="mx-auto grid max-w-7xl gap-6 overflow-x-hidden px-4 py-6 lg:grid-cols-[260px_minmax(0,1fr)_340px]">
+      <div className="order-3 max-h-[40vh] overflow-hidden lg:order-none lg:max-h-none">
         <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Trade</p>
         <h1 className="inline-flex items-center gap-2 font-display text-3xl tracking-tight">
           <UsdcMark size={22} /> USDC pairs
@@ -53,7 +53,7 @@ function Trade() {
           placeholder="Filter"
           className="mt-4 h-10 w-full rounded-xl border border-ink/10 bg-paper px-3 text-sm outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
         />
-        <ul className="mt-3 max-h-[70vh] space-y-1 overflow-auto pr-1">
+        <ul className="mt-3 max-h-[min(40vh,320px)] space-y-1 overflow-auto pr-1 lg:max-h-[70vh]">
           {list.map((l) => (
             <li key={l.id}>
               <button
@@ -80,7 +80,7 @@ function Trade() {
         </ul>
       </div>
 
-      <div className="min-w-0">
+      <div className="order-2 min-w-0 lg:order-none">
         <GlassPanel className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -114,7 +114,9 @@ function Trade() {
         </div>
       </div>
 
-      <TradeTicket launch={launch} />
+      <div className="order-1 lg:order-none">
+        <TradeTicket launch={launch} />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPublicClient, http } from "viem";
+import { RefreshCw } from "lucide-react";
 import { TokenCard } from "@/components/app/token-card";
 import { ClayButton } from "@/components/ui/clay-button";
 import { ArcMark } from "@/components/ui/arc-mark";
@@ -10,6 +12,10 @@ import { graduateProgress, marketCap, protocolStats } from "@/lib/engine/launchp
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { formatCompact, formatUsdc } from "@/lib/format.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
+import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { ARC_TESTNET_DEPLOYMENT, isLiveFactory } from "@/lib/wagmi.ts";
+import { arcTestnet } from "@/lib/chains";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/")({ component: Discover });
 
@@ -18,10 +24,40 @@ type Filter = "new" | "mcap" | "volume" | "curve" | "uniswap" | "graduating";
 function Discover() {
   const engine = useLaunchpad((s) => s.engine);
   const version = useLaunchpad((s) => s.version);
+  const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
   void version;
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("new");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "live" | "demo">("all");
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<number | null>(null);
   const stats = protocolStats(engine);
+
+  const syncChain = useCallback(async () => {
+    if (!isLiveFactory(arcTestnet.id)) return;
+    setSyncing(true);
+    setSyncError(null);
+    try {
+      const client = createPublicClient({
+        chain: arcTestnet,
+        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
+      });
+      const rows = await fetchOnchainLaunches(client);
+      upsertOnchainLaunches(rows.map((r) => r.launch));
+      setLastSync(Date.now());
+    } catch (e) {
+      setSyncError(e instanceof Error ? e.message : "Sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  }, [upsertOnchainLaunches]);
+
+  useEffect(() => {
+    void syncChain();
+    const id = window.setInterval(() => void syncChain(), 45_000);
+    return () => window.clearInterval(id);
+  }, [syncChain]);
 
   const rows = useMemo(() => {
     let list = engine.launches.slice();
@@ -34,6 +70,8 @@ function Discover() {
           l.description.toLowerCase().includes(query),
       );
     }
+    if (sourceFilter === "live") list = list.filter((l) => /^\d+$/.test(l.id));
+    if (sourceFilter === "demo") list = list.filter((l) => !/^\d+$/.test(l.id));
     if (filter === "curve") list = list.filter((l) => l.status === "curve");
     if (filter === "uniswap") list = list.filter((l) => l.status === "graduated");
     if (filter === "graduating") {
@@ -43,7 +81,7 @@ function Discover() {
     else if (filter === "volume") list.sort((a, b) => (a.volumeUsdc < b.volumeUsdc ? 1 : -1));
     else list.sort((a, b) => b.createdAt - a.createdAt);
     return list;
-  }, [engine, q, filter, version]);
+  }, [engine, q, filter, sourceFilter, version]);
 
   return (
     <div className="mx-auto max-w-6xl overflow-x-hidden px-4 py-6">
@@ -100,10 +138,46 @@ function Discover() {
         </div>
       </div>
 
-      <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-xs text-muted">
-        <UsdcMark size={12} /> quoted · <ArcMark size={12} /> settled. Graduation at {formatUsdc(GRADUATE_AT)}.
-        LP is burned. Demo book, not live TVL. Buy Teal Machine to watch the pair mint.
-      </p>
+      <div className="mt-3 flex flex-wrap gap-1">
+        {(
+          [
+            ["all", "All markets"],
+            ["live", "On-chain"],
+            ["demo", "Local demo"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setSourceFilter(id)}
+            className={`min-h-9 rounded-full px-3 text-xs font-medium ${
+              sourceFilter === id
+                ? "bg-ink text-paper dark:bg-paper dark:text-ink"
+                : "bg-ink/5 text-muted dark:bg-paper/10"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted">
+        <button
+          type="button"
+          onClick={() => void syncChain()}
+          disabled={syncing}
+          className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-paper px-3 py-1.5 font-medium text-ink transition hover:border-teal dark:border-paper/15 dark:bg-ink-2 dark:text-paper"
+        >
+          <RefreshCw className={cn("size-3.5", syncing && "animate-spin")} />
+          {syncing ? "Syncing Arc…" : "Sync on-chain"}
+        </button>
+        {lastSync ? <span>Updated {new Date(lastSync).toLocaleTimeString()}</span> : null}
+        {syncError ? <span className="text-coral">{syncError}</span> : null}
+        <span className="inline-flex flex-wrap items-center gap-1">
+          <UsdcMark size={12} /> quoted · <ArcMark size={12} /> settled · graduation at{" "}
+          {formatUsdc(GRADUATE_AT)}. Numeric ids are on-chain; seeded demo markets stay local until you trade them in preview.
+        </span>
+      </div>
 
       {rows.length === 0 ? (
         <p className="mt-16 text-center text-muted">No markets match that filter.</p>

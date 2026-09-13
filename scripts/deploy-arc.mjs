@@ -2,6 +2,7 @@
 /**
  * Ops-only. Never imported by the app. Reads packages/config/deployer.local.json
  * and broadcasts DeployLaunch.s.sol to Arc Testnet.
+ * Private key is passed only via env (never --private-key argv).
  */
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -45,9 +46,11 @@ const r = spawnSync(
     "--rpc-url",
     "https://rpc.testnet.arc.io",
     "--broadcast",
-    "--private-key",
-    pk,
   ],
-  { cwd: join(root, "packages/contracts"), stdio: "inherit", env: { ...process.env, PRIVATE_KEY: pk } },
+  {
+    cwd: join(root, "packages/contracts"),
+    stdio: "inherit",
+    env: { ...process.env, PRIVATE_KEY: pk },
+  },
 );
 process.exit(r.status ?? 1);

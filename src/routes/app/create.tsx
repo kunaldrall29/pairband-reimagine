@@ -1,26 +1,80 @@
 "use client";
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
-import { GRADUATE_AT, TOTAL_SUPPLY, WAD } from "@/lib/engine/constants.ts";
+import { suggestTokenFromDescription } from "@/lib/ai/suggest-token";
+import {
+  GRADUATE_AT,
+  LAUNCH_FEE_USDC,
+  VIRTUAL_TOKENS,
+  VIRTUAL_USDC,
+} from "@/lib/engine/constants.ts";
 import { previewBuy } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
+import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
+import { useLiveTrade } from "@/lib/live-trade";
+import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
+import { arcTestnet } from "@/lib/chains";
 import { parseUnits } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/create")({ component: Create });
+
+function emptyCurveLaunch(): Launch {
+  return {
+    id: "preview",
+    token: "0x0",
+    curve: "0x0",
+    pair: null,
+    book: null,
+    name: "",
+    symbol: "",
+    description: "",
+    hue: 0,
+    creator: "",
+    createdAt: 0,
+    status: "curve",
+    virtualUsdc: VIRTUAL_USDC,
+    virtualTokens: VIRTUAL_TOKENS,
+    realUsdc: 0n,
+    tokensSold: 0n,
+    reserveUsdc: 0n,
+    reserveToken: 0n,
+    lpSupply: 0n,
+    lpBurned: 0n,
+    graduatedAt: null,
+    protocolFees: 0n,
+    creatorFees: 0n,
+    holders: 0,
+    volumeUsdc: 0n,
+    txCount: 0,
+    lastTradeAt: 0,
+  };
+}
 
 function Create() {
   const navigate = useNavigate();
   const create = useLaunchpad((s) => s.create);
+  const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
   const lastError = useLaunchpad((s) => s.lastError);
+  const account = useLaunchpad((s) => s.account);
+  const usdcBalance = useLaunchpad((s) => s.engine.usdc[s.account] ?? 0n);
+  const { live, busy, createToken } = useLiveTrade();
+
+  const [brief, setBrief] = useState("");
   const [name, setName] = useState("");
   const [symbol, setSymbol] = useState("");
   const [description, setDescription] = useState("");
   const [first, setFirst] = useState("0");
+  const [onChain, setOnChain] = useState(true);
+  const [aiBusy, setAiBusy] = useState(false);
 
   const hue = [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
   const firstAmt = useMemo(() => {
@@ -34,35 +88,107 @@ function Create() {
   const firstQuote = useMemo(() => {
     if (firstAmt <= 0n) return null;
     try {
-      return previewBuy(
-        {
-          status: "curve",
-          virtualUsdc: 80n * WAD,
-          virtualTokens: TOTAL_SUPPLY,
-        } as never,
-        firstAmt,
-      );
+      return previewBuy(emptyCurveLaunch(), firstAmt);
     } catch {
       return null;
     }
   }, [firstAmt]);
 
-  function onSubmit(e: React.FormEvent) {
+  const totalDue = LAUNCH_FEE_USDC + firstAmt;
+
+  async function onGenerate(e: React.FormEvent) {
     e.preventDefault();
+    if (brief.trim().length < 8) {
+      toast.error("Describe your idea in at least 8 characters.");
+      return;
+    }
+    setAiBusy(true);
+    try {
+      const result = await suggestTokenFromDescription({ data: { brief: brief.trim() } });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setName(result.suggestion.name);
+      setSymbol(result.suggestion.symbol);
+      setDescription(result.suggestion.description);
+      toast.success(
+        result.source === "grok"
+          ? "Token draft ready — review and launch."
+          : "Draft ready (local fallback) — review and launch.",
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "AI generation failed");
+    } finally {
+      setAiBusy(false);
+    }
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!onChain && totalDue > usdcBalance) {
+      toast.error(`Need ${formatUsdc(totalDue)} USDC on Arc (launch fee + first buy).`);
+      return;
+    }
+    if (onChain && live) {
+      try {
+        const result = await createToken(name.trim(), symbol.trim().toUpperCase());
+        try {
+          const client = createPublicClient({
+            chain: arcTestnet,
+            transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
+          });
+          const rows = await fetchOnchainLaunches(client);
+          upsertOnchainLaunches(rows.map((r) => r.launch));
+        } catch {
+          /* navigate even if index sync lags */
+        }
+        if (result.launchId != null) {
+          void navigate({ to: "/app/t/$id", params: { id: String(result.launchId) } });
+        } else {
+          toast.message("Token created on Arc — open Discover after indexing");
+          void navigate({ to: "/app" });
+        }
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Create failed");
+      }
+      return;
+    }
     const id = create(name, symbol, description, firstAmt);
     if (id) void navigate({ to: "/app/t/$id", params: { id } });
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-8">
-      <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Launch</p>
-      <h1 className="font-display text-4xl tracking-tight">Create a token</h1>
+    <div className="mx-auto max-w-xl px-4 py-8 pb-10">
+      <p className="font-mono text-[11px] tracking-[0.18em] text-teal uppercase">Launch</p>
+      <h1 className="text-4xl tracking-tight">Create a token</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        One billion supply. Bonding curve quoted in USDC on Arc. The buy that fills {formatUsdc(GRADUATE_AT)} seeds a
-        Uniswap pair and burns the LP. You keep 0.5% of curve volume.
+        One billion supply. Bonding curve quoted in USDC on Arc. Launch costs {formatUsdc(LAUNCH_FEE_USDC)} USDC. The buy
+        that fills {formatUsdc(GRADUATE_AT)} seeds a Uniswap pair and burns the LP. You keep 0.5% of curve volume.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <form onSubmit={onGenerate} className="mt-8 space-y-3">
+        <GlassPanel className="space-y-3 p-4">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Sparkles className="size-4 text-teal" aria-hidden />
+            Describe your token
+          </div>
+          <textarea
+            value={brief}
+            onChange={(e) => setBrief(e.target.value)}
+            maxLength={500}
+            rows={3}
+            placeholder="e.g. A community token for indie game devs who ship weekly builds and share revenue on Arc."
+            className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 text-sm outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+          />
+          <ClayButton type="submit" variant="secondary" className="w-full" disabled={aiBusy || brief.trim().length < 8}>
+            {aiBusy ? "Generating…" : "Generate name & symbol with AI"}
+          </ClayButton>
+          <p className="text-xs text-muted">AI fills the form below — you confirm before launch. One click per idea.</p>
+        </GlassPanel>
+      </form>
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <GlassPanel className="flex items-center gap-4 p-4">
           <TokenGlyph symbol={symbol || "??"} hue={hue} size={56} />
           <div>
@@ -70,6 +196,39 @@ function Create() {
             <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
           </div>
         </GlassPanel>
+
+        <GlassPanel className="space-y-2 p-4 text-sm">
+          <p className="font-medium">Fees (USDC on Arc)</p>
+          <dl className="space-y-1 font-mono text-xs text-muted">
+            <div className="flex justify-between gap-4">
+              <dt>Launch fee</dt>
+              <dd className="text-ink">{formatUsdc(LAUNCH_FEE_USDC)}</dd>
+            </div>
+            {firstAmt > 0n ? (
+              <div className="flex justify-between gap-4">
+                <dt>First buy (preview)</dt>
+                <dd className="text-ink">{formatUsdc(firstAmt)}</dd>
+              </div>
+            ) : null}
+            <div className="flex justify-between gap-4 border-t border-ink/8 pt-2 font-medium text-ink dark:border-paper/10">
+              <dt>Total due</dt>
+              <dd>{formatUsdc(totalDue)}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt>Your Arc USDC ({account.slice(0, 6)}…)</dt>
+              <dd className={usdcBalance < totalDue ? "text-danger" : "text-teal"}>{formatUsdc(usdcBalance)}</dd>
+            </div>
+          </dl>
+          <a
+            href="https://docs.pairband.com/docs/business-model"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block text-xs text-teal underline underline-offset-2"
+          >
+            Full business model →
+          </a>
+        </GlassPanel>
+
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-muted">Name</span>
           <input
@@ -95,7 +254,7 @@ function Create() {
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-muted">Description</span>
           <textarea
-            required
+            required={!onChain}
             maxLength={280}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -104,12 +263,13 @@ function Create() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">First buy (USDC, optional)</span>
+          <span className="mb-1 block text-xs font-medium text-muted">First buy (USDC, optional · preview)</span>
           <input
             value={first}
             onChange={(e) => setFirst(e.target.value.replace(/[^0-9.]/g, ""))}
             inputMode="decimal"
-            className="h-12 w-full rounded-2xl border border-ink/10 bg-paper px-4 font-mono outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+            disabled={onChain}
+            className="h-12 w-full rounded-2xl border border-ink/10 bg-paper px-4 font-mono outline-none focus:border-teal disabled:opacity-50 dark:border-paper/15 dark:bg-ink-2"
           />
           {firstQuote ? (
             <p className="mt-1 text-xs text-muted">
@@ -117,13 +277,25 @@ function Create() {
             </p>
           ) : null}
         </label>
+        {live ? (
+          <label className="flex items-center gap-2 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={onChain}
+              onChange={(e) => setOnChain(e.target.checked)}
+              className="size-4 rounded border-ink/20"
+            />
+            Broadcast create to Arc testnet launchpad ($1 USDC fee on-chain)
+          </label>
+        ) : null}
         {lastError ? <p className="text-sm text-danger">{errorCopy(lastError)}</p> : null}
-        <ClayButton type="submit" className="w-full">
-          Launch on Arc
+        <ClayButton type="submit" className="w-full" disabled={busy}>
+          {busy ? "Confirm in wallet…" : onChain ? "Launch on Arc testnet" : `Launch · ${formatUsdc(LAUNCH_FEE_USDC)} fee`}
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
-          After graduation, swaps use Uniswap constant-product math (0.30%). LP cannot be withdrawn. This preview
-          executes locally until the factory is funded on Arc Testnet.
+          On-chain launches pay a flat $1 USDC fee. Curve trading takes 1.0% protocol + 0.5% creator in USDC. At graduation
+          the remaining inventory seeds a constant-product pair, LP is burned, and an on-chain book opens. Local preview
+          stays available when you uncheck broadcast.
         </p>
       </form>
     </div>

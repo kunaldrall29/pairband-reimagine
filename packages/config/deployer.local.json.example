@@ -1,0 +1,9 @@
+{
+  "address": "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
+  "chainId": 5042002,
+  "chain": "arc-testnet",
+  "rpc": "https://rpc.testnet.arc.io",
+  "createdAt": "2026-09-12T20:03:15.029Z",
+  "purpose": "Pairband LaunchFactory deployer. Fund with Arc Testnet USDC from https://faucet.circle.com then run DeployLaunch.s.sol.",
+  "privateKey": "REPLACE_WITH_LOCAL_KEY_NEVER_COMMIT"
+}

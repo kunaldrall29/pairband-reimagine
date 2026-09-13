@@ -34,12 +34,24 @@ contract LaunchpadTest is Test {
     }
 
     function testCreateSetsVirtualReserves() public {
+        uint256 treasuryBefore = usdc.balanceOf(treasury);
         (uint256 id,) = _create();
         PairbandLaunchpad.Launch memory l = pad.getLaunch(id);
         assertEq(l.virtualUsdc, VUSDC);
         assertEq(l.virtualTokens, VTOK);
         assertFalse(l.graduated);
         assertEq(l.realUsdc, 0);
+        assertEq(usdc.balanceOf(treasury) - treasuryBefore, pad.LAUNCH_FEE());
+    }
+
+    function testLaunchFeeRequired() public {
+        address broke = address(0xBEEF);
+        usdc.mint(broke, 0);
+        vm.prank(broke);
+        usdc.approve(address(pad), type(uint256).max);
+        vm.prank(broke);
+        vm.expectRevert();
+        pad.create("Broke", "BRK");
     }
 
     function testBuyMintsAndMovesPrice() public {
@@ -71,11 +83,13 @@ contract LaunchpadTest is Test {
 
     function testFeesSplit() public {
         (uint256 id,) = _create();
+        // Alice paid LAUNCH_FEE on create.
+        assertEq(usdc.balanceOf(alice), 10_000e6 - pad.LAUNCH_FEE());
         uint256 tBefore = usdc.balanceOf(treasury);
         vm.prank(bob);
         pad.buy(id, 10e6, 0);
         assertEq(usdc.balanceOf(treasury) - tBefore, 0.1e6);
-        assertEq(usdc.balanceOf(alice), 10_000e6 + 0.05e6);
+        assertEq(usdc.balanceOf(alice), 10_000e6 - pad.LAUNCH_FEE() + 0.05e6);
     }
 
     function testSlippageReverts() public {

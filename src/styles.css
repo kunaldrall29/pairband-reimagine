@@ -3,29 +3,31 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-ink: #0b0f14;
-  --color-ink-2: #151b22;
-  --color-paper: #f4f1ea;
-  --color-paper-2: #e8e2d6;
-  --color-paper-3: #d9d0c0;
-  --color-amber: #e8b86d;
-  --color-amber-2: #c4924a;
+  /* Pairband brand — paper / charcoal / teal (design research) */
+  --color-ink: #1a1a1a;
+  --color-ink-2: #2a2e32;
+  --color-paper: #f5f5f2;
+  --color-paper-2: #ebebe6;
+  --color-paper-3: #dddcd5;
+  --color-amber: #c4a574;
+  --color-amber-2: #9a7d52;
   --color-teal: #3d9b8f;
   --color-teal-2: #2c7369;
+  --color-teal-soft: #4fb3a5;
   --color-danger: #c45c4a;
-  --color-muted: #6f6a62;
+  --color-muted: #6b6860;
   --color-muted-dark: #9aa3ad;
-  --color-glass: rgba(255, 255, 255, 0.14);
-  --font-display: "Instrument Serif", "Times New Roman", serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-glass: rgba(255, 255, 255, 0.55);
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --radius-glass: 20px;
-  --shadow-clay: 20px 20px 40px rgba(11, 15, 20, 0.18);
-  --shadow-clay-sm: 8px 10px 20px rgba(11, 15, 20, 0.12);
+  --radius-glass: 24px;
+  --shadow-clay: 20px 24px 48px rgba(26, 26, 26, 0.12);
+  --shadow-clay-sm: 8px 12px 24px rgba(26, 26, 26, 0.08);
   --shadow-border:
-    0px 0px 0px 1px rgba(11, 15, 20, 0.06),
-    0px 1px 2px -1px rgba(11, 15, 20, 0.06),
-    0px 2px 4px 0px rgba(11, 15, 20, 0.04);
+    0px 0px 0px 1px rgba(26, 26, 26, 0.06),
+    0px 1px 2px -1px rgba(26, 26, 26, 0.06),
+    0px 2px 4px 0px rgba(26, 26, 26, 0.04);
 }
 
 @layer base {
@@ -52,41 +54,46 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
   p {
     text-wrap: pretty;
   }
   ::selection {
-    background: var(--color-amber);
+    background: var(--color-teal-soft);
     color: var(--color-ink);
   }
 }
 
 @utility glass {
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.14),
-    rgba(255, 255, 255, 0.04)
+    160deg,
+    rgba(255, 255, 255, 0.72),
+    rgba(255, 255, 255, 0.28)
   );
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.35),
     var(--shadow-clay-sm);
 }
 
 .dark .glass {
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.03)
+    160deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.04)
   );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 0 0 1px rgba(255, 255, 255, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 @utility clay {
@@ -98,25 +105,53 @@
   position: fixed;
   inset: 0;
   z-index: 80;
-  opacity: 0.07;
+  opacity: 0.045;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
 }
 
 .dark .grain {
   mix-blend-mode: overlay;
-  opacity: 0.12;
+  opacity: 0.1;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes float-pill {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--pill-rot, -18deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(var(--pill-rot, -18deg));
+  }
+}
+
+.pill-float {
+  animation: float-pill 7s ease-in-out infinite;
+}
+
+.pill-float-delay {
+  animation-delay: -2.4s;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+
+/* Mobile safe areas — home-indicator clearance for fixed chrome */
+@supports (padding: max(0px)) {
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }

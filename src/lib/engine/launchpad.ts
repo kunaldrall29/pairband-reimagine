@@ -7,6 +7,7 @@ import {
   FAUCET_AMOUNT,
   FAUCET_CAP,
   GRADUATE_AT,
+  LAUNCH_FEE_USDC,
   MIN_LP_TOKENS,
   MINIMUM_LIQUIDITY,
   TOTAL_SUPPLY,
@@ -257,6 +258,10 @@ export function createLaunch(
     throw new LaunchError("InvalidMeta");
   }
   const next = clone(s);
+  if (LAUNCH_FEE_USDC > 0n) {
+    debitUsdc(next, account, LAUNCH_FEE_USDC);
+    creditUsdc(next, TREASURY, LAUNCH_FEE_USDC);
+  }
   const id = `${sym.toLowerCase()}-${next.nextId}`;
   const createdAt = now();
   const launch: Launch = {

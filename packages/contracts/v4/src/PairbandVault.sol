@@ -47,6 +47,7 @@ contract PairbandVault is IUnlockCallback {
     error FeeCap();
     error NotPoolManager();
     error Reentrancy();
+    error InsufficientAgentFee();
 
     // ── Types ────────────────────────────────────────────────────────────────
     struct Band {
@@ -95,6 +96,8 @@ contract PairbandVault is IUnlockCallback {
     uint128 public constant MIN_BOOTSTRAP = 1e6;
     uint256 public constant MIN_DEAD_SHARES = 1e3;
     uint16 public constant PROTOCOL_FEE_CAP_BPS = 200;
+    /// @notice Flat agent proposal fee in USDC (6 decimals) — $0.25. Charged only when the named agent proposes.
+    uint256 public constant AGENT_FEE = 250_000;
     bytes32 public constant POSITION_SALT = bytes32(uint256(1));
 
     // ── Immutables / config ──────────────────────────────────────────────────
@@ -122,6 +125,7 @@ contract PairbandVault is IUnlockCallback {
     event Deposit(address indexed from, address indexed to, uint256 amount0, uint256 amount1, uint256 shares, uint128 liquidity);
     event Withdraw(address indexed from, address indexed to, uint256 shares, uint256 amount0, uint256 amount1);
     event Proposed(address indexed proposer, int24 tickLower, int24 tickUpper, uint128 amount0Min, uint128 amount1Min);
+    event AgentFeePaid(address indexed agent, uint256 amount, address indexed recipient);
     event ProposalRejected(address indexed curator);
     event Rebalanced(
         address indexed curator,
@@ -294,9 +298,17 @@ contract PairbandVault is IUnlockCallback {
     // ── Proposals ────────────────────────────────────────────────────────────
 
     /// @notice Post a new band. `policy.agent == 0` → anyone; else agent or curator.
+    /// @dev Agent proposals pay AGENT_FEE USDC (currency0) to protocolFeeRecipient. Curator proposals are free.
     function proposeRebalance(int24 tickLower, int24 tickUpper, uint128 amount0Min, uint128 amount1Min) external {
         Policy memory p = policy;
         if (p.agent != address(0) && msg.sender != p.agent && msg.sender != p.curator) revert NotAgent();
+
+        if (p.agent != address(0) && msg.sender == p.agent) {
+            _pull(poolKey.currency0, msg.sender, AGENT_FEE);
+            poolKey.currency0.transfer(protocolFeeRecipient, AGENT_FEE);
+            emit AgentFeePaid(msg.sender, AGENT_FEE, protocolFeeRecipient);
+        }
+
         int24 spacing = poolKey.tickSpacing;
         tickLower = BandMath.align(tickLower, spacing);
         tickUpper = BandMath.align(tickUpper, spacing);

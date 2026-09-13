@@ -50,10 +50,18 @@ export function Docs() {
         <GlassPanel className="mt-6 p-6">
           <h2 className="font-display text-2xl">Fees</h2>
           <ul className="mt-3 space-y-1 font-mono text-sm">
+            <li>Launch $1.00 USDC on Arc · one-time at create</li>
+            <li>Vault agent $0.25 USDC per rebalance proposal on Arc</li>
             <li>Curve protocol 1.00% · creator 0.50% · paid in USDC</li>
             <li>Uniswap swap 0.30% · stays in the pool</li>
             <li>Cap 2.00% in code · no fee on a failed swap</li>
           </ul>
+          <a
+            href="https://docs.pairband.com/docs/business-model"
+            className="mt-4 inline-block text-sm text-teal underline underline-offset-4"
+          >
+            Business model →
+          </a>
         </GlassPanel>
 
         <GlassPanel className="mt-6 p-6">

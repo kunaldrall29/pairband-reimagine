@@ -84,6 +84,13 @@ contract PairbandTest is Test {
         usd1.mint(lpB, 1_000_000e6);
         usdc.mint(stranger, 1_000_000e6);
         usd1.mint(stranger, 1_000_000e6);
+        // Agent pays AGENT_FEE in currency0 (USDC side after address sort) on every proposal.
+        usdc.mint(agent, 1_000e6);
+        usd1.mint(agent, 1_000e6);
+        vm.startPrank(agent);
+        usdc.approve(address(vault), type(uint256).max);
+        usd1.approve(address(vault), type(uint256).max);
+        vm.stopPrank();
     }
 
     function _approve(address lp) internal {
@@ -245,5 +252,23 @@ contract PairbandTest is Test {
         vm.prank(stranger);
         vm.expectRevert(); // ZeroAmount or tiny shares
         vault.deposit(1, 1, stranger);
+    }
+
+    function test_14_agentProposalPaysFeeCuratorFree() public {
+        _deposit(lpA, 10_000e6, 10_000e6);
+        address c0 = Currency.unwrap(key.currency0);
+        uint256 protoBefore = MockERC20(c0).balanceOf(protocol);
+        uint256 agentBefore = MockERC20(c0).balanceOf(agent);
+
+        vm.prank(agent);
+        vault.proposeRebalance(-80, 120, 0, 0);
+        assertEq(MockERC20(c0).balanceOf(agent), agentBefore - vault.AGENT_FEE());
+        assertEq(MockERC20(c0).balanceOf(protocol), protoBefore + vault.AGENT_FEE());
+
+        // Curator proposal does not charge the agent fee.
+        uint256 protoMid = MockERC20(c0).balanceOf(protocol);
+        vm.prank(curator);
+        vault.proposeRebalance(-90, 110, 0, 0);
+        assertEq(MockERC20(c0).balanceOf(protocol), protoMid);
     }
 }

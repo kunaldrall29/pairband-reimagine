@@ -2,6 +2,7 @@ import { align, shift, validateBand } from "./bandMath.ts";
 import { liquidityForShares, mulDivFloor, sharesForLiquidity } from "./shareMath.ts";
 import { getSqrtRatioAtTick, getTickAtSqrtRatio, Q96 } from "./tickMath.ts";
 import { amountsAtBand, liquidityAtBand, nextSqrtFromInput } from "./liquidity.ts";
+import { AGENT_FEE_VAULT_USDC } from "./constants.ts";
 import {
   DEAD,
   DEMO_CURATOR,
@@ -134,6 +135,20 @@ function pushSpark(state: EngineState) {
     price: Math.pow(1.0001, state.tick),
   });
   if (state.spark.length > 120) state.spark.shift();
+}
+
+function chargeAgentFee(state: EngineState, agent: string) {
+  if (AGENT_FEE_VAULT_USDC <= 0n) return;
+  const w = walletOf(state, agent);
+  if (w.t0 < AGENT_FEE_VAULT_USDC) {
+    throw new VaultError("InsufficientBalance", "agent fee — need USDC on Arc");
+  }
+  state.wallets.set(agent, { ...w, t0: w.t0 - AGENT_FEE_VAULT_USDC });
+  const treasury = walletOf(state, state.protocolFeeRecipient);
+  state.wallets.set(state.protocolFeeRecipient, {
+    ...treasury,
+    t0: treasury.t0 + AGENT_FEE_VAULT_USDC,
+  });
 }
 
 export function createDemoState(): EngineState {
@@ -273,6 +288,9 @@ export function proposeRebalance(
   const p = state.policy;
   if (p.agent !== ZERO && from.toLowerCase() !== p.agent.toLowerCase() && from.toLowerCase() !== p.curator.toLowerCase()) {
     throw new VaultError("NotAgent", "policy.agent is set — stranger cannot propose");
+  }
+  if (p.agent !== ZERO && from.toLowerCase() === p.agent.toLowerCase()) {
+    chargeAgentFee(state, from);
   }
   const spacing = state.tickSpacing;
   tickLower = align(tickLower, spacing);

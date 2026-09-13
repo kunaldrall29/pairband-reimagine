@@ -52,7 +52,7 @@ function Me() {
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Wallet</p>
       <h1 className="font-display text-4xl tracking-tight">Your book</h1>
       <p className="mt-1 font-mono text-xs text-muted">
-        {shortAddr(account, 6)} · tokens live on Arc · USDC via CCTP
+        {shortAddr(account, 6)} · curve tokens settle on Arc · USDC is gas and quote
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -61,7 +61,7 @@ function Me() {
             <UsdcMark size={12} /> Arc USDC
           </p>
           <p className="mt-1 font-mono text-2xl tabular">{formatUsdc(usdc)}</p>
-          <p className="mt-1 text-xs text-muted">Gas and settlement. Faucet is demo-only.</p>
+          <p className="mt-1 text-xs text-muted">Connected wallets show on-chain USDC. The faucet only credits the local demo account.</p>
           <ClayButton className="mt-4" variant="secondary" onClick={() => faucet()}>
             Faucet {formatUsdc(FAUCET_AMOUNT, 0)}
           </ClayButton>

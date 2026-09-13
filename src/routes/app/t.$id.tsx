@@ -112,7 +112,7 @@ function TokenPage() {
             </dl>
             {launch.status === "curve" ? (
               <div className="mt-5">
-                <CurveMeter progress={graduateProgress(launch)} label={`To Uniswap (${formatUsdc(GRADUATE_AT)})`} />
+                <CurveMeter progress={graduateProgress(launch)} label={`To book (${formatUsdc(GRADUATE_AT)})`} />
               </div>
             ) : null}
           </GlassPanel>
