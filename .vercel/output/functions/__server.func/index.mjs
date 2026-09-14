@@ -14,7 +14,7 @@ var install_page_default = "<!DOCTYPE html>\n<html lang=\"en\" class=\"device-de
 var grokOgIdentity = { "site": {
 	"title": "Pairband",
 	"card": "custom",
-	"color": "0B0F14",
+	"color": "3d9b8f",
 	"image": "/og.jpg"
 } };
 //#endregion

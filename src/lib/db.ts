@@ -233,6 +233,7 @@ if (typeof window === "undefined" && dbSource === "pglite") {
   globalBoot.__pgBootstrapPromise__ ??= ensureDbReady().catch((err) => {
     globalBoot.__pgBootstrapPromise__ = undefined;
     console.error("[db] PGLite bootstrap failed:", err);
-    throw err;
+    // Don't crash the process — static routes and non-DB pages still serve.
+    // getSql() will retry on the next request.
   });
 }

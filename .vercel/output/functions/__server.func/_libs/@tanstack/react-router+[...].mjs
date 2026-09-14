@@ -1,5 +1,5 @@
-import { i as __toESM, r as __require, t as __commonJSMin } from "../../_runtime.mjs";
-import { c as require_jsx_runtime, l as require_react, s as require_with_selector } from "../@react-three/fiber+[...].mjs";
+import { i as __require, o as __toESM, t as __commonJSMin } from "../../_runtime.mjs";
+import { i as require_react, r as require_jsx_runtime } from "../react+tanstack__react-query.mjs";
 import { r as parseHref } from "../tanstack__history.mjs";
 import { PassThrough, Readable } from "node:stream";
 import { ReadableStream as ReadableStream$1 } from "node:stream/web";
@@ -288,6 +288,11 @@ function isRedirect(obj) {
 /** True if value is a redirect with a resolved `href` location. */
 function isResolvedRedirect(obj) {
 	return isRedirect(obj) && !!obj.options.href;
+}
+/** Parse a serialized redirect object back into a redirect Response. */
+/** Parse a serialized redirect object back into a redirect Response. */
+function parseRedirect(obj) {
+	if (obj !== null && typeof obj === "object" && obj.isSerializedRedirect) return redirect(obj);
 }
 //#endregion
 //#region node_modules/@tanstack/router-core/dist/esm/ssr/ssr-match-id.js
@@ -4144,7 +4149,146 @@ function purgeDeps(sub) {
 	let dep = depsTail !== void 0 ? depsTail.nextDep : sub.deps;
 	while (dep !== void 0) dep = unlink(dep, sub);
 }
-require_with_selector();
+//#endregion
+//#region node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.production.js
+/**
+* @license React
+* use-sync-external-store-shim.production.js
+*
+* Copyright (c) Meta Platforms, Inc. and affiliates.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+var require_use_sync_external_store_shim_production = /* @__PURE__ */ __commonJSMin(((exports) => {
+	var React = require_react();
+	function is(x, y) {
+		return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
+	}
+	var objectIs = "function" === typeof Object.is ? Object.is : is;
+	var useState = React.useState;
+	var useEffect = React.useEffect;
+	var useLayoutEffect = React.useLayoutEffect;
+	var useDebugValue = React.useDebugValue;
+	function useSyncExternalStore$2(subscribe, getSnapshot) {
+		var value = getSnapshot(), _useState = useState({ inst: {
+			value,
+			getSnapshot
+		} }), inst = _useState[0].inst, forceUpdate = _useState[1];
+		useLayoutEffect(function() {
+			inst.value = value;
+			inst.getSnapshot = getSnapshot;
+			checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+		}, [
+			subscribe,
+			value,
+			getSnapshot
+		]);
+		useEffect(function() {
+			checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+			return subscribe(function() {
+				checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+			});
+		}, [subscribe]);
+		useDebugValue(value);
+		return value;
+	}
+	function checkIfSnapshotChanged(inst) {
+		var latestGetSnapshot = inst.getSnapshot;
+		inst = inst.value;
+		try {
+			var nextValue = latestGetSnapshot();
+			return !objectIs(inst, nextValue);
+		} catch (error) {
+			return !0;
+		}
+	}
+	function useSyncExternalStore$1(subscribe, getSnapshot) {
+		return getSnapshot();
+	}
+	var shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+	exports.useSyncExternalStore = void 0 !== React.useSyncExternalStore ? React.useSyncExternalStore : shim;
+}));
+//#endregion
+//#region node_modules/use-sync-external-store/shim/index.js
+var require_shim = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+	module.exports = require_use_sync_external_store_shim_production();
+}));
+//#endregion
+//#region node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.production.js
+/**
+* @license React
+* use-sync-external-store-shim/with-selector.production.js
+*
+* Copyright (c) Meta Platforms, Inc. and affiliates.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+var require_with_selector_production = /* @__PURE__ */ __commonJSMin(((exports) => {
+	var React = require_react();
+	var shim = require_shim();
+	function is(x, y) {
+		return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
+	}
+	var objectIs = "function" === typeof Object.is ? Object.is : is;
+	var useSyncExternalStore = shim.useSyncExternalStore;
+	var useRef = React.useRef;
+	var useEffect = React.useEffect;
+	var useMemo = React.useMemo;
+	var useDebugValue = React.useDebugValue;
+	exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
+		var instRef = useRef(null);
+		if (null === instRef.current) {
+			var inst = {
+				hasValue: !1,
+				value: null
+			};
+			instRef.current = inst;
+		} else inst = instRef.current;
+		instRef = useMemo(function() {
+			function memoizedSelector(nextSnapshot) {
+				if (!hasMemo) {
+					hasMemo = !0;
+					memoizedSnapshot = nextSnapshot;
+					nextSnapshot = selector(nextSnapshot);
+					if (void 0 !== isEqual && inst.hasValue) {
+						var currentSelection = inst.value;
+						if (isEqual(currentSelection, nextSnapshot)) return memoizedSelection = currentSelection;
+					}
+					return memoizedSelection = nextSnapshot;
+				}
+				currentSelection = memoizedSelection;
+				if (objectIs(memoizedSnapshot, nextSnapshot)) return currentSelection;
+				var nextSelection = selector(nextSnapshot);
+				if (void 0 !== isEqual && isEqual(currentSelection, nextSelection)) return memoizedSnapshot = nextSnapshot, currentSelection;
+				memoizedSnapshot = nextSnapshot;
+				return memoizedSelection = nextSelection;
+			}
+			var hasMemo = !1, memoizedSnapshot, memoizedSelection, maybeGetServerSnapshot = void 0 === getServerSnapshot ? null : getServerSnapshot;
+			return [function() {
+				return memoizedSelector(getSnapshot());
+			}, null === maybeGetServerSnapshot ? void 0 : function() {
+				return memoizedSelector(maybeGetServerSnapshot());
+			}];
+		}, [
+			getSnapshot,
+			getServerSnapshot,
+			selector,
+			isEqual
+		]);
+		var value = useSyncExternalStore(subscribe, instRef[0], instRef[1]);
+		useEffect(function() {
+			inst.hasValue = !0;
+			inst.value = value;
+		}, [value]);
+		useDebugValue(value);
+		return value;
+	};
+}));
+(/* @__PURE__ */ __commonJSMin(((exports, module) => {
+	module.exports = require_with_selector_production();
+})))();
 /**
 * Read and select the nearest or targeted route match.
 * @link https://tanstack.com/router/latest/docs/framework/react/api/router/useMatchHook
@@ -4283,31 +4427,6 @@ function useNavigate(_defaultOpts) {
 			from: options.from ?? _defaultOpts?.from
 		});
 	}, [_defaultOpts?.from, router]);
-}
-/**
-* Component that triggers a navigation when rendered. Navigation executes
-* in an effect after mount/update.
-*
-* Props are the same as `NavigateOptions` used by `navigate()`.
-*
-* @returns null
-* @link https://tanstack.com/router/latest/docs/framework/react/api/router/navigateComponent
-*/
-function Navigate(props) {
-	const router = useRouter();
-	const navigate = useNavigate();
-	const previousPropsRef = import_react.useRef(null);
-	useLayoutEffect(() => {
-		if (previousPropsRef.current !== props) {
-			navigate(props);
-			previousPropsRef.current = props;
-		}
-	}, [
-		router,
-		props,
-		navigate
-	]);
-	return null;
 }
 //#endregion
 //#region node_modules/@tanstack/react-router/dist/esm/useRouteContext.js
@@ -14605,4 +14724,4 @@ var renderRouterToStream = async ({ request, router, responseHeaders, children }
 	throw new Error("No renderToReadableStream or renderToPipeableStream found in react-dom/server. Ensure you are using a version of react-dom that supports streaming.");
 };
 //#endregion
-export { resolveManifestCssLink as A, isNotFound as B, GLOBAL_TSR as C, getScriptPreloadAttrs as D, createInlineCssStyleAsset as E, dehydrateSsrMatchId as F, isRedirect as I, isResolvedRedirect as L, executeRewriteInput as M, invariant as N, getStylesheetHref as O, createSieveCache as P, decodePath as R, useRouter as S, createInlineCssPlaceholderAsset as T, createFileRoute as _, isSsrResponse as a, Navigate as b, stripSsrResponseBody as c, HeadContent as d, useRouterState as f, lazyRouteComponent as g, Outlet as h, disposeSsrResponseDetached as i, _getRenderedMatches as j, resolveManifestAssetLink as k, require_react_dom as l, createRouter as m, bindSsrResponseToRequest as n, normalizeSsrResponse as o, RouterProvider as p, defineHandlerCallback as r, replaceSsrResponse as s, renderRouterToStream as t, Scripts as u, createRootRoute as v, TSR_SCRIPT_BARRIER_ID as w, useNavigate as x, Link as y, rootRouteId as z };
+export { _getRenderedMatches as A, isNotFound as B, TSR_SCRIPT_BARRIER_ID as C, getStylesheetHref as D, getScriptPreloadAttrs as E, isRedirect as F, isResolvedRedirect as I, parseRedirect as L, invariant as M, createSieveCache as N, resolveManifestAssetLink as O, dehydrateSsrMatchId as P, decodePath as R, GLOBAL_TSR as S, createInlineCssStyleAsset as T, createFileRoute as _, isSsrResponse as a, useNavigate as b, stripSsrResponseBody as c, HeadContent as d, useRouterState as f, lazyRouteComponent as g, Outlet as h, disposeSsrResponseDetached as i, executeRewriteInput as j, resolveManifestCssLink as k, require_react_dom as l, createRouter as m, bindSsrResponseToRequest as n, normalizeSsrResponse as o, RouterProvider as p, defineHandlerCallback as r, replaceSsrResponse as s, renderRouterToStream as t, Scripts as u, createRootRoute as v, createInlineCssPlaceholderAsset as w, useRouter as x, Link as y, rootRouteId as z };
