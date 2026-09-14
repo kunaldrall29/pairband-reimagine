@@ -1,10 +1,40 @@
 import { http, createConfig } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 import { arcTestnet, arcMainnet } from "@/lib/chains";
+
+const wcProjectId =
+  (typeof import.meta !== "undefined" &&
+    (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_WC_PROJECT_ID) ||
+  "";
+
+const connectors = [
+  injected({ shimDisconnect: true }),
+  // Prefer injected over MetaMask SDK — the SDK often leaves wagmi stuck in
+  // "connecting" inside preview iframes / in-app browsers with no ethereum.
+  coinbaseWallet({
+    appName: "Pairband",
+    appLogoUrl: "https://pairband.com/favicon.svg",
+    preference: "all",
+  }),
+  ...(wcProjectId
+    ? [
+        walletConnect({
+          projectId: wcProjectId,
+          metadata: {
+            name: "Pairband",
+            description: "USDC launchpad on Arc",
+            url: "https://pairband.com",
+            icons: ["https://pairband.com/favicon.svg"],
+          },
+          showQrModal: true,
+        }),
+      ]
+    : []),
+];
 
 export const wagmiConfig = createConfig({
   chains: [arcTestnet, arcMainnet],
-  connectors: [injected({ shimDisconnect: true })],
+  connectors,
   transports: {
     [arcTestnet.id]: http("https://rpc.testnet.arc.io"),
     [arcMainnet.id]: http("https://rpc.arc.network"),

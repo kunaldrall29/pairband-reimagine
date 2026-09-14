@@ -40,6 +40,15 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
             <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted">
               {launch.symbol}/<UsdcMark size={10} />
             </span>
+            {launch.websiteVerified || launch.twitterVerified ? (
+              <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] text-teal">
+                {launch.websiteVerified && launch.twitterVerified
+                  ? "Verified"
+                  : launch.websiteVerified
+                    ? "Site ✓"
+                    : "X ✓"}
+              </span>
+            ) : null}
           </div>
           <p className="mt-0.5 truncate text-xs text-muted">{launch.description}</p>
         </div>
