@@ -30,22 +30,13 @@ async function clickFirst(page, role, name, wait = 800) {
 }
 
 async function fillFirst(page, selector, value) {
-  // Prefer an enabled field — on-chain mode disables the optional first-buy input.
-  const all = page.locator(selector);
-  const n = await all.count();
-  for (let i = 0; i < n; i++) {
-    const loc = all.nth(i);
-    if (await loc.isDisabled().catch(() => true)) continue;
-    if (!(await loc.isVisible().catch(() => false))) continue;
-    try {
-      await loc.click({ timeout: 3000 });
-      await loc.fill("");
-      await loc.type(value, { delay: 18 });
-      await sleep(400);
-      return true;
-    } catch {
-      continue;
-    }
+  const loc = page.locator(selector).first();
+  if ((await loc.count()) > 0) {
+    await loc.click();
+    await loc.fill("");
+    await loc.type(value, { delay: 18 });
+    await sleep(400);
+    return true;
   }
   return false;
 }
@@ -158,13 +149,7 @@ async function recordDesktop() {
   await clickFirst(page, "button", /generate|ai|draft|suggest/i, 3500);
   await page.mouse.wheel(0, 220);
   await sleep(1200);
-  // Prefer local preview launch so the demo never blocks on a wallet.
-  const onChain = page.getByRole("checkbox", { name: /broadcast|arc testnet|on-chain/i }).first();
-  if ((await onChain.count()) > 0 && (await onChain.isChecked().catch(() => false))) {
-    await onChain.click().catch(() => {});
-    await sleep(400);
-  }
-  // optional first buy field (enabled only in preview mode)
+  // optional first buy field
   await fillFirst(page, 'input[inputmode="decimal"], input[name*="buy"], input[type="number"]', "5");
   await sleep(600);
   await clickFirst(page, "button", /launch|create token|deploy/i, 2800);

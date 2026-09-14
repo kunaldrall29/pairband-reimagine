@@ -1,0 +1,114 @@
+- generic [ref=f10e2]:
+  - navigation [ref=f10e3]:
+    - generic [ref=f10e4]:
+      - generic [ref=f10e5]: pairband
+      - link [ref=f10e9] [cursor=pointer]:
+        - /url: /app
+        - button "Open app" [ref=f10e10]
+  - generic [ref=f10e13]:
+    - paragraph [ref=f10e14]: Stablecoin launchpad on Arc
+    - heading "Cover the downside. Keep the upside." [level=1] [ref=f10e15]: Cover the downside.Keep the upside.
+    - paragraph [ref=f10e16]: Pay USDC from any CCTP chain. Fill the Arc book. Tokens never leave.
+    - generic [ref=f10e17]:
+      - link [ref=f10e18] [cursor=pointer]:
+        - /url: /app
+        - button "Trade" [ref=f10e19]
+      - link [ref=f10e20] [cursor=pointer]:
+        - /url: /app/create
+        - button "Create token" [ref=f10e21]
+    - paragraph [ref=f10e22]:
+      - generic [ref=f10e23]: USDC
+      - generic [aria-hidden] [ref=f10e28]: /
+      - generic [ref=f10e29]: Quoted in USDC · Settled on Arc
+  - generic [ref=f10e42]:
+    - generic [ref=f10e43]:
+      - term [ref=f10e44]: Markets
+      - definition [ref=f10e45]: "0"
+    - generic [ref=f10e46]:
+      - term [ref=f10e47]: Books
+      - definition [ref=f10e48]: "0"
+    - generic [ref=f10e49]:
+      - term [ref=f10e50]: Volume
+      - definition [ref=f10e51]: $0.000000
+  - generic [ref=f10e52]:
+    - paragraph [ref=f10e53]: How it works
+    - heading "Curve. Pair. Lock." [level=2] [ref=f10e54]
+    - generic [ref=f10e55]:
+      - article [ref=f10e56]:
+        - generic [ref=f10e64]:
+          - paragraph [ref=f10e65]: "01"
+          - heading "Create on Arc." [level=3] [ref=f10e66]
+          - paragraph [ref=f10e67]: Name, ticker, optional first buy. Supply is one billion. The quote asset is native USDC — the same token that pays gas on Arc.
+      - article [ref=f10e68]:
+        - generic [ref=f10e80]:
+          - paragraph [ref=f10e81]: "02"
+          - heading "Fill the USDC curve." [level=3] [ref=f10e82]
+          - paragraph [ref=f10e83]: Buys and sells hit a constant-product bonding curve. 1.0% protocol + 0.5% creator, taken in USDC. You can exit on the curve before it fills.
+      - article [ref=f10e84]:
+        - generic [ref=f10e101]:
+          - paragraph [ref=f10e102]: "03"
+          - heading "Book, then Uniswap." [level=3] [ref=f10e103]
+          - paragraph [ref=f10e104]: At $80 the remaining inventory and USDC mint a locked Uniswap pair. An on-chain order book opens on the same ticket. Market walks the book (price-time); leftover hits the pair at 0.30%. Limits rest. LP burns to 0xdead.
+  - generic [ref=f10e105]:
+    - generic [ref=f10e107]:
+      - paragraph [ref=f10e108]: Live markets
+      - heading "Markets on Arc" [level=2] [ref=f10e109]
+    - paragraph [ref=f10e110]: Live markets sync from Arc. Connect a wallet on Arc testnet to trade and create.
+    - table [ref=f10e112]:
+      - rowgroup [ref=f10e113]:
+        - row [ref=f10e114]:
+          - columnheader "Token" [ref=f10e115]
+          - columnheader "Venue" [ref=f10e116]
+          - columnheader "Price" [ref=f10e117]
+          - columnheader "Raised" [ref=f10e118]
+      - rowgroup [ref=f10e119]:
+        - row [ref=f10e120]:
+          - cell "No on-chain markets yet — open the app to sync Arc or create a token." [ref=f10e121]
+  - generic [ref=f10e122]:
+    - paragraph [ref=f10e123]: Policy, not vibes
+    - heading "The pair is the lock." [level=2] [ref=f10e124]
+    - generic [ref=f10e126]:
+      - generic [ref=f10e127]:
+        - term [ref=f10e128]: Quote
+        - definition [ref=f10e129]: USDC (Arc native)
+      - generic [ref=f10e130]:
+        - term [ref=f10e131]: Settle
+        - definition [ref=f10e132]: Arc CCTP domain 26
+      - generic [ref=f10e133]:
+        - term [ref=f10e134]: In
+        - definition [ref=f10e135]: ETH · Base · UNI · ARB · OP · SOL
+      - generic [ref=f10e136]:
+        - term [ref=f10e137]: Graduate
+        - definition [ref=f10e138]: $80.00
+      - generic [ref=f10e139]:
+        - term [ref=f10e140]: Launch fee
+        - definition [ref=f10e141]: $1 USDC
+      - generic [ref=f10e142]:
+        - term [ref=f10e143]: Agent fee
+        - definition [ref=f10e144]: $0.25 / propose
+      - generic [ref=f10e145]:
+        - term [ref=f10e146]: Curve fee
+        - definition [ref=f10e147]: 1.0% + 0.5%
+      - generic [ref=f10e148]:
+        - term [ref=f10e149]: Uniswap fee
+        - definition [ref=f10e150]: 0.30%
+      - generic [ref=f10e151]:
+        - term [ref=f10e152]: LP
+        - definition [ref=f10e153]: Burned to 0xdead
+      - generic [ref=f10e154]:
+        - term [ref=f10e155]: Bytecode
+        - definition [ref=f10e156]: Same on mainnet 5042
+  - contentinfo [ref=f10e157]:
+    - generic [ref=f10e158]: pairband
+    - paragraph [ref=f10e162]: Pairband. Any chain in. Settlement on Arc. Testnet live. No audit. Mainnet when testnet hashes hold.
+    - generic [ref=f10e163]:
+      - link "Docs" [ref=f10e164] [cursor=pointer]:
+        - /url: https://docs.pairband.com
+      - link "Business model" [ref=f10e165] [cursor=pointer]:
+        - /url: https://docs.pairband.com/docs/business-model
+      - link "Security" [ref=f10e166] [cursor=pointer]:
+        - /url: /security
+      - link "Trade" [ref=f10e167] [cursor=pointer]:
+        - /url: /app/trade
+      - link "Arcscan" [ref=f10e168] [cursor=pointer]:
+        - /url: https://testnet.arcscan.app/address/0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4

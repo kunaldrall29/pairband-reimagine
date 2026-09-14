@@ -1,0 +1,80 @@
+- generic [ref=f12e2]:
+  - region "Notifications alt+T"
+  - banner [ref=f12e3]:
+    - generic [ref=f12e4]:
+      - generic [ref=f12e5]: pairband
+      - generic [ref=f12e12]:
+        - button "Connect" [ref=f12e13] [cursor=pointer]
+        - button "Toggle theme" [ref=f12e14] [cursor=pointer]
+  - main [ref=f12e17]:
+    - generic [ref=f12e18]:
+      - paragraph [ref=f12e19]: Wallet
+      - heading "Your book" [level=1] [ref=f12e20]
+      - paragraph [ref=f12e21]: · curve tokens settle on Arc · USDC is gas and quote
+      - generic [ref=f12e22]:
+        - generic [ref=f12e23]:
+          - paragraph [ref=f12e24]: Arc USDC
+          - paragraph [ref=f12e28]: $0.00
+          - paragraph [ref=f12e29]: Balances update from your connected wallet on Arc.
+        - generic [ref=f12e30]:
+          - paragraph [ref=f12e31]: Token mark
+          - paragraph [ref=f12e32]: $0.00
+          - paragraph [ref=f12e33]: 0 positions · 0 launched
+      - generic [ref=f12e34]:
+        - paragraph [ref=f12e35]: USDC by chain
+        - list [ref=f12e39]:
+          - listitem [ref=f12e40]:
+            - paragraph [ref=f12e41]: ARC
+            - paragraph [ref=f12e44]: $0
+          - listitem [ref=f12e45]:
+            - paragraph [ref=f12e46]: ETH
+            - paragraph [ref=f12e50]: $0
+          - listitem [ref=f12e51]:
+            - paragraph [ref=f12e52]: BASE
+            - paragraph [ref=f12e56]: $0
+          - listitem [ref=f12e57]:
+            - paragraph [ref=f12e58]: UNI
+            - paragraph [ref=f12e62]: $0
+          - listitem [ref=f12e63]:
+            - paragraph [ref=f12e64]: ARB
+            - paragraph [ref=f12e68]: $0
+          - listitem [ref=f12e69]:
+            - paragraph [ref=f12e70]: OP
+            - paragraph [ref=f12e74]: $0
+          - listitem [ref=f12e75]:
+            - paragraph [ref=f12e76]: SOL
+            - paragraph [ref=f12e80]: $0
+        - paragraph [ref=f12e81]: Buy from any of these. CCTP burns source USDC and mints on Arc (domain 26).
+        - generic [ref=f12e82]:
+          - generic [ref=f12e83]:
+            - text: Bridge out
+            - combobox "Bridge out" [ref=f12e84]:
+              - option "Ethereum" [selected]
+              - option "Base"
+              - option "Unichain"
+              - option "Arbitrum"
+              - option "OP Mainnet"
+              - option "Solana"
+          - textbox [ref=f12e85]: "100"
+          - button "Burn on Arc" [ref=f12e86] [cursor=pointer]
+      - heading "Holdings" [level=2] [ref=f12e87]
+      - paragraph [ref=f12e88]:
+        - text: Empty. Buy on
+        - link "Discover" [ref=f12e89] [cursor=pointer]:
+          - /url: /app
+        - text: .
+      - heading "Watchlist" [level=2] [ref=f12e90]
+      - paragraph [ref=f12e91]: Star a market on its page.
+  - navigation [ref=f12e92]:
+    - link "Discover" [ref=f12e93] [cursor=pointer]:
+      - /url: /app
+    - link "Launch" [ref=f12e97] [cursor=pointer]:
+      - /url: /app/create
+    - link "Agent" [ref=f12e99] [cursor=pointer]:
+      - /url: /app/curator
+    - link "Trade" [ref=f12e103] [cursor=pointer]:
+      - /url: /app/trade
+    - link "Tape" [ref=f12e107] [cursor=pointer]:
+      - /url: /app/activity
+    - link "Wallet" [ref=f12e110] [cursor=pointer]:
+      - /url: /app/me

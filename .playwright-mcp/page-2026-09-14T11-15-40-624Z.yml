@@ -1,0 +1,49 @@
+- generic [ref=f5e2]:
+  - region "Notifications alt+T"
+  - banner [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - generic [ref=f5e5]: pairband
+      - generic [ref=f5e12]:
+        - button "Connect" [ref=f5e13] [cursor=pointer]
+        - button "Toggle theme" [ref=f5e14] [cursor=pointer]
+  - main [ref=f5e17]:
+    - generic [ref=f5e18]:
+      - generic [ref=f5e19]:
+        - generic [ref=f5e20]:
+          - paragraph [ref=f5e21]: Discover
+          - heading "Markets on Arc" [level=1] [ref=f5e22]
+          - paragraph [ref=f5e23]:
+            - generic [ref=f5e24]: 0 tokens
+            - generic [ref=f5e27]: ·
+            - generic [ref=f5e28]: 0 books
+            - generic [ref=f5e29]: ·
+            - generic [ref=f5e30]: $0.000000 volume
+        - link [ref=f5e34] [cursor=pointer]:
+          - /url: /app/create
+          - button "Create token" [ref=f5e35]
+      - generic [ref=f5e36]:
+        - textbox "Search name or symbol" [ref=f5e37]
+        - generic [ref=f5e38]:
+          - button "New" [ref=f5e39] [cursor=pointer]
+          - button "Market cap" [ref=f5e40] [cursor=pointer]
+          - button "Volume" [ref=f5e41] [cursor=pointer]
+          - button "Near book" [ref=f5e42] [cursor=pointer]
+          - button "Curve" [ref=f5e43] [cursor=pointer]
+          - button "Book" [ref=f5e44] [cursor=pointer]
+      - generic [ref=f5e45]:
+        - button "Sync on-chain" [ref=f5e46] [cursor=pointer]
+        - generic [ref=f5e52]: quoted · settled · graduation at $80.00. Showing on-chain markets only. Sync to pull the latest from Arc.
+      - paragraph [ref=f5e58]: No on-chain markets yet. Create a token or sync Arc.
+  - navigation [ref=f5e59]:
+    - link "Discover" [ref=f5e60] [cursor=pointer]:
+      - /url: /app
+    - link "Launch" [ref=f5e64] [cursor=pointer]:
+      - /url: /app/create
+    - link "Agent" [ref=f5e66] [cursor=pointer]:
+      - /url: /app/curator
+    - link "Trade" [ref=f5e70] [cursor=pointer]:
+      - /url: /app/trade
+    - link "Tape" [ref=f5e74] [cursor=pointer]:
+      - /url: /app/activity
+    - link "Wallet" [ref=f5e77] [cursor=pointer]:
+      - /url: /app/me

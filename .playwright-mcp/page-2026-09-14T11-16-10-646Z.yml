@@ -1,0 +1,68 @@
+- generic [ref=f6e2]:
+  - region "Notifications alt+T"
+  - banner [ref=f6e33]:
+    - generic [ref=f6e34]:
+      - generic [ref=f6e35]: pairband
+      - generic [ref=f6e42]:
+        - button "Connect" [ref=f6e43] [cursor=pointer]
+        - button "Toggle theme" [ref=f6e44] [cursor=pointer]
+  - main [ref=f6e47]:
+    - generic [ref=f6e48]:
+      - generic [ref=f6e49]:
+        - generic [ref=f6e50]:
+          - paragraph [ref=f6e51]: Discover
+          - heading "Markets on Arc" [level=1] [ref=f6e52]
+          - paragraph [ref=f6e53]:
+            - generic [ref=f6e54]: 1 tokens
+            - generic [ref=f6e57]: ·
+            - generic [ref=f6e58]: 0 books
+            - generic [ref=f6e59]: ·
+            - generic [ref=f6e60]: $2.46 volume
+        - link [ref=f6e64] [cursor=pointer]:
+          - /url: /app/create
+          - button "Create token" [ref=f6e65]
+      - generic [ref=f6e66]:
+        - textbox "Search name or symbol" [ref=f6e67]
+        - generic [ref=f6e68]:
+          - button "New" [ref=f6e69] [cursor=pointer]
+          - button "Market cap" [ref=f6e70] [cursor=pointer]
+          - button "Volume" [ref=f6e71] [cursor=pointer]
+          - button "Near book" [ref=f6e72] [cursor=pointer]
+          - button "Curve" [ref=f6e73] [cursor=pointer]
+          - button "Book" [ref=f6e74] [cursor=pointer]
+      - generic [ref=f6e75]:
+        - button "Sync on-chain" [ref=f6e76] [cursor=pointer]
+        - generic [ref=f6e82]: Updated 11:15:41 AM
+        - generic [ref=f6e83]: quoted · settled · graduation at $80.00. Showing on-chain markets only. Sync to pull the latest from Arc.
+      - link "Smoke Pair SMOKE/ Curve $8.50e-8 FDV $85.00 · vol $2 To book 3% Watch" [ref=f6e90] [cursor=pointer]:
+        - /url: /app/t/0
+        - generic [ref=f6e91]:
+          - img [aria-hidden] [ref=f6e92]:
+            - generic [ref=f6e95]: SM
+          - generic [ref=f6e96]:
+            - generic [ref=f6e97]:
+              - paragraph [ref=f6e98]: Smoke Pair
+              - generic [ref=f6e99]: SMOKE/
+            - paragraph
+          - generic [ref=f6e103]: Curve
+        - generic [ref=f6e105]:
+          - paragraph [ref=f6e106]: $8.50e-8
+          - paragraph [ref=f6e107]: FDV $85.00 · vol $2
+        - generic [ref=f6e109]:
+          - generic [ref=f6e111]:
+            - generic [ref=f6e112]: To book
+            - generic [ref=f6e113]: 3%
+          - button "Watch" [ref=f6e116]
+  - navigation [ref=f6e119]:
+    - link "Discover" [ref=f6e120] [cursor=pointer]:
+      - /url: /app
+    - link "Launch" [ref=f6e124] [cursor=pointer]:
+      - /url: /app/create
+    - link "Agent" [ref=f6e126] [cursor=pointer]:
+      - /url: /app/curator
+    - link "Trade" [ref=f6e130] [cursor=pointer]:
+      - /url: /app/trade
+    - link "Tape" [ref=f6e134] [cursor=pointer]:
+      - /url: /app/activity
+    - link "Wallet" [ref=f6e137] [cursor=pointer]:
+      - /url: /app/me

@@ -1,0 +1,14 @@
+[     232ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:8080/node_modules/.vite/deps/react-dom_client.js?v=777017b9:14335
+[     244ms] [WARNING] [tanstack-router] These exports from "/workspace/src/routes/security.tsx" will not be code-split and will increase your bundle size:
+- Security
+For the best optimization, these items should either have their export statements removed, or be imported from another location that is not a route file. @ http://127.0.0.1:8080/@vite/client:532
+[     245ms] [WARNING] [tanstack-router] These exports from "/workspace/src/routes/docs.index.tsx" will not be code-split and will increase your bundle size:
+- Docs
+For the best optimization, these items should either have their export statements removed, or be imported from another location that is not a route file. @ http://127.0.0.1:8080/@vite/client:532
+[13716585ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:8080/node_modules/.vite/deps/react-dom_client.js?v=777017b9:14335
+[13716599ms] [WARNING] [tanstack-router] These exports from "/workspace/src/routes/security.tsx" will not be code-split and will increase your bundle size:
+- Security
+For the best optimization, these items should either have their export statements removed, or be imported from another location that is not a route file. @ http://127.0.0.1:8080/@vite/client:532
+[13716600ms] [WARNING] [tanstack-router] These exports from "/workspace/src/routes/docs.index.tsx" will not be code-split and will increase your bundle size:
+- Docs
+For the best optimization, these items should either have their export statements removed, or be imported from another location that is not a route file. @ http://127.0.0.1:8080/@vite/client:532

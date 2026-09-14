@@ -1,0 +1,87 @@
+- generic [ref=f13e2]:
+  - region "Notifications alt+T"
+  - banner [ref=f13e3]:
+    - generic [ref=f13e4]:
+      - generic [ref=f13e5]: pairband
+      - generic [ref=f13e12]:
+        - button "Connect" [ref=f13e13] [cursor=pointer]
+        - button "Toggle theme" [ref=f13e14] [cursor=pointer]
+  - main [ref=f13e17]:
+    - generic [ref=f13e18]:
+      - generic [ref=f13e19]:
+        - generic [ref=f13e20]:
+          - paragraph [ref=f13e21]: Vault agent · practice desk
+          - heading "Propose. Delay. Execute." [level=1] [ref=f13e22]
+          - paragraph [ref=f13e23]: The vault agent posts a new liquidity band. Curators execute after the delay. Agent proposals cost $0.25 USDC on Arc — same fee as the on-chain desk.
+        - generic [ref=f13e24]:
+          - link "How to use" [ref=f13e25] [cursor=pointer]:
+            - /url: /docs/vault-agent
+          - link "AI draft" [ref=f13e28] [cursor=pointer]:
+            - /url: /app/create
+      - generic [ref=f13e35]:
+        - text: On-chain desk
+        - link "0x9BedBF…Da5563" [ref=f13e36] [cursor=pointer]:
+          - /url: https://testnet.arcscan.app/address/0x9BedBFc897d4f90E92389818edDC968f99Da5563
+        - text: "· fee $0.25 USDC · seed vault #0"
+      - generic [ref=f13e37]:
+        - button "Act as agent" [ref=f13e38] [cursor=pointer]
+        - button "Act as curator" [ref=f13e39] [cursor=pointer]
+        - button "Act as LP" [ref=f13e40] [cursor=pointer]
+        - button "Reset practice desk" [ref=f13e41] [cursor=pointer]
+      - paragraph [ref=f13e42]: Acting as agent · 0xA6E170…000A6E (0xA6E1…0A6E)
+      - generic [ref=f13e43]:
+        - generic [ref=f13e44]:
+          - paragraph [ref=f13e45]: Practice band
+          - paragraph [ref=f13e46]: "[-100, 100)"
+          - paragraph [ref=f13e47]: spot tick 40 · fee 0.05%
+        - generic [ref=f13e48]:
+          - paragraph [ref=f13e49]: Your wallet
+          - paragraph [ref=f13e50]: $0.00 USDC
+          - paragraph [ref=f13e51]: $0.00 USD1
+          - paragraph [ref=f13e52]: shares 0
+        - generic [ref=f13e53]:
+          - paragraph [ref=f13e54]: Policy
+          - paragraph [ref=f13e55]: Agent 0xA6E1…0A6E · Curator 0xC04A…04A7
+          - paragraph [ref=f13e56]: delay 3s · maxWidth 400 · maxShift 200
+      - generic [ref=f13e57]:
+        - generic [ref=f13e58]:
+          - heading "Agent propose" [level=2] [ref=f13e63]
+          - paragraph [ref=f13e64]: Price is at tick 40. The suggested band slides up by L1 80 ticks so the live range stays centered on spot, within policy.maxShift. Agent proposes; curator still has to execute.
+          - button "Propose suggested band · $0.25" [ref=f13e65] [cursor=pointer]
+          - paragraph [ref=f13e66]: No active proposal.
+        - generic [ref=f13e67]:
+          - heading "Curator execute" [level=2] [ref=f13e71]
+          - paragraph [ref=f13e72]: After the delay, only the curator can execute or reject. Execution moves the live band.
+          - generic [ref=f13e73]:
+            - button "Execute rebalance" [disabled] [ref=f13e74]
+            - button "Reject" [disabled] [ref=f13e75]
+      - generic [ref=f13e76]:
+        - heading "LP deposit / withdraw" [level=2] [ref=f13e77]
+        - generic [ref=f13e78]:
+          - generic [ref=f13e79]:
+            - text: USDC
+            - textbox "USDC" [ref=f13e80]: "50"
+          - generic [ref=f13e81]:
+            - text: USD1
+            - textbox "USD1" [ref=f13e82]: "50"
+        - generic [ref=f13e83]:
+          - button "Deposit" [ref=f13e84] [cursor=pointer]
+          - button "Withdraw all shares" [disabled] [ref=f13e85]
+          - link "Open vault detail →" [ref=f13e86] [cursor=pointer]:
+            - /url: /app/p/5042002/pb-usdc-usd1
+      - generic [ref=f13e87]:
+        - heading "Activity" [level=2] [ref=f13e88]
+        - list
+  - navigation [ref=f13e89]:
+    - link "Discover" [ref=f13e90] [cursor=pointer]:
+      - /url: /app
+    - link "Launch" [ref=f13e94] [cursor=pointer]:
+      - /url: /app/create
+    - link "Agent" [ref=f13e96] [cursor=pointer]:
+      - /url: /app/curator
+    - link "Trade" [ref=f13e100] [cursor=pointer]:
+      - /url: /app/trade
+    - link "Tape" [ref=f13e104] [cursor=pointer]:
+      - /url: /app/activity
+    - link "Wallet" [ref=f13e107] [cursor=pointer]:
+      - /url: /app/me
