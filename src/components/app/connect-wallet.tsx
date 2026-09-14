@@ -222,7 +222,9 @@ export function ConnectWallet() {
   }
 
   const uniqueConnectors = connectors.filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i);
-  const connecting = isPending || status === "connecting" || busyId !== null;
+  // Only treat user-initiated connects as "connecting". Ambient wagmi reconnect
+  // (MetaMask/Coinbase SDK) can leave status==="connecting" and look broken.
+  const connecting = isPending || busyId !== null;
 
   return (
     <>

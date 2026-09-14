@@ -1,5 +1,5 @@
 import { http, createConfig } from "wagmi";
-import { coinbaseWallet, injected, metaMask, walletConnect } from "wagmi/connectors";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 import { arcTestnet, arcMainnet } from "@/lib/chains";
 
 const wcProjectId =
@@ -9,13 +9,8 @@ const wcProjectId =
 
 const connectors = [
   injected({ shimDisconnect: true }),
-  metaMask({
-    dappMetadata: {
-      name: "Pairband",
-      url: "https://pairband.com",
-      iconUrl: "https://pairband.com/favicon.svg",
-    },
-  }),
+  // Prefer injected over MetaMask SDK — the SDK often leaves wagmi stuck in
+  // "connecting" inside preview iframes / in-app browsers with no ethereum.
   coinbaseWallet({
     appName: "Pairband",
     appLogoUrl: "https://pairband.com/favicon.svg",
