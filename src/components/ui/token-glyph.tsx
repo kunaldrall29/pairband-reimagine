@@ -4,13 +4,27 @@ export function TokenGlyph({
   symbol,
   hue,
   size = 40,
+  imageUrl,
   className,
 }: {
   symbol: string;
   hue: number;
   size?: number;
+  imageUrl?: string;
   className?: string;
 }) {
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt=""
+        width={size}
+        height={size}
+        className={cn("shrink-0 rounded-full object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   const letters = symbol.slice(0, 2);
   const a = `hsl(${hue} 28% 42%)`;
   const b = `hsl(${(hue + 40) % 360} 32% 58%)`;

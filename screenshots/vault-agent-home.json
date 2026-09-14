@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1802,
+      "bodyTextHash": "3c957d3b806ae8a90a27281afa192c193f17625a4285991aea9e7e619990605f",
+      "bodyTextPrefix": "pairband Markets Docs Security Open app STABLECOIN LAUNCHPAD ON ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/vault-agent-home.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "hasCanvas": false,
+      "bodyTextLen": 1715,
+      "bodyTextHash": "9950047b73c6142ed12b74571336c5940bc15f73191fcdba8c3019dd8fd9a85d",
+      "bodyTextPrefix": "pairband Open app STABLECOIN LAUNCHPAD ON ARC Cover the downside",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/vault-agent-home-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/vault-agent-home.json"
+}

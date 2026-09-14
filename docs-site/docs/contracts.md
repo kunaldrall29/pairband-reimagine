@@ -25,6 +25,7 @@ Launchpad, settler, and AMM factory are deployed on Arc Testnet (`5042002`). Ver
 | **Launchpad** | [`0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4`](https://testnet.arcscan.app/address/0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4) |
 | **Settler** | [`0x229BD1BcdE44c26E0c7741B46854Ccfb4e54CC40`](https://testnet.arcscan.app/address/0x229BD1BcdE44c26E0c7741B46854Ccfb4e54CC40) |
 | **AMM factory** | [`0x0769121558BB51Fb71Edb933010D294D770e6e18`](https://testnet.arcscan.app/address/0x0769121558BB51Fb71Edb933010D294D770e6e18) |
+| **Vault agent desk** | [`0x9BedBFc897d4f90E92389818edDC968f99Da5563`](https://testnet.arcscan.app/address/0x9BedBFc897d4f90E92389818edDC968f99Da5563) |
 
 ## Arc Mainnet — chain `5042`
 
@@ -58,6 +59,7 @@ Do **not** broadcast to mainnet until testnet is verified and exercised. Same by
 | `PairbandPair` | Constant-product pool; LP irreversibly burned |
 | `PairbandBook` | On-chain limit order book |
 | `PairbandSettler` | CCTP mint recipient and router |
+| `VaultAgentDesk` | Agent rebalance proposals ($0.25 USDC) |
 
 ## Related
 

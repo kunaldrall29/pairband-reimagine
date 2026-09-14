@@ -33,7 +33,7 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
       )}
     >
       <div className="flex items-start gap-3">
-        <TokenGlyph symbol={launch.symbol} hue={launch.hue} />
+        <TokenGlyph symbol={launch.symbol} hue={launch.hue} imageUrl={launch.imageUrl} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate font-medium">{launch.name}</p>
