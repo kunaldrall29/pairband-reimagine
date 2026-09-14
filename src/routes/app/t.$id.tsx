@@ -37,9 +37,10 @@ function TokenPage() {
 
   const launch = engine.launches.find((l) => l.id === id);
   if (!launch) {
+    const syncingOnchain = /^\d+$/.test(id);
     return (
       <div className="px-4 py-20 text-center">
-        <p>Token not found.</p>
+        <p>{syncingOnchain ? "Loading market from Arc…" : "Token not found."}</p>
         <Link to="/app" className="mt-3 inline-block text-teal-2">
           Back to discover
         </Link>
