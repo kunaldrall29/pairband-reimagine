@@ -278,7 +278,7 @@ export function MarketingPage() {
         </p>
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted">
           <a href="https://docs.pairband.com">Docs</a>
-          <a href="https://docs.pairband.com/docs/business-model">Business model</a>
+          <a href="https://docs.pairband.com/business-model">Business model</a>
           <Link to="/security">Security</Link>
           <Link to="/app/trade">Trade</Link>
           <a href="https://testnet.arcscan.app/address/0x22C23Efd9252177AfE02FE9dbd7D648369AF42f4">Arcscan</a>

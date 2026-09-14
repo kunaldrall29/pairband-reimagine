@@ -57,7 +57,7 @@ export function Docs() {
             <li>Cap 2.00% in code · no fee on a failed swap</li>
           </ul>
           <a
-            href="https://docs.pairband.com/docs/business-model"
+            href="https://docs.pairband.com/business-model"
             className="mt-4 inline-block text-sm text-teal underline underline-offset-4"
           >
             Business model →
