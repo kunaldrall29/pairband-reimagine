@@ -1,8 +1,8 @@
 "use client";
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, ImagePlus, Link2, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CheckCircle2, ImagePlus, Link2, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -100,8 +100,14 @@ function Create() {
   const [twitterVerified, setTwitterVerified] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [first, setFirst] = useState("0");
-  const [onChain, setOnChain] = useState(true);
+  const [onChain, setOnChain] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (live) setOnChain(true);
+    else setOnChain(false);
+  }, [live]);
 
   const hue = [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
   const firstAmt = useMemo(() => {
@@ -275,23 +281,74 @@ function Create() {
       </form>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <GlassPanel className="flex items-center gap-4 p-4">
-          <label className="relative cursor-pointer">
-            <TokenGlyph symbol={symbol || "??"} hue={hue} size={56} imageUrl={imageUrl} />
-            <span className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full bg-ink text-paper dark:bg-paper dark:text-ink">
-              <ImagePlus size={14} />
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              onChange={(e) => void onLogo(e.target.files?.[0] ?? null)}
-            />
-          </label>
-          <div>
-            <p className="font-medium">{name || "Token name"}</p>
-            <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
-            <p className="mt-1 text-xs text-muted">{imageUrl ? "Custom logo" : "Tap glyph to upload logo"}</p>
+        <GlassPanel className="space-y-4 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Token logo</p>
+              <p className="mt-0.5 text-xs text-muted">Square image works best · PNG, JPG, or WebP · under 2.5MB</p>
+            </div>
+            {imageUrl ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setImageUrl(undefined);
+                  if (logoInputRef.current) logoInputRef.current.value = "";
+                  toast.message("Logo removed");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-muted hover:bg-ink/5 dark:hover:bg-paper/10"
+              >
+                <Trash2 size={14} />
+                Remove
+              </button>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              className="group relative mx-auto flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-dashed border-ink/20 bg-ink/[0.03] transition hover:border-teal hover:bg-teal/5 sm:mx-0 dark:border-paper/20 dark:bg-paper/5"
+              aria-label={imageUrl ? "Change token logo" : "Upload token logo"}
+            >
+              {imageUrl ? (
+                <img src={imageUrl} alt="Token logo preview" className="size-full object-cover" />
+              ) : (
+                <TokenGlyph symbol={symbol || "??"} hue={hue} size={72} />
+              )}
+              <span className="absolute right-2 bottom-2 flex size-8 items-center justify-center rounded-full bg-ink text-paper shadow-md dark:bg-paper dark:text-ink">
+                <ImagePlus size={16} />
+              </span>
+            </button>
+
+            <div className="min-w-0 flex-1 space-y-3 text-center sm:text-left">
+              <div>
+                <p className="font-medium">{name || "Token name"}</p>
+                <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+                <p className="mt-1 text-xs text-muted">
+                  {imageUrl ? "Custom logo selected — shown on Discover and the token page" : "No logo yet — optional but recommended"}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <ClayButton
+                  type="button"
+                  variant={imageUrl ? "secondary" : "primary"}
+                  className="w-full sm:w-auto"
+                  onClick={() => logoInputRef.current?.click()}
+                >
+                  <ImagePlus size={16} />
+                  {imageUrl ? "Change logo" : "Upload logo"}
+                </ClayButton>
+              </div>              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/*"
+                className="sr-only"
+                onChange={(e) => {
+                  void onLogo(e.target.files?.[0] ?? null);
+                  e.target.value = "";
+                }}
+              />
+            </div>
           </div>
         </GlassPanel>
 
