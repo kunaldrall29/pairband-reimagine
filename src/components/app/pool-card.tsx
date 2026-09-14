@@ -8,7 +8,7 @@ import { shortAddr } from "@/lib/utils";
 import { GlassPanel } from "@/components/ui/glass-panel";
 
 export function PoolCard({ launch }: { launch: Launch }) {
-  if (launch.status !== "graduated" || !launch.pair) return null;
+  if ((launch.status !== "stage_b" && (launch.status as string) !== "graduated") || !launch.pair) return null;
   const k = poolK(launch.reserveUsdc, launch.reserveToken);
   const sqrtP = sqrtPriceX96(launch.reserveToken, launch.reserveUsdc);
   return (

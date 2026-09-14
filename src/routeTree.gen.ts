@@ -15,6 +15,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppActivityRouteImport } from './routes/app/activity'
+import { Route as AppBridgeRouteImport } from './routes/app/bridge'
 import { Route as AppCreateRouteImport } from './routes/app/create'
 import { Route as AppCuratorRouteImport } from './routes/app/curator'
 import { Route as AppMeRouteImport } from './routes/app/me'
@@ -52,6 +53,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppActivityRoute = AppActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppBridgeRoute = AppBridgeRouteImport.update({
+  id: '/bridge',
+  path: '/bridge',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppCreateRoute = AppCreateRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRouteWithChildren
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
+  '/app/bridge': typeof AppBridgeRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
+  '/app/bridge': typeof AppBridgeRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRouteWithChildren
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
+  '/app/bridge': typeof AppBridgeRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/security'
     | '/app/activity'
+    | '/app/bridge'
     | '/app/create'
     | '/app/curator'
     | '/app/me'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/'
     | '/security'
     | '/app/activity'
+    | '/app/bridge'
     | '/app/create'
     | '/app/curator'
     | '/app/me'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/security'
     | '/app/activity'
+    | '/app/bridge'
     | '/app/create'
     | '/app/curator'
     | '/app/me'
@@ -240,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/activity'
       fullPath: '/app/activity'
       preLoaderRoute: typeof AppActivityRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/bridge': {
+      id: '/app/bridge'
+      path: '/bridge'
+      fullPath: '/app/bridge'
+      preLoaderRoute: typeof AppBridgeRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/create': {
@@ -303,6 +322,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
+  AppBridgeRoute: typeof AppBridgeRoute
   AppCreateRoute: typeof AppCreateRoute
   AppCuratorRoute: typeof AppCuratorRoute
   AppMeRoute: typeof AppMeRoute
@@ -314,6 +334,7 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppActivityRoute: AppActivityRoute,
+  AppBridgeRoute: AppBridgeRoute,
   AppCreateRoute: AppCreateRoute,
   AppCuratorRoute: AppCuratorRoute,
   AppMeRoute: AppMeRoute,

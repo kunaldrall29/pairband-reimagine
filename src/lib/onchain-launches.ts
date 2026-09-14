@@ -94,7 +94,7 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       hue: hueOf(symbol),
       creator: g.creator,
       createdAt: firstSeenAt.get(id)!,
-      status: g.graduated ? "graduated" : "curve",
+      status: g.graduated ? "stage_b" : "curve",
       virtualUsdc: g.virtualUsdc * USDC_SCALE,
       virtualTokens: g.virtualTokens,
       realUsdc: realUsdc18,
@@ -104,6 +104,9 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       lpSupply: 0n,
       lpBurned: 0n,
       graduatedAt: g.graduated ? firstSeenAt.get(id)! : null,
+      stageAAt: null,
+      stageBAt: g.graduated ? firstSeenAt.get(id)! : null,
+      uniqueBuyers: [],
       protocolFees: g.protocolFees * USDC_SCALE,
       creatorFees: g.creatorFees * USDC_SCALE,
       // Unknown without indexing Transfer logs — do not invent.

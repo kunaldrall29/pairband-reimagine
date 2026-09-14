@@ -10,6 +10,7 @@ import { UsdcMark } from "@/components/ui/usdc-mark";
 import { DEFAULT_SLIPPAGE_BPS, WAD } from "@/lib/engine/constants.ts";
 import { ARC_CCTP_DOMAIN, chainByDomain, isArc } from "@/lib/engine/cctp.ts";
 import { bookMid } from "@/lib/engine/book.ts";
+import { hasBook, isStageB } from "@/lib/engine/status.ts";
 import {
   minOut,
   openOrders,
@@ -56,7 +57,8 @@ export function TradeTicket({ launch }: { launch: Launch }) {
   const live = engine.launches.find((l) => l.id === launch.id) ?? launch;
   const book = engine.books[live.id];
   const mine = openOrders(engine, live.id, account);
-  const graduated = live.status === "graduated";
+  const graduated = isStageB(live);
+  const bookOpen = hasBook(live);
 
   const parsed = useMemo(() => {
     try {
@@ -145,17 +147,19 @@ export function TradeTicket({ launch }: { launch: Launch }) {
     if (ok) setRaw("");
   }
 
-  const venue = !graduated
+  const venue = !bookOpen
     ? "Bonding curve · 1.5%"
     : mode === "limit"
       ? "On-chain book · rest"
-      : "Book, then Uniswap";
+      : graduated
+        ? "Book, then Uniswap"
+        : "Book, then curve";
 
   const impact = quote && "impactBps" in quote ? quote.impactBps : 0;
 
   return (
     <GlassPanel className="p-5">
-      {graduated ? (
+      {bookOpen ? (
         <div className="mb-4">
           <OrderBook book={book} symbol={live.symbol} onPrice={(p) => setRawPrice(toInput(p))} />
         </div>
@@ -175,7 +179,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
           </button>
         ))}
       </div>
-      {graduated ? (
+      {bookOpen ? (
         <div className="mb-3 flex rounded-2xl bg-ink/5 p-1 dark:bg-paper/10">
           {(["market", "limit"] as const).map((m) => (
             <button
@@ -200,7 +204,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
           <ArcMark size={11} /> Sell settles on Arc. USDC out stays until you bridge.
         </p>
       )}
-      {mode === "limit" && graduated ? (
+      {mode === "limit" && bookOpen ? (
         <label className="mb-2 block">
           <span className="mb-1 block text-[11px] text-muted">Limit price</span>
           <input
@@ -317,7 +321,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
               : side === "buy"
                 ? `Buy ${live.symbol}`
                 : `Sell ${live.symbol}`}
-        {!busy && graduated && mode === "market" ? " · book+AMM" : ""}
+        {!busy && bookOpen && mode === "market" ? (graduated ? " · book+AMM" : " · book+curve") : ""}
       </ClayButton>
       {walletLive ? (
         <label className="mt-3 flex items-center gap-2 text-xs text-muted">

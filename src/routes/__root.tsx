@@ -13,7 +13,7 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "Launch on Arc. Trade in USDC. Fill the curve, graduate to a locked Uniswap pair.",
+        content: "Launch in USDC on Arc. Buyers pay from any CCTP chain. Curve → Stage A book → Stage B locked Uniswap.",
       },
       { name: "theme-color", content: "#F5F5F2" },
     ],

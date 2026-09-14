@@ -4,7 +4,9 @@ import { TokenGlyph } from "@/components/ui/token-glyph";
 import { Sparkline } from "@/components/ui/sparkline";
 import { CurveMeter } from "@/components/ui/curve-meter";
 import { UsdcMark } from "@/components/ui/usdc-mark";
+import { StatusChip } from "@/components/ui/status-chip";
 import { graduateProgress, marketCap, priceOf } from "@/lib/engine/launchpad.ts";
+import { hasBook, isStageB } from "@/lib/engine/status.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import type { EngineState, Launch } from "@/lib/engine/types.ts";
 import { formatCompact, formatPriceWad, formatUsdc } from "@/lib/format.ts";
@@ -21,7 +23,8 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
   const book = engine.books[launch.id];
   const cap = marketCap(launch, book);
   const px = priceOf(launch, book);
-  const graduated = launch.status === "graduated";
+  const locked = isStageB(launch);
+  const bookLive = hasBook(launch);
   const watched = watchlist.includes(launch.id);
 
   return (
@@ -52,14 +55,7 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
           </div>
           <p className="mt-0.5 truncate text-xs text-muted">{launch.description}</p>
         </div>
-        <span
-          className={cn(
-            "rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide uppercase",
-            graduated ? "bg-teal/15 text-teal-2" : "bg-amber/20 text-amber-2",
-          )}
-        >
-          {graduated ? "Book" : "Curve"}
-        </span>
+        <StatusChip status={launch.status} compact />
       </div>
       <div className="mt-4 flex items-end justify-between gap-3">
         <div>
@@ -71,10 +67,12 @@ export function TokenCard({ launch, engine }: { launch: Launch; engine: EngineSt
         <Sparkline values={prices} />
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
-        {graduated ? (
-          <p className="font-mono text-[11px] text-teal-2">LP locked · book live</p>
+        {locked ? (
+          <p className="font-mono text-[11px] text-teal-2">LP locked · book + Uniswap</p>
+        ) : bookLive ? (
+          <p className="font-mono text-[11px] text-teal-2">Book open · curve still live</p>
         ) : (
-          <CurveMeter progress={graduateProgress(launch)} label="To book" className="flex-1" />
+          <CurveMeter progress={graduateProgress(launch)} label="To Stage A" className="flex-1" />
         )}
         <button
           type="button"

@@ -71,7 +71,7 @@ function Discover() {
     }
     list = list.filter((l) => isOnchainLaunchId(l.id));
     if (filter === "curve") list = list.filter((l) => l.status === "curve");
-    if (filter === "uniswap") list = list.filter((l) => l.status === "graduated");
+    if (filter === "uniswap") list = list.filter((l) => l.status === "stage_b");
     if (filter === "graduating") {
       list = list.filter((l) => l.status === "curve" && graduateProgress(l) >= 0.6);
       list.sort((a, b) => graduateProgress(b) - graduateProgress(a));

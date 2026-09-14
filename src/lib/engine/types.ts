@@ -1,7 +1,19 @@
 export * from "./vaultTypes.ts";
 
-export type LaunchStatus = "curve" | "graduated";
-export type Side = "buy" | "sell" | "create" | "graduate" | "swap" | "fill" | "limit" | "cancel" | "bridge";
+/** Dual graduation: Curve → Stage A (book) → Stage B (locked Uniswap). */
+export type LaunchStatus = "curve" | "stage_a" | "stage_b";
+export type Side =
+  | "buy"
+  | "sell"
+  | "create"
+  | "graduate"
+  | "stage_a"
+  | "stage_b"
+  | "swap"
+  | "fill"
+  | "limit"
+  | "cancel"
+  | "bridge";
 export type Venue = "curve" | "uniswap" | "book";
 export type BookSide = "bid" | "ask";
 
@@ -13,6 +25,9 @@ export type LaunchErrorCode =
   | "InsufficientBalance"
   | "AlreadyGraduated"
   | "NotGraduated"
+  | "BookNotOpen"
+  | "CurveClosed"
+  | "PriceContinuity"
   | "UnknownLaunch"
   | "InvalidMeta"
   | "InsufficientLiquidity"
@@ -20,7 +35,9 @@ export type LaunchErrorCode =
   | "NotOwner"
   | "OrderNotFound"
   | "UnknownDomain"
-  | "SameDomain";
+  | "SameDomain"
+  | "EscrowCap"
+  | "CircuitOpen";
 
 export class LaunchError extends Error {
   code: LaunchErrorCode;
@@ -109,7 +126,12 @@ export interface Launch {
   reserveToken: bigint;
   lpSupply: bigint;
   lpBurned: bigint;
+  /** @deprecated Use stageBAt — kept for hydrate compat. */
   graduatedAt: number | null;
+  stageAAt: number | null;
+  stageBAt: number | null;
+  /** Addresses that bought ≥ 1 USDC notional on the curve (excl. creator). */
+  uniqueBuyers: string[];
   protocolFees: bigint;
   creatorFees: bigint;
   holders: number;
@@ -132,7 +154,7 @@ export interface EngineState {
 }
 
 export interface LaunchEvent {
-  kind: "graduate" | "create" | "trade";
+  kind: "graduate" | "stage_a" | "stage_b" | "create" | "trade";
   id: string;
   symbol: string;
 }
