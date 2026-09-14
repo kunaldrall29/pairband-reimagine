@@ -1,7 +1,7 @@
 "use client";
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { CheckCircle2, ImagePlus, Link2, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
@@ -20,6 +20,7 @@ import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
 import { useLiveTrade } from "@/lib/live-trade";
 import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { verifyTokenWebsite } from "@/lib/verify-website";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
 import { parseUnits } from "@/lib/utils";
@@ -59,6 +60,25 @@ function emptyCurveLaunch(): Launch {
   };
 }
 
+async function fileToLogoDataUrl(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Choose an image file");
+  if (file.size > 2_500_000) throw new Error("Logo must be under 2.5MB");
+  const bitmap = await createImageBitmap(file);
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas unavailable");
+  const scale = Math.max(size / bitmap.width, size / bitmap.height);
+  const w = bitmap.width * scale;
+  const h = bitmap.height * scale;
+  ctx.drawImage(bitmap, (size - w) / 2, (size - h) / 2, w, h);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  if (dataUrl.length > 320_000) throw new Error("Logo too large after compress — try a simpler image");
+  return dataUrl;
+}
+
 function Create() {
   const navigate = useNavigate();
   const create = useLaunchpad((s) => s.create);
@@ -72,6 +92,13 @@ function Create() {
   const [name, setName] = useState("");
   const [symbol, setSymbol] = useState("");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+  const [website, setWebsite] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [websiteVerified, setWebsiteVerified] = useState(false);
+  const [twitterVerified, setTwitterVerified] = useState(false);
+  const [verifyBusy, setVerifyBusy] = useState(false);
   const [first, setFirst] = useState("0");
   const [onChain, setOnChain] = useState(true);
   const [aiBusy, setAiBusy] = useState(false);
@@ -95,6 +122,7 @@ function Create() {
   }, [firstAmt]);
 
   const totalDue = LAUNCH_FEE_USDC + firstAmt;
+  const verifySnippet = `<meta name="pairband:creator" content="${account}" />`;
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -124,15 +152,73 @@ function Create() {
     }
   }
 
+  async function onLogo(file: File | null) {
+    if (!file) return;
+    try {
+      const url = await fileToLogoDataUrl(file);
+      setImageUrl(url);
+      toast.success("Logo ready");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Logo upload failed");
+    }
+  }
+
+  async function onVerifyWebsite() {
+    if (!website.trim()) {
+      toast.error("Add a website URL first.");
+      return;
+    }
+    setVerifyBusy(true);
+    try {
+      const result = await verifyTokenWebsite({
+        data: {
+          website: website.trim(),
+          creator: account,
+          twitter: twitter.trim() || undefined,
+        },
+      });
+      if (!result.ok) {
+        toast.error(result.error || "Could not fetch website");
+        setWebsiteVerified(false);
+        return;
+      }
+      setWebsiteVerified(result.verified);
+      if (result.foundTwitter) setTwitterVerified(true);
+      if (result.verified) {
+        toast.success(
+          result.foundTwitter
+            ? "Website verified · X handle found on site"
+            : "Website verified — pairband:creator meta matches your wallet",
+        );
+      } else {
+        toast.message("Add the meta tag below to your site, then verify again.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Verify failed");
+    } finally {
+      setVerifyBusy(false);
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!onChain && totalDue > usdcBalance) {
       toast.error(`Need ${formatUsdc(totalDue)} USDC on Arc (launch fee + first buy).`);
       return;
     }
+    const meta = {
+      imageUrl,
+      website: website.trim() || undefined,
+      twitter: twitter.trim().replace(/^@/, "") || undefined,
+      telegram: telegram.trim().replace(/^@/, "") || undefined,
+      websiteVerified,
+      twitterVerified,
+    };
     if (onChain && live) {
       try {
         const result = await createToken(name.trim(), symbol.trim().toUpperCase());
+        // Mirror logo/socials locally without charging the demo launch fee again.
+        create(name, symbol, description || `${name} on Arc`, 0n, { ...meta, skipFee: true });
         try {
           const client = createPublicClient({
             chain: arcTestnet,
@@ -154,7 +240,7 @@ function Create() {
       }
       return;
     }
-    const id = create(name, symbol, description, firstAmt);
+    const id = create(name, symbol, description, firstAmt, meta);
     if (id) void navigate({ to: "/app/t/$id", params: { id } });
   }
 
@@ -163,8 +249,8 @@ function Create() {
       <p className="font-mono text-[11px] tracking-[0.18em] text-teal uppercase">Launch</p>
       <h1 className="text-4xl tracking-tight">Create a token</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        One billion supply. Bonding curve quoted in USDC on Arc. Launch costs {formatUsdc(LAUNCH_FEE_USDC)} USDC. The buy
-        that fills {formatUsdc(GRADUATE_AT)} seeds a Uniswap pair and burns the LP. You keep 0.5% of curve volume.
+        One billion supply. Bonding curve quoted in USDC on Arc. Launch costs {formatUsdc(LAUNCH_FEE_USDC)} USDC. Add a
+        logo, website, and X — verify the site like pump.fun-style creator proofs.
       </p>
 
       <form onSubmit={onGenerate} className="mt-8 space-y-3">
@@ -190,10 +276,22 @@ function Create() {
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <GlassPanel className="flex items-center gap-4 p-4">
-          <TokenGlyph symbol={symbol || "??"} hue={hue} size={56} />
+          <label className="relative cursor-pointer">
+            <TokenGlyph symbol={symbol || "??"} hue={hue} size={56} imageUrl={imageUrl} />
+            <span className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full bg-ink text-paper dark:bg-paper dark:text-ink">
+              <ImagePlus size={14} />
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => void onLogo(e.target.files?.[0] ?? null)}
+            />
+          </label>
           <div>
             <p className="font-medium">{name || "Token name"}</p>
             <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+            <p className="mt-1 text-xs text-muted">{imageUrl ? "Custom logo" : "Tap glyph to upload logo"}</p>
           </div>
         </GlassPanel>
 
@@ -219,14 +317,6 @@ function Create() {
               <dd className={usdcBalance < totalDue ? "text-danger" : "text-teal"}>{formatUsdc(usdcBalance)}</dd>
             </div>
           </dl>
-          <a
-            href="https://docs.pairband.com/docs/business-model"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block text-xs text-teal underline underline-offset-2"
-          >
-            Full business model →
-          </a>
         </GlassPanel>
 
         <label className="block">
@@ -252,16 +342,93 @@ function Create() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">Description</span>
+          <span className="mb-1 block text-xs font-medium text-muted">What is this token?</span>
           <textarea
             required={!onChain}
             maxLength={280}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            placeholder="One or two sentences — narrative, utility, meme, community."
             className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
           />
         </label>
+
+        <GlassPanel className="space-y-3 p-4">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Link2 className="size-4 text-teal" />
+            Socials & website
+          </div>
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-muted">Website</span>
+            <input
+              value={website}
+              onChange={(e) => {
+                setWebsite(e.target.value);
+                setWebsiteVerified(false);
+              }}
+              placeholder="https://yoursite.com"
+              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+            />
+          </label>
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-muted">X / Twitter</span>
+            <input
+              value={twitter}
+              onChange={(e) => {
+                setTwitter(e.target.value.replace(/^@/, ""));
+                setTwitterVerified(false);
+              }}
+              placeholder="handle"
+              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+            />
+          </label>
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-muted">Telegram (optional)</span>
+            <input
+              value={telegram}
+              onChange={(e) => setTelegram(e.target.value.replace(/^@/, ""))}
+              placeholder="group or channel"
+              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+            />
+          </label>
+          <div className="rounded-2xl bg-ink/5 p-3 font-mono text-[11px] break-all dark:bg-paper/10">
+            {verifySnippet}
+          </div>
+          <p className="text-xs text-muted">
+            Add that meta tag (or plain text <span className="font-mono">pairband-verify:{account}</span>) to your
+            homepage HTML. Pairband fetches the page live and checks it matches your wallet.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ClayButton type="button" variant="secondary" disabled={verifyBusy || !website.trim()} onClick={() => void onVerifyWebsite()}>
+              {verifyBusy ? "Checking…" : "Verify website"}
+            </ClayButton>
+            <ClayButton
+              type="button"
+              variant="ghost"
+              disabled={!twitter.trim()}
+              onClick={() => {
+                setTwitterVerified(true);
+                toast.success("X handle linked on this launch (shown on the token page)");
+              }}
+            >
+              Link X handle
+            </ClayButton>
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs">
+            {websiteVerified ? (
+              <span className="inline-flex items-center gap-1 text-teal">
+                <CheckCircle2 size={14} /> Website verified
+              </span>
+            ) : null}
+            {twitterVerified ? (
+              <span className="inline-flex items-center gap-1 text-teal">
+                <CheckCircle2 size={14} /> X linked
+              </span>
+            ) : null}
+          </div>
+        </GlassPanel>
+
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-muted">First buy (USDC, optional · preview)</span>
           <input
@@ -293,9 +460,8 @@ function Create() {
           {busy ? "Confirm in wallet…" : onChain ? "Launch on Arc testnet" : `Launch · ${formatUsdc(LAUNCH_FEE_USDC)} fee`}
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
-          On-chain launches pay a flat $1 USDC fee. Curve trading takes 1.0% protocol + 0.5% creator in USDC. At graduation
-          the remaining inventory seeds a constant-product pair, LP is burned, and an on-chain book opens. Local preview
-          stays available when you uncheck broadcast.
+          Logo and socials are stored with the launch in-app. Website verification is live HTML fetch for the
+          pairband:creator meta (or pairband-verify text). Uncheck broadcast to keep a full local preview with metadata.
         </p>
       </form>
     </div>

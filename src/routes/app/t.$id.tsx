@@ -63,7 +63,7 @@ function TokenPage() {
       <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div>
           <div className="flex items-start gap-4">
-            <TokenGlyph symbol={launch.symbol} hue={launch.hue} size={56} />
+            <TokenGlyph symbol={launch.symbol} hue={launch.hue} size={56} imageUrl={launch.imageUrl} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-4xl tracking-tight">{launch.name}</h1>
@@ -81,6 +81,41 @@ function TokenPage() {
                 </span>
               </div>
               <p className="mt-1 text-sm text-muted">{launch.description}</p>
+              {(launch.website || launch.twitter || launch.telegram) && (
+                <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                  {launch.website ? (
+                    <a
+                      href={launch.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      Website{launch.websiteVerified ? " · verified" : ""}
+                    </a>
+                  ) : null}
+                  {launch.twitter ? (
+                    <a
+                      href={`https://x.com/${launch.twitter}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      @{launch.twitter}
+                      {launch.twitterVerified ? " · linked" : ""}
+                    </a>
+                  ) : null}
+                  {launch.telegram ? (
+                    <a
+                      href={`https://t.me/${launch.telegram}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      Telegram
+                    </a>
+                  ) : null}
+                </div>
+              )}
             </div>
             <button
               type="button"
