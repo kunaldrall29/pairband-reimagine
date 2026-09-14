@@ -42,11 +42,19 @@ function liveDemoState(): EngineState {
   // Offset spot so the suggested band slides vs the seeded [-100,100) range.
   state.tick = 40;
   state.sqrtPriceX96 = getSqrtRatioAtTick(40);
-  const agentBal = state.wallets.get(DEMO_AGENT) ?? { t0: 0n, t1: 0n };
-  state.wallets.set(DEMO_AGENT, {
-    t0: agentBal.t0 + 1_000n * 1_000_000n,
-    t1: agentBal.t1 + 1_000n * 1_000_000n,
-  });
+  // Practice desk starts empty — no seeded wallet or LP balances on the website.
+  state.wallets = new Map([
+    [DEMO_AGENT, { t0: 0n, t1: 0n }],
+    [DEMO_CURATOR, { t0: 0n, t1: 0n }],
+    [DEMO_USER, { t0: 0n, t1: 0n }],
+  ]);
+  state.shares = new Map();
+  state.totalSupply = 0n;
+  state.totalLiquidity = 0n;
+  state.idle0 = 0n;
+  state.idle1 = 0n;
+  state.activity = [];
+  state.spark = [{ t: state.timestamp, tick: state.tick, price: 1 }];
   void ZERO;
   void AGENT_FEE_VAULT_USDC;
   return state;

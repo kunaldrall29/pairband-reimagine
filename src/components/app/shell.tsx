@@ -123,7 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ClayButton variant="ghost" className="min-h-10 min-w-10 px-2.5 sm:px-3" onClick={() => setDark(!dark)} aria-label="Toggle theme">
               {dark ? <Sun size={16} /> : <Moon size={16} />}
             </ClayButton>
-            <ClayButton variant="ghost" className="hidden min-h-10 min-w-10 px-2.5 sm:inline-flex sm:px-3" onClick={reset} aria-label="Reset demo">
+            <ClayButton variant="ghost" className="hidden min-h-10 min-w-10 px-2.5 sm:inline-flex sm:px-3" onClick={reset} aria-label="Clear local cache">
               <RotateCcw size={16} />
             </ClayButton>
           </div>

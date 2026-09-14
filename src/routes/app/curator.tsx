@@ -49,7 +49,7 @@ function VaultAgentPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 pb-28 md:pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-teal">Vault agent · live</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-teal">Vault agent · practice desk</p>
           <h1 className="mt-1 font-display text-3xl md:text-4xl">Propose. Delay. Execute.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
             The vault agent posts a new liquidity band. Curators execute after the delay. Agent proposals cost{" "}
@@ -110,7 +110,7 @@ function VaultAgentPage() {
           </ClayButton>
         ))}
         <ClayButton variant="ghost" onClick={() => reset()}>
-          Reset demo
+          Reset practice desk
         </ClayButton>
       </div>
       <p className="mt-2 font-mono text-xs text-muted">
@@ -121,7 +121,7 @@ function VaultAgentPage() {
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <GlassPanel className="p-5">
-          <p className="font-mono text-[11px] uppercase tracking-wider text-muted">Live band</p>
+          <p className="font-mono text-[11px] uppercase tracking-wider text-muted">Practice band</p>
           <p className="mt-2 font-mono text-2xl">
             [{engine.band.tickLower}, {engine.band.tickUpper})
           </p>

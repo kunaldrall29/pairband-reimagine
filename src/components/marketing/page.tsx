@@ -8,7 +8,7 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { HeroPills } from "@/components/marketing/hero-pills";
 import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
-import { graduateProgress, marketCap, priceOf, protocolStats, raisedOf } from "@/lib/engine/launchpad.ts";
+import { isOnchainLaunchId, graduateProgress, marketCap, priceOf, protocolStats, raisedOf } from "@/lib/engine/launchpad.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
 import { formatCompact, formatPriceWad, formatUsdc } from "@/lib/format.ts";
 import { ArcMark } from "@/components/ui/arc-mark";
@@ -44,7 +44,7 @@ export function MarketingPage() {
   const version = useLaunchpad((s) => s.version);
   void version;
   const stats = protocolStats(engine);
-  const featured = engine.launches.slice(0, 6);
+  const featured = engine.launches.filter((l) => isOnchainLaunchId(l.id)).slice(0, 6);
 
   useEffect(() => {
     hydrateLaunchpad();
@@ -197,7 +197,7 @@ export function MarketingPage() {
           </Link>
         </div>
         <p className="mt-3 max-w-xl text-sm text-muted">
-          Preview book mirrors the contracts. Connect a wallet on Arc testnet to broadcast when the factory is live.
+          Live markets sync from Arc. Connect a wallet on Arc testnet to trade and create.
         </p>
         <div className="mt-8 overflow-hidden rounded-[24px] border border-ink/8 bg-paper-2">
           <table className="w-full text-left text-sm">
@@ -211,7 +211,13 @@ export function MarketingPage() {
               </tr>
             </thead>
             <tbody>
-              {featured.map((l) => (
+              {featured.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted">
+                    No on-chain markets yet — open the app to sync Arc or create a token.
+                  </td>
+                </tr>
+              ) : featured.map((l) => (
                 <tr key={l.id} className="border-t border-ink/8 transition-colors hover:bg-paper/80">
                   <td className="px-4 py-3">
                     <Link to="/app/t/$id" params={{ id: l.id }} className="flex items-center gap-3">

@@ -2,12 +2,12 @@
 
 import { create } from "zustand";
 import { ARC_CCTP_DOMAIN } from "./cctp.ts";
-import { DEMO_USER } from "./constants.ts";
 import {
   bridgeOut as runBridgeOut,
   buy,
   cancel as runCancel,
   createEngine,
+  isOnchainLaunchId,
   createLaunch,
   faucet as runFaucet,
   findLaunch,
@@ -18,12 +18,31 @@ import {
 import type { EngineState, Launch, LaunchEvent } from "./types.ts";
 import { LaunchError } from "./types.ts";
 
-const KEY = "pairband.launch.v4";
+const KEY = "pairband.launch.v5";
 const DARK_KEY = "pairband.dark";
 const WATCH_KEY = "pairband.watch.v1";
 
 function serialize(s: EngineState): string {
   return JSON.stringify(s, (_k, v) => (typeof v === "bigint" ? `${v}n` : v));
+}
+
+function stripSeededLaunches(s: EngineState): EngineState {
+  const keep = s.launches.filter((l) => isOnchainLaunchId(l.id));
+  const keepIds = new Set(keep.map((l) => l.id));
+  const tokens: EngineState["tokens"] = {};
+  const books: EngineState["books"] = {};
+  for (const id of keepIds) {
+    if (s.tokens[id]) tokens[id] = s.tokens[id]!;
+    if (s.books[id]) books[id] = s.books[id]!;
+  }
+  return {
+    ...s,
+    launches: keep,
+    tokens,
+    books,
+    created: (s.created ?? []).filter((id) => keepIds.has(id)),
+    trades: (s.trades ?? []).filter((tr) => keepIds.has(tr.launchId)),
+  };
 }
 
 function revive(raw: string): EngineState | null {
@@ -32,11 +51,11 @@ function revive(raw: string): EngineState | null {
       typeof v === "string" && /^-?\d+n$/.test(v) ? BigInt(v.slice(0, -1)) : v,
     ) as EngineState;
     if (!parsed?.launches || !parsed.usdc) return null;
-    if (!Array.isArray(parsed.launches) || parsed.launches.length === 0) return null;
+    if (!Array.isArray(parsed.launches)) return null;
     const first = parsed.launches[0];
     if (first && typeof first.lpBurned !== "bigint") return null;
     if (!parsed.books || !parsed.remoteUsdc) return null;
-    return parsed;
+    return stripSeededLaunches(parsed);
   } catch {
     return null;
   }
@@ -44,9 +63,20 @@ function revive(raw: string): EngineState | null {
 
 function loadEngine(): EngineState {
   if (typeof window === "undefined") return createEngine();
-  const raw = window.localStorage.getItem(KEY);
+  let raw = window.localStorage.getItem(KEY);
+  if (!raw) {
+    // Migrate away from seeded v4 catalogs.
+    raw = window.localStorage.getItem("pairband.launch.v4");
+  }
   if (!raw) return createEngine();
-  return revive(raw) ?? createEngine();
+  const engine = revive(raw) ?? createEngine();
+  persist(engine);
+  try {
+    window.localStorage.removeItem("pairband.launch.v4");
+  } catch {
+    /* ignore */
+  }
+  return engine;
 }
 
 function persist(s: EngineState) {
@@ -113,7 +143,7 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
   engine: createEngine(),
   version: 0,
   dark: false,
-  account: DEMO_USER,
+  account: "",
   lastError: null,
   pending: false,
   watchlist: [],

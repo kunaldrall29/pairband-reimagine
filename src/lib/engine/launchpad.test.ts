@@ -32,7 +32,7 @@ const A = DEMO_USER;
 const B = "0xBEEF0000000000000000000000000000000000B2";
 
 function fresh() {
-  const s = createEngine();
+  const s = createEngine({ seed: true });
   s.usdc[B] = 10_000n * WAD;
   return s;
 }
