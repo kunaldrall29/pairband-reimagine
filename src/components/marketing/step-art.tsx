@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type StepKind = "create" | "curve" | "book";
@@ -19,6 +19,12 @@ export function StepArt({
 }) {
   const [photoOk, setPhotoOk] = useState(false);
 
+  // Cached images often finish before onLoad is attached — check complete on bind.
+  const bindImg = useCallback((el: HTMLImageElement | null) => {
+    if (!el) return;
+    if (el.complete && el.naturalWidth > 0) setPhotoOk(true);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -32,6 +38,7 @@ export function StepArt({
         {kind === "book" ? <BookArt /> : null}
       </div>
       <img
+        ref={bindImg}
         src={still}
         alt={photoOk ? alt : ""}
         aria-hidden={!photoOk}
