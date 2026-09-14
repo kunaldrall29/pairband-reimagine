@@ -28,10 +28,13 @@
     "graduateAt": "80000000",
     "launchFeeUsdc": "1000000",
     "agentFeeUsdc": "250000",
-    "note": "Fee-enabled launchpad: $1 USDC create + curve fees. Verify on https://testnet.arcscan.app",
+    "note": "Fee-enabled launchpad: $1 USDC create + curve fees. Verify on https://testnet.arcscan.app | VaultAgentDesk live \u2014 $0.25 USDC/propose.",
     "deployedAt": "2026-09-13T07:00:00Z",
     "deployTxNote": "DeployLaunch.s.sol with LAUNCH_FEE=1e6 on Arc testnet 5042002",
-    "previousLaunchpad": "0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0"
+    "previousLaunchpad": "0x0f2c604DB770E2E0a68Fc447E33C66BCB0E8E2e0",
+    "agentDesk": "0x9BedBFc897d4f90E92389818edDC968f99Da5563",
+    "agentDeskSeedVaultId": 0,
+    "agentDeskDeployedAt": "2026-09-14T08:40:00Z"
   },
   "5042": {
     "name": "Arc",

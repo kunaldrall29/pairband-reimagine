@@ -24,6 +24,10 @@ export type ArcDeployment = {
   settler?: string | null;
   graduateAt?: string;
   launchFeeUsdc?: string;
+  agentFeeUsdc?: string;
+  agentDesk?: string;
+  agentDeskSeedVaultId?: number;
+  agentDeskDeployedAt?: string;
 };
 
 /** Mirrors packages/config/deployments.json — keep in sync after broadcast. */
@@ -40,6 +44,10 @@ export const DEPLOYMENTS: Record<string, ArcDeployment> = {
     graduateAt: "80000000",
     launchFeeUsdc: "1000000",
     treasury: "0x6c21B5BF17eB3284Ee3af77835f2366ebD5D2e23",
+    agentFeeUsdc: "250000",
+    agentDesk: "0x9BedBFc897d4f90E92389818edDC968f99Da5563",
+    agentDeskSeedVaultId: 0,
+    agentDeskDeployedAt: "2026-09-14T08:40:00Z",
   },
   "5042": {
     name: "Arc",

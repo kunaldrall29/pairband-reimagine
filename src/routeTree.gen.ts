@@ -19,6 +19,8 @@ import { Route as AppCreateRouteImport } from './routes/app/create'
 import { Route as AppCuratorRouteImport } from './routes/app/curator'
 import { Route as AppMeRouteImport } from './routes/app/me'
 import { Route as AppTradeRouteImport } from './routes/app/trade'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
+import { Route as DocsVaultAgentRouteImport } from './routes/docs.vault-agent'
 import { Route as AppTIdRouteImport } from './routes/app/t.$id'
 import { Route as AppPChainIdVaultRouteImport } from './routes/app/p.$chainId.$vault'
 
@@ -72,6 +74,16 @@ const AppTradeRoute = AppTradeRouteImport.update({
   path: '/trade',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsVaultAgentRoute = DocsVaultAgentRouteImport.update({
+  id: '/vault-agent',
+  path: '/vault-agent',
+  getParentRoute: () => DocsRoute,
+} as any)
 const AppTIdRoute = AppTIdRouteImport.update({
   id: '/t/$id',
   path: '/t/$id',
@@ -86,27 +98,30 @@ const AppPChainIdVaultRoute = AppPChainIdVaultRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/docs': typeof DocsRoute
+  '/docs': typeof DocsRouteWithChildren
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
   '/app/trade': typeof AppTradeRoute
+  '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app/': typeof AppIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/docs': typeof DocsRoute
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
   '/app/trade': typeof AppTradeRoute
+  '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app': typeof AppIndexRoute
+  '/docs': typeof DocsIndexRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
@@ -114,14 +129,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/docs': typeof DocsRoute
+  '/docs': typeof DocsRouteWithChildren
   '/security': typeof SecurityRoute
   '/app/activity': typeof AppActivityRoute
   '/app/create': typeof AppCreateRoute
   '/app/curator': typeof AppCuratorRoute
   '/app/me': typeof AppMeRoute
   '/app/trade': typeof AppTradeRoute
+  '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app/': typeof AppIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
@@ -137,20 +154,23 @@ export interface FileRouteTypes {
     | '/app/curator'
     | '/app/me'
     | '/app/trade'
+    | '/docs/vault-agent'
     | '/app/'
+    | '/docs/'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/docs'
     | '/security'
     | '/app/activity'
     | '/app/create'
     | '/app/curator'
     | '/app/me'
     | '/app/trade'
+    | '/docs/vault-agent'
     | '/app'
+    | '/docs'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   id:
@@ -164,7 +184,9 @@ export interface FileRouteTypes {
     | '/app/curator'
     | '/app/me'
     | '/app/trade'
+    | '/docs/vault-agent'
     | '/app/'
+    | '/docs/'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   fileRoutesById: FileRoutesById
@@ -172,7 +194,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
-  DocsRoute: typeof DocsRoute
+  DocsRoute: typeof DocsRouteWithChildren
   SecurityRoute: typeof SecurityRoute
 }
 
@@ -248,6 +270,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTradeRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/docs/': {
+      id: '/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/vault-agent': {
+      id: '/docs/vault-agent'
+      path: '/vault-agent'
+      fullPath: '/docs/vault-agent'
+      preLoaderRoute: typeof DocsVaultAgentRouteImport
+      parentRoute: typeof DocsRoute
+    }
     '/app/t/$id': {
       id: '/app/t/$id'
       path: '/t/$id'
@@ -291,10 +327,22 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface DocsRouteChildren {
+  DocsVaultAgentRoute: typeof DocsVaultAgentRoute
+  DocsIndexRoute: typeof DocsIndexRoute
+}
+
+const DocsRouteChildren: DocsRouteChildren = {
+  DocsVaultAgentRoute: DocsVaultAgentRoute,
+  DocsIndexRoute: DocsIndexRoute,
+}
+
+const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
-  DocsRoute: DocsRoute,
+  DocsRoute: DocsRouteWithChildren,
   SecurityRoute: SecurityRoute,
 }
 export const routeTree = rootRouteImport
