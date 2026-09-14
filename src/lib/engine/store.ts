@@ -91,6 +91,7 @@ export interface LaunchStore {
       website?: string;
       twitter?: string;
       telegram?: string;
+      discord?: string;
       websiteVerified?: boolean;
       twitterVerified?: boolean;
       skipFee?: boolean;

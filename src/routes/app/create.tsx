@@ -1,7 +1,7 @@
 "use client";
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, ImagePlus, Link2, Sparkles, Trash2 } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, Globe, ImagePlus, Link2, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
@@ -96,9 +96,11 @@ function Create() {
   const [website, setWebsite] = useState("");
   const [twitter, setTwitter] = useState("");
   const [telegram, setTelegram] = useState("");
+  const [discord, setDiscord] = useState("");
   const [websiteVerified, setWebsiteVerified] = useState(false);
   const [twitterVerified, setTwitterVerified] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyXBusy, setVerifyXBusy] = useState(false);
   const [first, setFirst] = useState("0");
   const [onChain, setOnChain] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
@@ -129,6 +131,19 @@ function Create() {
 
   const totalDue = LAUNCH_FEE_USDC + firstAmt;
   const verifySnippet = `<meta name="pairband:creator" content="${account}" />`;
+  const twitterMetaSnippet = twitter.trim()
+    ? `<meta name="pairband:twitter" content="${twitter.trim().replace(/^@/, "")}" />`
+    : `<meta name="pairband:twitter" content="yourhandle" />`;
+  const xChallenge = `pairband-x:${account.slice(2, 10).toLowerCase()}`;
+
+  async function copyText(label: string, text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.message(text);
+    }
+  }
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -189,21 +204,88 @@ function Create() {
         return;
       }
       setWebsiteVerified(result.verified);
-      if (result.foundTwitter) setTwitterVerified(true);
+      if (result.verified && (result.twitterMetaMatch || result.foundTwitter)) {
+        setTwitterVerified(true);
+      }
       if (result.verified) {
         toast.success(
-          result.foundTwitter
-            ? "Website verified · X handle found on site"
-            : "Website verified — pairband:creator meta matches your wallet",
+          result.twitterMetaMatch
+            ? "Website + X meta verified"
+            : result.foundTwitter
+              ? "Website verified · X handle found on site"
+              : "Website verified — pairband:creator matches your wallet",
         );
       } else {
-        toast.message("Add the meta tag below to your site, then verify again.");
+        toast.message("Add the meta tag below to your site HTML, then verify again.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Verify failed");
     } finally {
       setVerifyBusy(false);
     }
+  }
+
+  async function onVerifyX() {
+    if (!twitter.trim()) {
+      toast.error("Add your X handle first.");
+      return;
+    }
+    if (!website.trim()) {
+      toast.error("Add a website with the pairband meta tags so we can verify X live.");
+      return;
+    }
+    setVerifyXBusy(true);
+    try {
+      const result = await verifyTokenWebsite({
+        data: {
+          website: website.trim(),
+          creator: account,
+          twitter: twitter.trim(),
+        },
+      });
+      if (!result.ok) {
+        toast.error(result.error || "Could not fetch website");
+        setTwitterVerified(false);
+        return;
+      }
+      if (!result.verified) {
+        toast.message("Verify the website creator meta first, then verify X.");
+        setWebsiteVerified(false);
+        setTwitterVerified(false);
+        return;
+      }
+      setWebsiteVerified(true);
+      if (result.twitterMetaMatch || result.foundTwitter) {
+        setTwitterVerified(true);
+        toast.success(
+          result.twitterMetaMatch
+            ? "X verified via pairband:twitter meta"
+            : "X verified — handle found on your verified website",
+        );
+      } else {
+        setTwitterVerified(false);
+        toast.message(
+          `Add ${twitterMetaSnippet} (or link to x.com/${twitter.trim().replace(/^@/, "")}) on the site, then retry.`,
+        );
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "X verify failed");
+    } finally {
+      setVerifyXBusy(false);
+    }
+  }
+
+  function openXVerifyTweet() {
+    const handle = twitter.trim().replace(/^@/, "");
+    const text = [
+      symbol ? `Launching $${symbol} on Pairband.` : "Launching on Pairband.",
+      `Creator verify: ${xChallenge}`,
+      handle ? `@${handle}` : "",
+      "https://pairband.com",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -217,6 +299,7 @@ function Create() {
       website: website.trim() || undefined,
       twitter: twitter.trim().replace(/^@/, "") || undefined,
       telegram: telegram.trim().replace(/^@/, "") || undefined,
+      discord: discord.trim() || undefined,
       websiteVerified,
       twitterVerified,
     };
@@ -338,7 +421,8 @@ function Create() {
                   <ImagePlus size={16} />
                   {imageUrl ? "Change logo" : "Upload logo"}
                 </ClayButton>
-              </div>              <input
+              </div>
+              <input
                 ref={logoInputRef}
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif,image/*"
@@ -399,90 +483,198 @@ function Create() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">What is this token?</span>
+          <span className="mb-1 flex items-center justify-between text-xs font-medium text-muted">
+            <span>What is this token?</span>
+            <span className="font-mono tabular-nums">{description.length}/280</span>
+          </span>
           <textarea
             required={!onChain}
             maxLength={280}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="One or two sentences — narrative, utility, meme, community."
+            placeholder="One or two sentences — narrative, utility, meme, community. (Shown on Discover like pump.fun.)"
             className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
           />
         </label>
 
-        <GlassPanel className="space-y-3 p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Link2 className="size-4 text-teal" />
-            Socials & website
+        <GlassPanel className="space-y-4 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Link2 className="size-4 text-teal" />
+                Socials & verification
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Same idea as pump.fun / Futardio: set links at create time, prove the website is yours with live HTML
+                checks.
+              </p>
+            </div>
           </div>
+
           <label className="block text-xs">
-            <span className="mb-1 block font-medium text-muted">Website</span>
+            <span className="mb-1 flex items-center gap-1.5 font-medium text-muted">
+              <Globe size={12} /> Website
+            </span>
             <input
               value={website}
               onChange={(e) => {
                 setWebsite(e.target.value);
                 setWebsiteVerified(false);
+                setTwitterVerified(false);
               }}
               placeholder="https://yoursite.com"
               className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
             />
           </label>
+
+          <div className="space-y-2 rounded-2xl border border-ink/8 bg-ink/[0.03] p-3 dark:border-paper/10 dark:bg-paper/5">
+            <p className="text-xs font-medium">1. Add this to your site &lt;head&gt;</p>
+            <div className="flex items-start gap-2">
+              <code className="flex-1 rounded-xl bg-paper px-3 py-2 font-mono text-[11px] break-all dark:bg-ink-2">
+                {verifySnippet}
+              </code>
+              <ClayButton type="button" variant="ghost" className="min-h-9 shrink-0 px-3" onClick={() => void copyText("Creator meta", verifySnippet)}>
+                <Copy size={14} />
+              </ClayButton>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="flex-1 rounded-xl bg-paper px-3 py-2 font-mono text-[11px] break-all dark:bg-ink-2">
+                {twitterMetaSnippet}
+              </code>
+              <ClayButton
+                type="button"
+                variant="ghost"
+                className="min-h-9 shrink-0 px-3"
+                onClick={() => void copyText("X meta", twitterMetaSnippet)}
+              >
+                <Copy size={14} />
+              </ClayButton>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted">
+              Or plain text anywhere on the page:{" "}
+              <span className="font-mono">pairband-verify:{account}</span>. Pairband fetches the URL live (no cache) and
+              checks the wallet + X handle.
+            </p>
+            <ClayButton
+              type="button"
+              variant="secondary"
+              className="w-full"
+              disabled={verifyBusy || !website.trim()}
+              onClick={() => void onVerifyWebsite()}
+            >
+              {verifyBusy ? "Fetching site…" : websiteVerified ? "Re-verify website" : "Verify website live"}
+            </ClayButton>
+          </div>
+
           <label className="block text-xs">
             <span className="mb-1 block font-medium text-muted">X / Twitter</span>
-            <input
-              value={twitter}
-              onChange={(e) => {
-                setTwitter(e.target.value.replace(/^@/, ""));
-                setTwitterVerified(false);
-              }}
-              placeholder="handle"
-              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
-            />
+            <div className="flex gap-2">
+              <span className="inline-flex h-11 items-center rounded-2xl border border-ink/10 bg-ink/5 px-3 font-mono text-sm dark:border-paper/15 dark:bg-paper/10">
+                @
+              </span>
+              <input
+                value={twitter}
+                onChange={(e) => {
+                  setTwitter(e.target.value.replace(/^@/, ""));
+                  setTwitterVerified(false);
+                }}
+                placeholder="handle"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </div>
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block font-medium text-muted">Telegram (optional)</span>
-            <input
-              value={telegram}
-              onChange={(e) => setTelegram(e.target.value.replace(/^@/, ""))}
-              placeholder="group or channel"
-              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
-            />
-          </label>
-          <div className="rounded-2xl bg-ink/5 p-3 font-mono text-[11px] break-all dark:bg-paper/10">
-            {verifySnippet}
-          </div>
-          <p className="text-xs text-muted">
-            Add that meta tag (or plain text <span className="font-mono">pairband-verify:{account}</span>) to your
-            homepage HTML. Pairband fetches the page live and checks it matches your wallet.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <ClayButton type="button" variant="secondary" disabled={verifyBusy || !website.trim()} onClick={() => void onVerifyWebsite()}>
-              {verifyBusy ? "Checking…" : "Verify website"}
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <ClayButton
+              type="button"
+              variant="secondary"
+              className="flex-1"
+              disabled={!twitter.trim()}
+              onClick={openXVerifyTweet}
+            >
+              <ExternalLink size={14} />
+              Post verify tweet
             </ClayButton>
             <ClayButton
               type="button"
-              variant="ghost"
-              disabled={!twitter.trim()}
-              onClick={() => {
-                setTwitterVerified(true);
-                toast.success("X handle linked on this launch (shown on the token page)");
-              }}
+              variant="secondary"
+              className="flex-1"
+              disabled={verifyXBusy || !twitter.trim() || !website.trim()}
+              onClick={() => void onVerifyX()}
             >
-              Link X handle
+              {verifyXBusy ? "Checking…" : twitterVerified ? "Re-verify X" : "Verify X via website"}
             </ClayButton>
           </div>
+          <p className="text-[11px] leading-relaxed text-muted">
+            Tweet includes challenge <span className="font-mono">{xChallenge}</span>. We confirm X by finding your handle
+            (or <span className="font-mono">pairband:twitter</span> meta) on the same site that proves your wallet.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs">
+              <span className="mb-1 block font-medium text-muted">Telegram</span>
+              <input
+                value={telegram}
+                onChange={(e) => setTelegram(e.target.value.replace(/^@/, ""))}
+                placeholder="group or channel"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </label>
+            <label className="block text-xs">
+              <span className="mb-1 block font-medium text-muted">Discord</span>
+              <input
+                value={discord}
+                onChange={(e) => setDiscord(e.target.value)}
+                placeholder="invite link or server"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </label>
+          </div>
+
           <div className="flex flex-wrap gap-3 text-xs">
             {websiteVerified ? (
-              <span className="inline-flex items-center gap-1 text-teal">
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-teal">
                 <CheckCircle2 size={14} /> Website verified
               </span>
+            ) : website.trim() ? (
+              <span className="rounded-full bg-ink/5 px-2.5 py-1 text-muted dark:bg-paper/10">Website pending</span>
             ) : null}
             {twitterVerified ? (
-              <span className="inline-flex items-center gap-1 text-teal">
-                <CheckCircle2 size={14} /> X linked
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-teal">
+                <CheckCircle2 size={14} /> X verified
               </span>
+            ) : twitter.trim() ? (
+              <span className="rounded-full bg-ink/5 px-2.5 py-1 text-muted dark:bg-paper/10">X pending</span>
             ) : null}
+          </div>
+        </GlassPanel>
+
+        <GlassPanel className="space-y-3 p-4">
+          <p className="text-sm font-medium">Launch preview</p>
+          <div className="flex items-start gap-3">
+            <TokenGlyph symbol={symbol || "??"} hue={hue} size={48} imageUrl={imageUrl} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{name || "Token name"}</p>
+              <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+              <p className="mt-1 line-clamp-2 text-xs text-muted">
+                {description || "Your “what is this token?” blurb shows here."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                {website.trim() ? (
+                  <span className={websiteVerified ? "text-teal" : "text-muted"}>
+                    {websiteVerified ? "✓ " : ""}Website
+                  </span>
+                ) : null}
+                {twitter.trim() ? (
+                  <span className={twitterVerified ? "text-teal" : "text-muted"}>
+                    {twitterVerified ? "✓ " : ""}@{twitter.trim().replace(/^@/, "")}
+                  </span>
+                ) : null}
+                {telegram.trim() ? <span className="text-muted">TG</span> : null}
+                {discord.trim() ? <span className="text-muted">Discord</span> : null}
+              </div>
+            </div>
           </div>
         </GlassPanel>
 
@@ -517,8 +709,9 @@ function Create() {
           {busy ? "Confirm in wallet…" : onChain ? "Launch on Arc testnet" : `Launch · ${formatUsdc(LAUNCH_FEE_USDC)} fee`}
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
-          Logo and socials are stored with the launch in-app. Website verification is live HTML fetch for the
-          pairband:creator meta (or pairband-verify text). Uncheck broadcast to keep a full local preview with metadata.
+          Logo, blurb, and socials are saved with the launch (immutable after create, pump.fun-style). Website / X
+          verification is a live HTML fetch for <span className="font-mono">pairband:creator</span> and{" "}
+          <span className="font-mono">pairband:twitter</span> meta tags.
         </p>
       </form>
     </div>

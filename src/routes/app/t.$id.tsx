@@ -81,16 +81,19 @@ function TokenPage() {
                 </span>
               </div>
               <p className="mt-1 text-sm text-muted">{launch.description}</p>
-              {(launch.website || launch.twitter || launch.telegram) && (
+              {(launch.website || launch.twitter || launch.telegram || launch.discord) && (
                 <div className="mt-2 flex flex-wrap gap-3 text-xs">
                   {launch.website ? (
                     <a
                       href={launch.website}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-teal underline underline-offset-2"
+                      className="inline-flex items-center gap-1 text-teal underline underline-offset-2"
                     >
-                      Website{launch.websiteVerified ? " · verified" : ""}
+                      Website
+                      {launch.websiteVerified ? (
+                        <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] no-underline">verified</span>
+                      ) : null}
                     </a>
                   ) : null}
                   {launch.twitter ? (
@@ -98,10 +101,12 @@ function TokenPage() {
                       href={`https://x.com/${launch.twitter}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-teal underline underline-offset-2"
+                      className="inline-flex items-center gap-1 text-teal underline underline-offset-2"
                     >
                       @{launch.twitter}
-                      {launch.twitterVerified ? " · linked" : ""}
+                      {launch.twitterVerified ? (
+                        <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] no-underline">verified</span>
+                      ) : null}
                     </a>
                   ) : null}
                   {launch.telegram ? (
@@ -112,6 +117,20 @@ function TokenPage() {
                       className="text-teal underline underline-offset-2"
                     >
                       Telegram
+                    </a>
+                  ) : null}
+                  {launch.discord ? (
+                    <a
+                      href={
+                        /^https?:\/\//i.test(launch.discord)
+                          ? launch.discord
+                          : `https://discord.gg/${launch.discord}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      Discord
                     </a>
                   ) : null}
                 </div>

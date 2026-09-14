@@ -6,12 +6,15 @@ export type WebsiteVerifyResult = {
   verified: boolean;
   foundCreator: boolean;
   foundTwitter: boolean;
+  twitterMetaMatch: boolean;
+  fetchedUrl?: string;
   error?: string;
 };
 
 /**
  * Fetch a creator website and look for Pairband verification markers:
  * - <meta name="pairband:creator" content="0x…">
+ * - <meta name="pairband:twitter" content="handle">
  * - plain text `pairband-verify:0x…`
  * Optionally confirm an X handle appears on the page.
  */
@@ -20,6 +23,18 @@ const verifySchema = z.object({
   creator: z.string().min(6).max(66),
   twitter: z.string().max(40).optional(),
 });
+
+function metaContent(html: string, name: string): string {
+  const re1 = new RegExp(
+    `<meta[^>]+name=["']${name}["'][^>]+content=["']([^"']+)["']`,
+    "i",
+  );
+  const re2 = new RegExp(
+    `<meta[^>]+content=["']([^"']+)["'][^>]+name=["']${name}["']`,
+    "i",
+  );
+  return (html.match(re1)?.[1] ?? html.match(re2)?.[1] ?? "").trim();
+}
 
 export const verifyTokenWebsite = createServerFn({ method: "POST" })
   .validator((data: unknown) => verifySchema.parse(data))
@@ -36,39 +51,51 @@ export const verifyTokenWebsite = createServerFn({ method: "POST" })
         signal: ctrl.signal,
         headers: {
           Accept: "text/html,application/xhtml+xml",
-          "User-Agent": "PairbandVerifier/1.0",
+          "User-Agent": "PairbandVerifier/1.0 (+https://pairband.com)",
         },
         redirect: "follow",
       });
       clearTimeout(timer);
       if (!res.ok) {
-        return { ok: false, verified: false, foundCreator: false, foundTwitter: false, error: `HTTP ${res.status}` };
+        return {
+          ok: false,
+          verified: false,
+          foundCreator: false,
+          foundTwitter: false,
+          twitterMetaMatch: false,
+          error: `HTTP ${res.status}`,
+        };
       }
-      html = (await res.text()).slice(0, 400_000).toLowerCase();
+      html = (await res.text()).slice(0, 400_000);
     } catch (e) {
       return {
         ok: false,
         verified: false,
         foundCreator: false,
         foundTwitter: false,
+        twitterMetaMatch: false,
         error: e instanceof Error ? e.message : "Fetch failed",
       };
     }
 
-    const metaRe = /<meta[^>]+name=["']pairband:creator["'][^>]+content=["']([^"']+)["']/i;
-    const metaAlt = /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']pairband:creator["']/i;
-    const metaMatch = html.match(metaRe) ?? html.match(metaAlt);
-    const metaCreator = metaMatch?.[1]?.toLowerCase() ?? "";
-    const plain = html.includes(`pairband-verify:${creator}`) || html.includes(`pairband-verify: ${creator}`);
+    const lower = html.toLowerCase();
+    const metaCreator = metaContent(html, "pairband:creator").toLowerCase();
+    const plain =
+      lower.includes(`pairband-verify:${creator}`) ||
+      lower.includes(`pairband-verify: ${creator}`);
     const foundCreator = metaCreator === creator || plain;
 
-    let foundTwitter = false;
-    if (data.twitter?.trim()) {
-      const handle = data.twitter.trim().replace(/^@/, "").toLowerCase();
+    const handle = data.twitter?.trim().replace(/^@/, "").toLowerCase() ?? "";
+    const twitterMeta = metaContent(html, "pairband:twitter").replace(/^@/, "").toLowerCase();
+    const twitterMetaMatch = Boolean(handle && twitterMeta === handle);
+
+    let foundTwitter = twitterMetaMatch;
+    if (handle) {
       foundTwitter =
-        html.includes(`twitter.com/${handle}`) ||
-        html.includes(`x.com/${handle}`) ||
-        html.includes(`@${handle}`);
+        twitterMetaMatch ||
+        lower.includes(`twitter.com/${handle}`) ||
+        lower.includes(`x.com/${handle}`) ||
+        lower.includes(`@${handle}`);
     }
 
     return {
@@ -76,5 +103,7 @@ export const verifyTokenWebsite = createServerFn({ method: "POST" })
       verified: foundCreator,
       foundCreator,
       foundTwitter,
+      twitterMetaMatch,
+      fetchedUrl: url,
     };
   });

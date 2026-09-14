@@ -255,6 +255,7 @@ export function createLaunch(
     website?: string;
     twitter?: string;
     telegram?: string;
+    discord?: string;
     websiteVerified?: boolean;
     twitterVerified?: boolean;
     /** Skip demo launch fee (e.g. mirroring an on-chain create). */
@@ -270,6 +271,7 @@ export function createLaunch(
   const website = meta?.website?.trim() || undefined;
   const twitter = meta?.twitter?.trim().replace(/^@/, "") || undefined;
   const telegram = meta?.telegram?.trim().replace(/^@/, "") || undefined;
+  const discord = meta?.discord?.trim() || undefined;
   const imageUrl = meta?.imageUrl?.trim() || undefined;
   if (website && !/^https?:\/\//i.test(website) && !/^[a-z0-9.-]+\.[a-z]{2,}/i.test(website)) {
     throw new LaunchError("InvalidMeta");
@@ -301,6 +303,7 @@ export function createLaunch(
       : undefined,
     twitter,
     telegram,
+    discord,
     websiteVerified: Boolean(meta?.websiteVerified && website),
     twitterVerified: Boolean(meta?.twitterVerified && twitter),
     hue: hueOf(sym + String(next.nextId)),

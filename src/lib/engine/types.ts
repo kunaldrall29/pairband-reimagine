@@ -75,6 +75,7 @@ export type LaunchMeta = {
   website?: string;
   twitter?: string;
   telegram?: string;
+  discord?: string;
   websiteVerified?: boolean;
   twitterVerified?: boolean;
 };
@@ -93,6 +94,7 @@ export interface Launch {
   website?: string;
   twitter?: string;
   telegram?: string;
+  discord?: string;
   websiteVerified?: boolean;
   twitterVerified?: boolean;
   hue: number;
