@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Compass, Plus, ArrowLeftRight, Wallet, Moon, Sun, RotateCcw, Activity } from "lucide-react";
+import { Compass, Plus, ArrowLeftRight, Wallet, Moon, Sun, RotateCcw, Activity, Bot } from "lucide-react";
 import { useEffect } from "react";
 import { toast, Toaster } from "sonner";
 import { Wordmark, PairMark } from "@/components/ui/wordmark";
@@ -9,6 +9,7 @@ import { ClayButton } from "@/components/ui/clay-button";
 import { ArcMark } from "@/components/ui/arc-mark";
 import { UsdcMark } from "@/components/ui/usdc-mark";
 import { ConnectWallet } from "@/components/app/connect-wallet";
+import { VaultAgentLaunchBanner } from "@/components/app/vault-agent-banner";
 import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
 import { totalUsdc, usdcBalance } from "@/lib/engine/launchpad.ts";
 import { formatUsdc } from "@/lib/format.ts";
@@ -18,6 +19,7 @@ import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi";
 const NAV = [
   { to: "/app", label: "Discover", icon: Compass },
   { to: "/app/create", label: "Launch", icon: Plus },
+  { to: "/app/curator", label: "Agent", icon: Bot },
   { to: "/app/trade", label: "Trade", icon: ArrowLeftRight },
   { to: "/app/activity", label: "Tape", icon: Activity },
   { to: "/app/me", label: "Wallet", icon: Wallet },
@@ -60,6 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={cn("min-h-screen overflow-x-hidden bg-paper text-ink dark:bg-ink dark:text-paper", dark && "dark")}>
       <Toaster position="top-center" richColors={false} />
+      <VaultAgentLaunchBanner />
       <aside className="fixed top-0 bottom-0 left-0 z-30 hidden w-[72px] flex-col items-center border-r border-ink/8 bg-paper-2 py-4 dark:border-paper/10 dark:bg-ink-2 md:flex">
         <Link to="/" className="mb-6" aria-label="Pairband home">
           <PairMark size={28} />

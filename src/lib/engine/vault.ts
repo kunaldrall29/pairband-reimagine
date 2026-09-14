@@ -5,6 +5,7 @@ import { amountsAtBand, liquidityAtBand, nextSqrtFromInput } from "./liquidity.t
 import { AGENT_FEE_VAULT_USDC } from "./constants.ts";
 import {
   DEAD,
+  DEMO_AGENT,
   DEMO_CURATOR,
   DEMO_FACTORY,
   DEMO_HOOK,

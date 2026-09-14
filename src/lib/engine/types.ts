@@ -70,6 +70,16 @@ export interface Trade {
   destDomain: number;
 }
 
+export type LaunchMeta = {
+  imageUrl?: string;
+  website?: string;
+  twitter?: string;
+  telegram?: string;
+  discord?: string;
+  websiteVerified?: boolean;
+  twitterVerified?: boolean;
+};
+
 export interface Launch {
   id: string;
   token: string;
@@ -79,6 +89,14 @@ export interface Launch {
   name: string;
   symbol: string;
   description: string;
+  /** Optional logo as data URL or https URL (client-side / demo). */
+  imageUrl?: string;
+  website?: string;
+  twitter?: string;
+  telegram?: string;
+  discord?: string;
+  websiteVerified?: boolean;
+  twitterVerified?: boolean;
   hue: number;
   creator: string;
   createdAt: number;

@@ -81,7 +81,22 @@ export interface LaunchStore {
   clearEvent: () => void;
   toggleWatch: (id: string) => void;
   faucet: () => boolean;
-  create: (name: string, symbol: string, description: string, firstBuy?: bigint) => string | null;
+  create: (
+    name: string,
+    symbol: string,
+    description: string,
+    firstBuy?: bigint,
+    meta?: {
+      imageUrl?: string;
+      website?: string;
+      twitter?: string;
+      telegram?: string;
+      discord?: string;
+      websiteVerified?: boolean;
+      twitterVerified?: boolean;
+      skipFee?: boolean;
+    },
+  ) => string | null;
   buy: (id: string, usdcIn: bigint, minOut?: bigint) => boolean;
   sell: (id: string, tokensIn: bigint, minOut?: bigint) => boolean;
   limitBuy: (id: string, price: bigint, usdcIn: bigint) => boolean;
@@ -134,9 +149,9 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
       return false;
     }
   },
-  create: (name, symbol, description, firstBuy = 0n) => {
+  create: (name, symbol, description, firstBuy = 0n, meta) => {
     try {
-      let { state, launch } = createLaunch(get().engine, get().account, name, symbol, description);
+      let { state, launch } = createLaunch(get().engine, get().account, name, symbol, description, meta);
       if (firstBuy > 0n) {
         state = buy(state, get().account, launch.id, firstBuy);
         launch = findLaunch(state, launch.id);

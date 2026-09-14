@@ -1,8 +1,8 @@
 "use client";
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CheckCircle2, Copy, ExternalLink, Globe, ImagePlus, Link2, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -20,6 +20,7 @@ import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
 import { useLiveTrade } from "@/lib/live-trade";
 import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { verifyTokenWebsite } from "@/lib/verify-website";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
 import { parseUnits } from "@/lib/utils";
@@ -59,6 +60,25 @@ function emptyCurveLaunch(): Launch {
   };
 }
 
+async function fileToLogoDataUrl(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Choose an image file");
+  if (file.size > 2_500_000) throw new Error("Logo must be under 2.5MB");
+  const bitmap = await createImageBitmap(file);
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas unavailable");
+  const scale = Math.max(size / bitmap.width, size / bitmap.height);
+  const w = bitmap.width * scale;
+  const h = bitmap.height * scale;
+  ctx.drawImage(bitmap, (size - w) / 2, (size - h) / 2, w, h);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  if (dataUrl.length > 320_000) throw new Error("Logo too large after compress — try a simpler image");
+  return dataUrl;
+}
+
 function Create() {
   const navigate = useNavigate();
   const create = useLaunchpad((s) => s.create);
@@ -72,9 +92,24 @@ function Create() {
   const [name, setName] = useState("");
   const [symbol, setSymbol] = useState("");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+  const [website, setWebsite] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [discord, setDiscord] = useState("");
+  const [websiteVerified, setWebsiteVerified] = useState(false);
+  const [twitterVerified, setTwitterVerified] = useState(false);
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyXBusy, setVerifyXBusy] = useState(false);
   const [first, setFirst] = useState("0");
-  const [onChain, setOnChain] = useState(true);
+  const [onChain, setOnChain] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (live) setOnChain(true);
+    else setOnChain(false);
+  }, [live]);
 
   const hue = [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
   const firstAmt = useMemo(() => {
@@ -95,6 +130,20 @@ function Create() {
   }, [firstAmt]);
 
   const totalDue = LAUNCH_FEE_USDC + firstAmt;
+  const verifySnippet = `<meta name="pairband:creator" content="${account}" />`;
+  const twitterMetaSnippet = twitter.trim()
+    ? `<meta name="pairband:twitter" content="${twitter.trim().replace(/^@/, "")}" />`
+    : `<meta name="pairband:twitter" content="yourhandle" />`;
+  const xChallenge = `pairband-x:${account.slice(2, 10).toLowerCase()}`;
+
+  async function copyText(label: string, text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.message(text);
+    }
+  }
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -124,15 +173,141 @@ function Create() {
     }
   }
 
+  async function onLogo(file: File | null) {
+    if (!file) return;
+    try {
+      const url = await fileToLogoDataUrl(file);
+      setImageUrl(url);
+      toast.success("Logo ready");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Logo upload failed");
+    }
+  }
+
+  async function onVerifyWebsite() {
+    if (!website.trim()) {
+      toast.error("Add a website URL first.");
+      return;
+    }
+    setVerifyBusy(true);
+    try {
+      const result = await verifyTokenWebsite({
+        data: {
+          website: website.trim(),
+          creator: account,
+          twitter: twitter.trim() || undefined,
+        },
+      });
+      if (!result.ok) {
+        toast.error(result.error || "Could not fetch website");
+        setWebsiteVerified(false);
+        return;
+      }
+      setWebsiteVerified(result.verified);
+      if (result.verified && (result.twitterMetaMatch || result.foundTwitter)) {
+        setTwitterVerified(true);
+      }
+      if (result.verified) {
+        toast.success(
+          result.twitterMetaMatch
+            ? "Website + X meta verified"
+            : result.foundTwitter
+              ? "Website verified · X handle found on site"
+              : "Website verified — pairband:creator matches your wallet",
+        );
+      } else {
+        toast.message("Add the meta tag below to your site HTML, then verify again.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Verify failed");
+    } finally {
+      setVerifyBusy(false);
+    }
+  }
+
+  async function onVerifyX() {
+    if (!twitter.trim()) {
+      toast.error("Add your X handle first.");
+      return;
+    }
+    if (!website.trim()) {
+      toast.error("Add a website with the pairband meta tags so we can verify X live.");
+      return;
+    }
+    setVerifyXBusy(true);
+    try {
+      const result = await verifyTokenWebsite({
+        data: {
+          website: website.trim(),
+          creator: account,
+          twitter: twitter.trim(),
+        },
+      });
+      if (!result.ok) {
+        toast.error(result.error || "Could not fetch website");
+        setTwitterVerified(false);
+        return;
+      }
+      if (!result.verified) {
+        toast.message("Verify the website creator meta first, then verify X.");
+        setWebsiteVerified(false);
+        setTwitterVerified(false);
+        return;
+      }
+      setWebsiteVerified(true);
+      if (result.twitterMetaMatch || result.foundTwitter) {
+        setTwitterVerified(true);
+        toast.success(
+          result.twitterMetaMatch
+            ? "X verified via pairband:twitter meta"
+            : "X verified — handle found on your verified website",
+        );
+      } else {
+        setTwitterVerified(false);
+        toast.message(
+          `Add ${twitterMetaSnippet} (or link to x.com/${twitter.trim().replace(/^@/, "")}) on the site, then retry.`,
+        );
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "X verify failed");
+    } finally {
+      setVerifyXBusy(false);
+    }
+  }
+
+  function openXVerifyTweet() {
+    const handle = twitter.trim().replace(/^@/, "");
+    const text = [
+      symbol ? `Launching $${symbol} on Pairband.` : "Launching on Pairband.",
+      `Creator verify: ${xChallenge}`,
+      handle ? `@${handle}` : "",
+      "https://pairband.com",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!onChain && totalDue > usdcBalance) {
       toast.error(`Need ${formatUsdc(totalDue)} USDC on Arc (launch fee + first buy).`);
       return;
     }
+    const meta = {
+      imageUrl,
+      website: website.trim() || undefined,
+      twitter: twitter.trim().replace(/^@/, "") || undefined,
+      telegram: telegram.trim().replace(/^@/, "") || undefined,
+      discord: discord.trim() || undefined,
+      websiteVerified,
+      twitterVerified,
+    };
     if (onChain && live) {
       try {
         const result = await createToken(name.trim(), symbol.trim().toUpperCase());
+        // Mirror logo/socials locally without charging the demo launch fee again.
+        create(name, symbol, description || `${name} on Arc`, 0n, { ...meta, skipFee: true });
         try {
           const client = createPublicClient({
             chain: arcTestnet,
@@ -154,7 +329,7 @@ function Create() {
       }
       return;
     }
-    const id = create(name, symbol, description, firstAmt);
+    const id = create(name, symbol, description, firstAmt, meta);
     if (id) void navigate({ to: "/app/t/$id", params: { id } });
   }
 
@@ -163,8 +338,8 @@ function Create() {
       <p className="font-mono text-[11px] tracking-[0.18em] text-teal uppercase">Launch</p>
       <h1 className="text-4xl tracking-tight">Create a token</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        One billion supply. Bonding curve quoted in USDC on Arc. Launch costs {formatUsdc(LAUNCH_FEE_USDC)} USDC. The buy
-        that fills {formatUsdc(GRADUATE_AT)} seeds a Uniswap pair and burns the LP. You keep 0.5% of curve volume.
+        One billion supply. Bonding curve quoted in USDC on Arc. Launch costs {formatUsdc(LAUNCH_FEE_USDC)} USDC. Add a
+        logo, website, and X — verify the site like pump.fun-style creator proofs.
       </p>
 
       <form onSubmit={onGenerate} className="mt-8 space-y-3">
@@ -189,11 +364,75 @@ function Create() {
       </form>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <GlassPanel className="flex items-center gap-4 p-4">
-          <TokenGlyph symbol={symbol || "??"} hue={hue} size={56} />
-          <div>
-            <p className="font-medium">{name || "Token name"}</p>
-            <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+        <GlassPanel className="space-y-4 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Token logo</p>
+              <p className="mt-0.5 text-xs text-muted">Square image works best · PNG, JPG, or WebP · under 2.5MB</p>
+            </div>
+            {imageUrl ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setImageUrl(undefined);
+                  if (logoInputRef.current) logoInputRef.current.value = "";
+                  toast.message("Logo removed");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-muted hover:bg-ink/5 dark:hover:bg-paper/10"
+              >
+                <Trash2 size={14} />
+                Remove
+              </button>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              className="group relative mx-auto flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-dashed border-ink/20 bg-ink/[0.03] transition hover:border-teal hover:bg-teal/5 sm:mx-0 dark:border-paper/20 dark:bg-paper/5"
+              aria-label={imageUrl ? "Change token logo" : "Upload token logo"}
+            >
+              {imageUrl ? (
+                <img src={imageUrl} alt="Token logo preview" className="size-full object-cover" />
+              ) : (
+                <TokenGlyph symbol={symbol || "??"} hue={hue} size={72} />
+              )}
+              <span className="absolute right-2 bottom-2 flex size-8 items-center justify-center rounded-full bg-ink text-paper shadow-md dark:bg-paper dark:text-ink">
+                <ImagePlus size={16} />
+              </span>
+            </button>
+
+            <div className="min-w-0 flex-1 space-y-3 text-center sm:text-left">
+              <div>
+                <p className="font-medium">{name || "Token name"}</p>
+                <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+                <p className="mt-1 text-xs text-muted">
+                  {imageUrl ? "Custom logo selected — shown on Discover and the token page" : "No logo yet — optional but recommended"}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <ClayButton
+                  type="button"
+                  variant={imageUrl ? "secondary" : "primary"}
+                  className="w-full sm:w-auto"
+                  onClick={() => logoInputRef.current?.click()}
+                >
+                  <ImagePlus size={16} />
+                  {imageUrl ? "Change logo" : "Upload logo"}
+                </ClayButton>
+              </div>
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/*"
+                className="sr-only"
+                onChange={(e) => {
+                  void onLogo(e.target.files?.[0] ?? null);
+                  e.target.value = "";
+                }}
+              />
+            </div>
           </div>
         </GlassPanel>
 
@@ -219,14 +458,6 @@ function Create() {
               <dd className={usdcBalance < totalDue ? "text-danger" : "text-teal"}>{formatUsdc(usdcBalance)}</dd>
             </div>
           </dl>
-          <a
-            href="https://docs.pairband.com/docs/business-model"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block text-xs text-teal underline underline-offset-2"
-          >
-            Full business model →
-          </a>
         </GlassPanel>
 
         <label className="block">
@@ -252,16 +483,201 @@ function Create() {
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">Description</span>
+          <span className="mb-1 flex items-center justify-between text-xs font-medium text-muted">
+            <span>What is this token?</span>
+            <span className="font-mono tabular-nums">{description.length}/280</span>
+          </span>
           <textarea
             required={!onChain}
             maxLength={280}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            placeholder="One or two sentences — narrative, utility, meme, community. (Shown on Discover like pump.fun.)"
             className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
           />
         </label>
+
+        <GlassPanel className="space-y-4 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Link2 className="size-4 text-teal" />
+                Socials & verification
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Same idea as pump.fun / Futardio: set links at create time, prove the website is yours with live HTML
+                checks.
+              </p>
+            </div>
+          </div>
+
+          <label className="block text-xs">
+            <span className="mb-1 flex items-center gap-1.5 font-medium text-muted">
+              <Globe size={12} /> Website
+            </span>
+            <input
+              value={website}
+              onChange={(e) => {
+                setWebsite(e.target.value);
+                setWebsiteVerified(false);
+                setTwitterVerified(false);
+              }}
+              placeholder="https://yoursite.com"
+              className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+            />
+          </label>
+
+          <div className="space-y-2 rounded-2xl border border-ink/8 bg-ink/[0.03] p-3 dark:border-paper/10 dark:bg-paper/5">
+            <p className="text-xs font-medium">1. Add this to your site &lt;head&gt;</p>
+            <div className="flex items-start gap-2">
+              <code className="flex-1 rounded-xl bg-paper px-3 py-2 font-mono text-[11px] break-all dark:bg-ink-2">
+                {verifySnippet}
+              </code>
+              <ClayButton type="button" variant="ghost" className="min-h-9 shrink-0 px-3" onClick={() => void copyText("Creator meta", verifySnippet)}>
+                <Copy size={14} />
+              </ClayButton>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="flex-1 rounded-xl bg-paper px-3 py-2 font-mono text-[11px] break-all dark:bg-ink-2">
+                {twitterMetaSnippet}
+              </code>
+              <ClayButton
+                type="button"
+                variant="ghost"
+                className="min-h-9 shrink-0 px-3"
+                onClick={() => void copyText("X meta", twitterMetaSnippet)}
+              >
+                <Copy size={14} />
+              </ClayButton>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted">
+              Or plain text anywhere on the page:{" "}
+              <span className="font-mono">pairband-verify:{account}</span>. Pairband fetches the URL live (no cache) and
+              checks the wallet + X handle.
+            </p>
+            <ClayButton
+              type="button"
+              variant="secondary"
+              className="w-full"
+              disabled={verifyBusy || !website.trim()}
+              onClick={() => void onVerifyWebsite()}
+            >
+              {verifyBusy ? "Fetching site…" : websiteVerified ? "Re-verify website" : "Verify website live"}
+            </ClayButton>
+          </div>
+
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-muted">X / Twitter</span>
+            <div className="flex gap-2">
+              <span className="inline-flex h-11 items-center rounded-2xl border border-ink/10 bg-ink/5 px-3 font-mono text-sm dark:border-paper/15 dark:bg-paper/10">
+                @
+              </span>
+              <input
+                value={twitter}
+                onChange={(e) => {
+                  setTwitter(e.target.value.replace(/^@/, ""));
+                  setTwitterVerified(false);
+                }}
+                placeholder="handle"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </div>
+          </label>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <ClayButton
+              type="button"
+              variant="secondary"
+              className="flex-1"
+              disabled={!twitter.trim()}
+              onClick={openXVerifyTweet}
+            >
+              <ExternalLink size={14} />
+              Post verify tweet
+            </ClayButton>
+            <ClayButton
+              type="button"
+              variant="secondary"
+              className="flex-1"
+              disabled={verifyXBusy || !twitter.trim() || !website.trim()}
+              onClick={() => void onVerifyX()}
+            >
+              {verifyXBusy ? "Checking…" : twitterVerified ? "Re-verify X" : "Verify X via website"}
+            </ClayButton>
+          </div>
+          <p className="text-[11px] leading-relaxed text-muted">
+            Tweet includes challenge <span className="font-mono">{xChallenge}</span>. We confirm X by finding your handle
+            (or <span className="font-mono">pairband:twitter</span> meta) on the same site that proves your wallet.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs">
+              <span className="mb-1 block font-medium text-muted">Telegram</span>
+              <input
+                value={telegram}
+                onChange={(e) => setTelegram(e.target.value.replace(/^@/, ""))}
+                placeholder="group or channel"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </label>
+            <label className="block text-xs">
+              <span className="mb-1 block font-medium text-muted">Discord</span>
+              <input
+                value={discord}
+                onChange={(e) => setDiscord(e.target.value)}
+                placeholder="invite link or server"
+                className="h-11 w-full rounded-2xl border border-ink/10 bg-paper px-4 outline-none focus:border-teal dark:border-paper/15 dark:bg-ink-2"
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-xs">
+            {websiteVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-teal">
+                <CheckCircle2 size={14} /> Website verified
+              </span>
+            ) : website.trim() ? (
+              <span className="rounded-full bg-ink/5 px-2.5 py-1 text-muted dark:bg-paper/10">Website pending</span>
+            ) : null}
+            {twitterVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-teal">
+                <CheckCircle2 size={14} /> X verified
+              </span>
+            ) : twitter.trim() ? (
+              <span className="rounded-full bg-ink/5 px-2.5 py-1 text-muted dark:bg-paper/10">X pending</span>
+            ) : null}
+          </div>
+        </GlassPanel>
+
+        <GlassPanel className="space-y-3 p-4">
+          <p className="text-sm font-medium">Launch preview</p>
+          <div className="flex items-start gap-3">
+            <TokenGlyph symbol={symbol || "??"} hue={hue} size={48} imageUrl={imageUrl} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{name || "Token name"}</p>
+              <p className="font-mono text-xs text-muted">{(symbol || "TICKER").toUpperCase()} / USDC</p>
+              <p className="mt-1 line-clamp-2 text-xs text-muted">
+                {description || "Your “what is this token?” blurb shows here."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                {website.trim() ? (
+                  <span className={websiteVerified ? "text-teal" : "text-muted"}>
+                    {websiteVerified ? "✓ " : ""}Website
+                  </span>
+                ) : null}
+                {twitter.trim() ? (
+                  <span className={twitterVerified ? "text-teal" : "text-muted"}>
+                    {twitterVerified ? "✓ " : ""}@{twitter.trim().replace(/^@/, "")}
+                  </span>
+                ) : null}
+                {telegram.trim() ? <span className="text-muted">TG</span> : null}
+                {discord.trim() ? <span className="text-muted">Discord</span> : null}
+              </div>
+            </div>
+          </div>
+        </GlassPanel>
+
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-muted">First buy (USDC, optional · preview)</span>
           <input
@@ -293,9 +709,9 @@ function Create() {
           {busy ? "Confirm in wallet…" : onChain ? "Launch on Arc testnet" : `Launch · ${formatUsdc(LAUNCH_FEE_USDC)} fee`}
         </ClayButton>
         <p className="text-xs leading-relaxed text-muted">
-          On-chain launches pay a flat $1 USDC fee. Curve trading takes 1.0% protocol + 0.5% creator in USDC. At graduation
-          the remaining inventory seeds a constant-product pair, LP is burned, and an on-chain book opens. Local preview
-          stays available when you uncheck broadcast.
+          Logo, blurb, and socials are saved with the launch (immutable after create, pump.fun-style). Website / X
+          verification is a live HTML fetch for <span className="font-mono">pairband:creator</span> and{" "}
+          <span className="font-mono">pairband:twitter</span> meta tags.
         </p>
       </form>
     </div>

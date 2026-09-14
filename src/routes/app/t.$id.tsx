@@ -63,7 +63,7 @@ function TokenPage() {
       <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div>
           <div className="flex items-start gap-4">
-            <TokenGlyph symbol={launch.symbol} hue={launch.hue} size={56} />
+            <TokenGlyph symbol={launch.symbol} hue={launch.hue} size={56} imageUrl={launch.imageUrl} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-4xl tracking-tight">{launch.name}</h1>
@@ -81,6 +81,60 @@ function TokenPage() {
                 </span>
               </div>
               <p className="mt-1 text-sm text-muted">{launch.description}</p>
+              {(launch.website || launch.twitter || launch.telegram || launch.discord) && (
+                <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                  {launch.website ? (
+                    <a
+                      href={launch.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-teal underline underline-offset-2"
+                    >
+                      Website
+                      {launch.websiteVerified ? (
+                        <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] no-underline">verified</span>
+                      ) : null}
+                    </a>
+                  ) : null}
+                  {launch.twitter ? (
+                    <a
+                      href={`https://x.com/${launch.twitter}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-teal underline underline-offset-2"
+                    >
+                      @{launch.twitter}
+                      {launch.twitterVerified ? (
+                        <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] no-underline">verified</span>
+                      ) : null}
+                    </a>
+                  ) : null}
+                  {launch.telegram ? (
+                    <a
+                      href={`https://t.me/${launch.telegram}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      Telegram
+                    </a>
+                  ) : null}
+                  {launch.discord ? (
+                    <a
+                      href={
+                        /^https?:\/\//i.test(launch.discord)
+                          ? launch.discord
+                          : `https://discord.gg/${launch.discord}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-teal underline underline-offset-2"
+                    >
+                      Discord
+                    </a>
+                  ) : null}
+                </div>
+              )}
             </div>
             <button
               type="button"

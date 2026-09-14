@@ -250,6 +250,17 @@ export function createLaunch(
   name: string,
   symbol: string,
   description: string,
+  meta?: {
+    imageUrl?: string;
+    website?: string;
+    twitter?: string;
+    telegram?: string;
+    discord?: string;
+    websiteVerified?: boolean;
+    twitterVerified?: boolean;
+    /** Skip demo launch fee (e.g. mirroring an on-chain create). */
+    skipFee?: boolean;
+  },
 ): { state: EngineState; launch: Launch } {
   const n = name.trim();
   const sym = symbol.trim().toUpperCase();
@@ -257,8 +268,19 @@ export function createLaunch(
   if (n.length < 2 || n.length > 32 || !/^[A-Z0-9]{2,12}$/.test(sym) || d.length > 280) {
     throw new LaunchError("InvalidMeta");
   }
+  const website = meta?.website?.trim() || undefined;
+  const twitter = meta?.twitter?.trim().replace(/^@/, "") || undefined;
+  const telegram = meta?.telegram?.trim().replace(/^@/, "") || undefined;
+  const discord = meta?.discord?.trim() || undefined;
+  const imageUrl = meta?.imageUrl?.trim() || undefined;
+  if (website && !/^https?:\/\//i.test(website) && !/^[a-z0-9.-]+\.[a-z]{2,}/i.test(website)) {
+    throw new LaunchError("InvalidMeta");
+  }
+  if (imageUrl && imageUrl.length > 350_000) {
+    throw new LaunchError("InvalidMeta");
+  }
   const next = clone(s);
-  if (LAUNCH_FEE_USDC > 0n) {
+  if (!meta?.skipFee && LAUNCH_FEE_USDC > 0n) {
     debitUsdc(next, account, LAUNCH_FEE_USDC);
     creditUsdc(next, TREASURY, LAUNCH_FEE_USDC);
   }
@@ -273,6 +295,17 @@ export function createLaunch(
     name: n,
     symbol: sym,
     description: d,
+    imageUrl,
+    website: website
+      ? /^https?:\/\//i.test(website)
+        ? website
+        : `https://${website}`
+      : undefined,
+    twitter,
+    telegram,
+    discord,
+    websiteVerified: Boolean(meta?.websiteVerified && website),
+    twitterVerified: Boolean(meta?.twitterVerified && twitter),
     hue: hueOf(sym + String(next.nextId)),
     creator: account,
     createdAt,
