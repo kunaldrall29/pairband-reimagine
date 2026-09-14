@@ -125,18 +125,11 @@ function recountHolders(s: EngineState, launch: Launch) {
   launch.holders = Object.values(bag).filter((v) => v > 0n).length;
 }
 
-export function createEngine(): EngineState {
+export function createEngine(opts?: { seed?: boolean }): EngineState {
   const s: EngineState = {
     chainId: ARC_TESTNET_ID,
-    usdc: { [DEMO_USER]: 10_000n * WAD, [TREASURY]: 0n, [BOOK_MM]: 25_000n * WAD },
-    remoteUsdc: {
-      "0": { [DEMO_USER]: 2_500n * WAD },
-      "6": { [DEMO_USER]: 1_800n * WAD },
-      "10": { [DEMO_USER]: 900n * WAD },
-      "3": { [DEMO_USER]: 1_200n * WAD },
-      "2": { [DEMO_USER]: 400n * WAD },
-      "5": { [DEMO_USER]: 750n * WAD },
-    },
+    usdc: { [TREASURY]: 0n, [BOOK_MM]: 0n },
+    remoteUsdc: {},
     tokens: {},
     launches: [],
     trades: [],
@@ -145,8 +138,26 @@ export function createEngine(): EngineState {
     nextId: 1,
     cctpNonce: 1,
   };
-  seedLaunches(s, { addr, hueOf, creditToken, creditUsdc, pushTrade, now });
+  // Seeded catalog is for unit tests / offline fixtures only — never the live product.
+  if (opts?.seed) {
+    s.usdc[DEMO_USER] = 10_000n * WAD;
+    s.usdc[BOOK_MM] = 25_000n * WAD;
+    s.remoteUsdc = {
+      "0": { [DEMO_USER]: 2_500n * WAD },
+      "6": { [DEMO_USER]: 1_800n * WAD },
+      "10": { [DEMO_USER]: 900n * WAD },
+      "3": { [DEMO_USER]: 1_200n * WAD },
+      "2": { [DEMO_USER]: 400n * WAD },
+      "5": { [DEMO_USER]: 750n * WAD },
+    };
+    seedLaunches(s, { addr, hueOf, creditToken, creditUsdc, pushTrade, now });
+  }
   return s;
+}
+
+/** On-chain launches use numeric ids from the factory index. */
+export function isOnchainLaunchId(id: string): boolean {
+  return /^\d+$/.test(id);
 }
 
 export function findLaunch(s: EngineState, id: string): Launch {

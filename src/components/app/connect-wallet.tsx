@@ -17,11 +17,9 @@ import { isLiveFactory, ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi";
 import { shortAddr } from "@/lib/utils";
 import { arcTestnet } from "@/lib/chains";
 import { useLaunchpad } from "@/lib/engine/store.ts";
-import { DEMO_USER } from "@/lib/engine/constants.ts";
 import { erc20Abi } from "@/lib/abis/launchpad";
 import { fromOnChainUsdc } from "@/lib/live-trade";
 
-const DEMO_SESSION_KEY = "pairband.demoWallet.v1";
 
 function hasInjectedProvider(): boolean {
   if (typeof window === "undefined") return false;
@@ -43,13 +41,6 @@ function connectorLabel(c: Connector): string {
   return c.name || "Wallet";
 }
 
-function readDemoSession(): boolean {
-  try {
-    return typeof window !== "undefined" && window.localStorage.getItem(DEMO_SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
 
 export function ConnectWallet() {
   const { address, isConnected, status } = useAccount();
@@ -63,11 +54,9 @@ export function ConnectWallet() {
   const setUsdcBalance = useLaunchpad((s) => s.setUsdcBalance);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [providerReady, setProviderReady] = useState(false);
-  const [demoSession, setDemoSession] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
-    setDemoSession(readDemoSession());
     setProviderReady(hasInjectedProvider());
     const onChange = () => setProviderReady(hasInjectedProvider());
     window.addEventListener("ethereum#initialized", onChange);
@@ -81,20 +70,10 @@ export function ConnectWallet() {
   useEffect(() => {
     if (isConnected && address) {
       setAccount(address);
-      if (demoSession) {
-        setDemoSession(false);
-        try {
-          window.localStorage.removeItem(DEMO_SESSION_KEY);
-        } catch {
-          /* ignore */
-        }
-      }
-    } else if (demoSession) {
-      setAccount(DEMO_USER);
     } else {
-      setAccount(DEMO_USER);
+      setAccount("");
     }
-  }, [isConnected, address, setAccount, demoSession]);
+  }, [isConnected, address, setAccount]);
 
   useEffect(() => {
     if (!isConnected || !address || !publicClient || !ARC_TESTNET_DEPLOYMENT.usdc) return;
@@ -128,27 +107,7 @@ export function ConnectWallet() {
     toast.error(detail || "Wallet connection failed");
   }, [error]);
 
-  function enableDemo() {
-    try {
-      window.localStorage.setItem(DEMO_SESSION_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    setDemoSession(true);
-    setAccount(DEMO_USER);
-    setSheetOpen(false);
-    toast.success("Demo wallet ready — trade locally on Discover");
-  }
 
-  function clearDemo() {
-    try {
-      window.localStorage.removeItem(DEMO_SESSION_KEY);
-    } catch {
-      /* ignore */
-    }
-    setDemoSession(false);
-    setAccount(DEMO_USER);
-  }
 
   async function connectWith(connector: Connector) {
     setBusyId(connector.id);
@@ -195,8 +154,7 @@ export function ConnectWallet() {
           className="min-h-10 px-3 font-mono text-xs"
           onClick={() => {
             disconnect();
-            clearDemo();
-          }}
+                      }}
         >
           {shortAddr(address, 4)}
         </ClayButton>
@@ -204,22 +162,6 @@ export function ConnectWallet() {
     );
   }
 
-  if (demoSession) {
-    return (
-      <ClayButton
-        variant="ghost"
-        className="min-h-10 px-3 font-mono text-xs"
-        onClick={() => {
-          clearDemo();
-          toast.message("Demo wallet cleared — connect a real wallet anytime");
-        }}
-        title="Demo wallet (tap to clear)"
-      >
-        <span className="rounded-full bg-teal/15 px-1.5 py-0.5 text-[10px] font-sans text-teal">Demo</span>
-        {shortAddr(DEMO_USER, 4)}
-      </ClayButton>
-    );
-  }
 
   const uniqueConnectors = connectors.filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i);
   // Only treat user-initiated connects as "connecting". Ambient wagmi reconnect
@@ -264,8 +206,7 @@ export function ConnectWallet() {
               Connect wallet
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Arc Testnet <span className="font-mono text-ink dark:text-paper">5042002</span>. Pick a wallet, or keep
-              trading with the local demo.
+              Arc Testnet <span className="font-mono text-ink dark:text-paper">5042002</span>. Connect a wallet to trade and create on-chain.
             </p>
 
             <div className="mt-5 flex flex-col gap-2">
@@ -312,10 +253,6 @@ export function ConnectWallet() {
                 </span>
                 <ExternalLink size={14} className="text-muted" />
               </a>
-
-              <ClayButton className="w-full" onClick={enableDemo} disabled={connecting}>
-                Continue with demo wallet
-              </ClayButton>
             </div>
 
             <p className="mt-4 text-xs leading-relaxed text-muted">

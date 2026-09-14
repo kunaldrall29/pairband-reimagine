@@ -6,7 +6,7 @@ import { TokenGlyph } from "@/components/ui/token-glyph";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { ClayButton } from "@/components/ui/clay-button";
 import { CCTP_CHAINS, ARC_CCTP_DOMAIN, isArc } from "@/lib/engine/cctp.ts";
-import { DEMO_USER, FAUCET_AMOUNT, WAD } from "@/lib/engine/constants.ts";
+import { WAD } from "@/lib/engine/constants.ts";
 import { priceOf, sourceBalance, tokenBalance, usdcBalance } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc } from "@/lib/format.ts";
@@ -20,7 +20,6 @@ function Me() {
   const engine = useLaunchpad((s) => s.engine);
   const version = useLaunchpad((s) => s.version);
   const account = useLaunchpad((s) => s.account);
-  const faucet = useLaunchpad((s) => s.faucet);
   const lastError = useLaunchpad((s) => s.lastError);
   const watchlist = useLaunchpad((s) => s.watchlist);
   const bridgeOut = useLaunchpad((s) => s.bridgeOut);
@@ -61,10 +60,7 @@ function Me() {
             <UsdcMark size={12} /> Arc USDC
           </p>
           <p className="mt-1 font-mono text-2xl tabular">{formatUsdc(usdc)}</p>
-          <p className="mt-1 text-xs text-muted">Connected wallets show on-chain USDC. The faucet only credits the local demo account.</p>
-          <ClayButton className="mt-4" variant="secondary" onClick={() => faucet()}>
-            Faucet {formatUsdc(FAUCET_AMOUNT, 0)}
-          </ClayButton>
+          <p className="mt-1 text-xs text-muted">Balances update from your connected wallet on Arc.</p>
           {lastError ? <p className="mt-2 text-xs text-danger">{errorCopy(lastError)}</p> : null}
         </GlassPanel>
         <GlassPanel className="p-5">
@@ -168,7 +164,6 @@ function Me() {
           ))}
         </ul>
       )}
-      <p className="sr-only">{DEMO_USER}</p>
     </div>
   );
 }

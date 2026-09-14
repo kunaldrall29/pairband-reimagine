@@ -8,7 +8,7 @@ import { TokenCard } from "@/components/app/token-card";
 import { ClayButton } from "@/components/ui/clay-button";
 import { ArcMark } from "@/components/ui/arc-mark";
 import { UsdcMark } from "@/components/ui/usdc-mark";
-import { graduateProgress, marketCap, protocolStats } from "@/lib/engine/launchpad.ts";
+import { isOnchainLaunchId, graduateProgress, marketCap, protocolStats } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { formatCompact, formatUsdc } from "@/lib/format.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
@@ -28,7 +28,6 @@ function Discover() {
   void version;
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("new");
-  const [sourceFilter, setSourceFilter] = useState<"all" | "live" | "demo">("all");
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<number | null>(null);
@@ -70,8 +69,7 @@ function Discover() {
           l.description.toLowerCase().includes(query),
       );
     }
-    if (sourceFilter === "live") list = list.filter((l) => /^\d+$/.test(l.id));
-    if (sourceFilter === "demo") list = list.filter((l) => !/^\d+$/.test(l.id));
+    list = list.filter((l) => isOnchainLaunchId(l.id));
     if (filter === "curve") list = list.filter((l) => l.status === "curve");
     if (filter === "uniswap") list = list.filter((l) => l.status === "graduated");
     if (filter === "graduating") {
@@ -81,7 +79,7 @@ function Discover() {
     else if (filter === "volume") list.sort((a, b) => (a.volumeUsdc < b.volumeUsdc ? 1 : -1));
     else list.sort((a, b) => b.createdAt - a.createdAt);
     return list;
-  }, [engine, q, filter, sourceFilter, version]);
+  }, [engine, q, filter, version]);
 
   return (
     <div className="mx-auto max-w-6xl overflow-x-hidden px-4 py-6">
@@ -138,28 +136,6 @@ function Discover() {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1">
-        {(
-          [
-            ["all", "All markets"],
-            ["live", "On-chain"],
-            ["demo", "Local demo"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setSourceFilter(id)}
-            className={`min-h-9 rounded-full px-3 text-xs font-medium ${
-              sourceFilter === id
-                ? "bg-ink text-paper dark:bg-paper dark:text-ink"
-                : "bg-ink/5 text-muted dark:bg-paper/10"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted">
         <button
@@ -175,12 +151,12 @@ function Discover() {
         {syncError ? <span className="text-coral">{syncError}</span> : null}
         <span className="inline-flex flex-wrap items-center gap-1">
           <UsdcMark size={12} /> quoted · <ArcMark size={12} /> settled · graduation at{" "}
-          {formatUsdc(GRADUATE_AT)}. Numeric ids are on-chain; seeded demo markets stay local until you trade them in preview.
+          {formatUsdc(GRADUATE_AT)}. Showing on-chain markets only. Sync to pull the latest from Arc.
         </span>
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-16 text-center text-muted">No markets match that filter.</p>
+        <p className="mt-16 text-center text-muted">No on-chain markets yet. Create a token or sync Arc.</p>
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {rows.map((l) => (

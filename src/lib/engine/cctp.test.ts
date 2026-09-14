@@ -6,7 +6,7 @@ import { buy, createEngine, sourceBalance, usdcBalance, bridgeOut } from "./laun
 
 describe("CCTP settle on Arc", () => {
   it("buy from Base burns remote USDC and settles on Arc", () => {
-    const s = createEngine();
+    const s = createEngine({ seed: true });
     const paper = s.launches.find((l) => l.symbol === "PAPER")!;
     const user = DEMO_USER;
     const baseBefore = sourceBalance(s, user, 6);
@@ -22,14 +22,14 @@ describe("CCTP settle on Arc", () => {
   });
 
   it("unknown domain reverts", () => {
-    const s = createEngine();
+    const s = createEngine({ seed: true });
     const paper = s.launches.find((l) => l.symbol === "PAPER")!;
     const user = DEMO_USER;
     assert.throws(() => buy(s, user, paper.id, WAD, 0n, 99), (e: { code: string }) => e.code === "UnknownDomain");
   });
 
   it("bridgeOut credits destination, debit Arc", () => {
-    const s = createEngine();
+    const s = createEngine({ seed: true });
     const user = DEMO_USER;
     const arcBefore = usdcBalance(s, user);
     const ethBefore = sourceBalance(s, user, 0);
@@ -40,7 +40,7 @@ describe("CCTP settle on Arc", () => {
   });
 
   it("Arc-native buy does not touch remotes", () => {
-    const s = createEngine();
+    const s = createEngine({ seed: true });
     const paper = s.launches.find((l) => l.symbol === "PAPER")!;
     const user = DEMO_USER;
     const baseBefore = sourceBalance(s, user, 6);

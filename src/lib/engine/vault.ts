@@ -174,7 +174,7 @@ export function createDemoState(): EngineState {
     name: "Pairband USDC-USD1",
     symbol: "pb-USDC-USD1",
     token0: { address: DEMO_USDC, symbol: "USDC", name: "USD Coin", decimals: 6 },
-    token1: { address: DEMO_USD1, symbol: "USD1", name: "Mock USD1", decimals: 6 },
+    token1: { address: DEMO_USD1, symbol: "USD1", name: "USD1", decimals: 6 },
     tickSpacing: 10,
     fee: 500,
     sqrtPriceX96: getSqrtRatioAtTick(0),
