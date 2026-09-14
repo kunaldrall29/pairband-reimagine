@@ -9,7 +9,6 @@ import {
   createEngine,
   isOnchainLaunchId,
   createLaunch,
-  faucet as runFaucet,
   findLaunch,
   limitBuy,
   limitSell,
@@ -106,11 +105,10 @@ export interface LaunchStore {
   sourceDomain: number;
   setDark: (v: boolean) => void;
   setSourceDomain: (d: number) => void;
-  resetDemo: () => void;
+  clearLocalCache: () => void;
   clearError: () => void;
   clearEvent: () => void;
   toggleWatch: (id: string) => void;
-  faucet: () => boolean;
   create: (
     name: string,
     symbol: string,
@@ -154,7 +152,7 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
     set({ dark: v });
   },
   setSourceDomain: (d) => set({ sourceDomain: d }),
-  resetDemo: () => {
+  clearLocalCache: () => {
     const engine = createEngine();
     persist(engine);
     if (typeof window !== "undefined") window.localStorage.removeItem(WATCH_KEY);
@@ -167,17 +165,6 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
     const next = cur.includes(id) ? cur.filter((x) => x !== id) : [id, ...cur];
     if (typeof window !== "undefined") window.localStorage.setItem(WATCH_KEY, JSON.stringify(next));
     set({ watchlist: next });
-  },
-  faucet: () => {
-    try {
-      const state = runFaucet(get().engine, get().account);
-      persist(state);
-      set({ engine: state, version: get().version + 1, lastError: null });
-      return true;
-    } catch (e) {
-      set({ lastError: e instanceof LaunchError ? e.code : "Faucet failed" });
-      return false;
-    }
   },
   create: (name, symbol, description, firstBuy = 0n, meta) => {
     try {

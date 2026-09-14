@@ -11,6 +11,7 @@ import {
 } from "./constants.ts";
 import { getTokensOut, splitFees } from "./curve.ts";
 import type { EngineState, Launch, Side, Trade } from "./types.ts";
+import { createEngine } from "./launchpad.ts";
 
 type Helpers = {
   addr: (kind: string, n: number) => string;
@@ -233,4 +234,64 @@ export function seedLaunches(s: EngineState, h: Helpers) {
     s.books[id] ??= { bids: [], asks: [], nextId: 1 };
   }
   s.launches.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+
+
+/** Test/fixture engine with the offline demo catalog. Not used by the live app. */
+export function createSeededEngine(): EngineState {
+  const s = createEngine();
+  s.usdc[DEMO_USER] = 10_000n * WAD;
+  s.usdc[BOOK_MM] = 25_000n * WAD;
+  s.remoteUsdc = {
+    "0": { [DEMO_USER]: 2_500n * WAD },
+    "6": { [DEMO_USER]: 1_800n * WAD },
+    "10": { [DEMO_USER]: 900n * WAD },
+    "3": { [DEMO_USER]: 1_200n * WAD },
+    "2": { [DEMO_USER]: 400n * WAD },
+    "5": { [DEMO_USER]: 750n * WAD },
+  };
+
+  const addr = (kind: string, n: number): string => {
+    const hex = n.toString(16).padStart(8, "0");
+    const pad = kind === "token" ? "70" : kind === "curve" ? "C0" : kind === "pair" ? "A0" : "D0";
+    return `0x${pad}${hex}${"0".repeat(30)}`.slice(0, 42);
+  };
+  const hueOf = (symbol: string): number => {
+    let h = 0;
+    for (let i = 0; i < symbol.length; i++) h = (h * 33 + symbol.charCodeAt(i)) >>> 0;
+    return h % 360;
+  };
+  const now = () => Date.now();
+  const creditToken = (st: EngineState, launchId: string, account: string, amount: bigint) => {
+    const bag = st.tokens[launchId] ?? (st.tokens[launchId] = {});
+    bag[account] = (bag[account] ?? 0n) + amount;
+  };
+  const creditUsdc = (st: EngineState, account: string, amount: bigint) => {
+    st.usdc[account] = (st.usdc[account] ?? 0n) + amount;
+  };
+  const pushTrade: Helpers["pushTrade"] = (st, launch, side, account, usdc, tokens, at = now()) => {
+    const t: Trade = {
+      id: `t${st.trades.length + 1}`,
+      launchId: launch.id,
+      side,
+      account,
+      usdc,
+      tokens,
+      price: tokens > 0n ? (usdc * WAD) / tokens : 0n,
+      at,
+      sourceDomain: 0,
+      destDomain: 0,
+    };
+    if (side === "buy" || side === "sell" || side === "swap" || side === "fill") {
+      launch.volumeUsdc += usdc;
+      launch.txCount += 1;
+      launch.lastTradeAt = at;
+    }
+    st.trades = [t, ...st.trades].slice(0, 500);
+    return t;
+  };
+
+  seedLaunches(s, { addr, hueOf, creditToken, creditUsdc, pushTrade, now });
+  return s;
 }

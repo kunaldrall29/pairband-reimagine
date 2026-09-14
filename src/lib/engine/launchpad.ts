@@ -3,7 +3,6 @@ import {
   ARC_TESTNET_ID,
   BOOK_MM,
   DEAD,
-  DEMO_USER,
   FAUCET_AMOUNT,
   FAUCET_CAP,
   GRADUATE_AT,
@@ -31,7 +30,6 @@ import {
   usdcToTokens,
 } from "./book.ts";
 import { getTokensOut, getUsdcOut, splitFees, spotPrice } from "./curve.ts";
-import { seedLaunches } from "./seed.ts";
 import type { Book, BuyPreview, EngineState, Launch, SellPreview, Side, Trade } from "./types.ts";
 import { LaunchError } from "./types.ts";
 
@@ -125,8 +123,8 @@ function recountHolders(s: EngineState, launch: Launch) {
   launch.holders = Object.values(bag).filter((v) => v > 0n).length;
 }
 
-export function createEngine(opts?: { seed?: boolean }): EngineState {
-  const s: EngineState = {
+export function createEngine(): EngineState {
+  return {
     chainId: ARC_TESTNET_ID,
     usdc: { [TREASURY]: 0n, [BOOK_MM]: 0n },
     remoteUsdc: {},
@@ -138,21 +136,6 @@ export function createEngine(opts?: { seed?: boolean }): EngineState {
     nextId: 1,
     cctpNonce: 1,
   };
-  // Seeded catalog is for unit tests / offline fixtures only — never the live product.
-  if (opts?.seed) {
-    s.usdc[DEMO_USER] = 10_000n * WAD;
-    s.usdc[BOOK_MM] = 25_000n * WAD;
-    s.remoteUsdc = {
-      "0": { [DEMO_USER]: 2_500n * WAD },
-      "6": { [DEMO_USER]: 1_800n * WAD },
-      "10": { [DEMO_USER]: 900n * WAD },
-      "3": { [DEMO_USER]: 1_200n * WAD },
-      "2": { [DEMO_USER]: 400n * WAD },
-      "5": { [DEMO_USER]: 750n * WAD },
-    };
-    seedLaunches(s, { addr, hueOf, creditToken, creditUsdc, pushTrade, now });
-  }
-  return s;
 }
 
 /** On-chain launches use numeric ids from the factory index. */

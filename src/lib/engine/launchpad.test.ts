@@ -1,3 +1,4 @@
+import { createSeededEngine } from "./seed.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getAmountOut } from "./amm.ts";
@@ -17,8 +18,7 @@ import {
 import { getTokensOut, getUsdcOut, splitFees, spotPrice } from "./curve.ts";
 import {
   buy,
-  createEngine,
-  createLaunch,
+    createLaunch,
   findLaunch,
   forceGraduate,
   previewBuy,
@@ -32,7 +32,7 @@ const A = DEMO_USER;
 const B = "0xBEEF0000000000000000000000000000000000B2";
 
 function fresh() {
-  const s = createEngine({ seed: true });
+  const s = createSeededEngine();
   s.usdc[B] = 10_000n * WAD;
   return s;
 }

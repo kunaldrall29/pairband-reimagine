@@ -76,7 +76,7 @@ export function errorCopy(code: string | null): string {
     case "InsufficientLiquidity":
       return "Not enough liquidity.";
     case "FaucetCapped":
-      return "Demo faucet cap reached. Reset the demo to refill.";
+      return "Faucet cap reached.";
     case "NotOwner":
       return "Not your order.";
     case "OrderNotFound":

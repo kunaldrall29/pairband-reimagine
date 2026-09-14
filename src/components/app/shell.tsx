@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const account = useLaunchpad((s) => s.account);
   const dark = useLaunchpad((s) => s.dark);
   const setDark = useLaunchpad((s) => s.setDark);
-  const reset = useLaunchpad((s) => s.resetDemo);
+  const reset = useLaunchpad((s) => s.clearLocalCache);
   const engine = useLaunchpad((s) => s.engine);
   const version = useLaunchpad((s) => s.version);
   const lastEvent = useLaunchpad((s) => s.lastEvent);
