@@ -1,0 +1,1 @@
+What's next. Harden for mainnet — target twenty-six September, twenty twenty-six. Then deeper CCTP UX so anyone can pay from their home chain, and creator tooling on top of a book that already works. Ship the network without breaking the market structure.

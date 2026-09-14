@@ -1,0 +1,1 @@
+What we built is Pairband. Create a token for one dollar USDC. Fill a constant-product bonding curve quoted entirely in USDC. At eighty dollars raised, we graduate automatically — a locked Uniswap-style pair with LP burned to dead, and an on-chain order book on the same ticket. No soft locks. No unlock cliffs. No thin AMM left behind.
