@@ -7,6 +7,7 @@ import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { HeroPills } from "@/components/marketing/hero-pills";
+import { StepArt } from "@/components/marketing/step-art";
 import { hydrateLaunchpad, useLaunchpad } from "@/lib/engine/store.ts";
 import { isOnchainLaunchId, graduateProgress, marketCap, priceOf, protocolStats, raisedOf } from "@/lib/engine/launchpad.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
@@ -17,6 +18,7 @@ import { UsdcMark } from "@/components/ui/usdc-mark";
 const STEPS = [
   {
     n: "01",
+    kind: "create" as const,
     title: "Create on Arc.",
     body: "Name, ticker, optional first buy. Supply is one billion. The quote asset is native USDC — the same token that pays gas on Arc.",
     still: "/stills/bound-tokens.jpg",
@@ -24,6 +26,7 @@ const STEPS = [
   },
   {
     n: "02",
+    kind: "curve" as const,
     title: "Fill the USDC curve.",
     body: "Buys and sells hit a constant-product bonding curve. 1.0% protocol + 0.5% creator, taken in USDC. You can exit on the curve before it fills.",
     still: "/stills/glass-card.jpg",
@@ -31,6 +34,7 @@ const STEPS = [
   },
   {
     n: "03",
+    kind: "book" as const,
     title: "Book, then Uniswap.",
     body: "At $80 the remaining inventory and USDC mint a locked Uniswap pair. An on-chain order book opens on the same ticket. Market walks the book (price-time); leftover hits the pair at 0.30%. Limits rest. LP burns to 0xdead.",
     still: "/stills/dashboard.jpg",
@@ -83,8 +87,8 @@ export function MarketingPage() {
 
   return (
     <div ref={root} className="bg-paper text-ink">
-      <nav className="fixed top-4 right-4 left-4 z-40 mx-auto max-w-6xl">
-        <GlassPanel className="flex items-center justify-between px-4 py-2.5 md:px-5">
+      <nav className="fixed top-3 right-3 left-3 z-40 mx-auto max-w-6xl sm:top-4 sm:right-4 sm:left-4">
+        <GlassPanel className="flex items-center justify-between gap-3 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5">
           <Wordmark />
           <div className="hidden items-center gap-6 text-sm text-muted md:flex">
             <a href="#markets" className="transition-colors hover:text-ink">
@@ -105,7 +109,7 @@ export function MarketingPage() {
 
       <section className="relative min-h-[100svh] overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(42,46,50,0.18),transparent_42%),radial-gradient(ellipse_at_88%_70%,rgba(79,179,165,0.22),transparent_48%)]" />
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-5 pt-28 pb-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-8 md:pt-32 md:pb-20">
+        <div className="relative mx-auto grid max-w-6xl gap-8 px-5 pt-24 pb-12 sm:gap-10 sm:pt-28 sm:pb-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-8 md:pt-32 md:pb-20">
           <div className="hero-copy max-w-xl">
             <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">
               Stablecoin launchpad on Arc
@@ -140,7 +144,7 @@ export function MarketingPage() {
               </span>
             </p>
           </div>
-          <div className="hero-visual aspect-[5/4] w-full md:aspect-auto md:h-[min(520px,70vh)]">
+          <div className="hero-visual mt-2 aspect-[5/4] max-h-[340px] w-full sm:max-h-none md:mt-0 md:aspect-auto md:h-[min(520px,70vh)]">
             <HeroPills className="h-full shadow-clay" />
           </div>
         </div>
@@ -163,21 +167,17 @@ export function MarketingPage() {
         </dl>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-24">
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
         <p className="font-mono text-[11px] tracking-[0.22em] text-teal uppercase">How it works</p>
-        <h2 className="mt-3 text-4xl tracking-tight">Curve. Pair. Lock.</h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <h2 className="mt-3 text-3xl tracking-tight sm:text-4xl">Curve. Pair. Lock.</h2>
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
           {STEPS.map((s) => (
             <article key={s.n} className="step-card">
               <GlassPanel className="overflow-hidden">
-                <img
-                  src={s.still}
-                  alt={s.alt}
-                  className="aspect-[4/3] w-full object-cover outline outline-1 -outline-offset-1 outline-ink/10"
-                />
-                <div className="p-5">
+                <StepArt kind={s.kind} still={s.still} alt={s.alt} />
+                <div className="p-4 sm:p-5">
                   <p className="font-mono text-[11px] text-teal">{s.n}</p>
-                  <h3 className="mt-2 text-2xl tracking-tight">{s.title}</h3>
+                  <h3 className="mt-1.5 text-xl tracking-tight sm:mt-2 sm:text-2xl">{s.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{s.body}</p>
                 </div>
               </GlassPanel>
@@ -199,8 +199,8 @@ export function MarketingPage() {
         <p className="mt-3 max-w-xl text-sm text-muted">
           Live markets sync from Arc. Connect a wallet on Arc testnet to trade and create.
         </p>
-        <div className="mt-8 overflow-hidden rounded-[24px] border border-ink/8 bg-paper-2">
-          <table className="w-full text-left text-sm">
+        <div className="mt-6 overflow-x-auto rounded-[20px] border border-ink/8 bg-paper-2 sm:mt-8 sm:rounded-[24px]">
+          <table className="w-full min-w-[320px] text-left text-sm">
             <thead className="font-mono text-[11px] text-muted uppercase">
               <tr>
                 <th className="px-4 py-3">Token</th>
