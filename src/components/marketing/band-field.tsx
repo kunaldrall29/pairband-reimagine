@@ -3,6 +3,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { HeroPills } from "@/components/marketing/hero-pills";
 
 function GradientTorus() {
   const ref = useRef<THREE.Mesh>(null);
@@ -122,14 +123,8 @@ export function BandField({ className }: { className?: string }) {
   }, []);
 
   if (mode === "still") {
-    return (
-      <img
-        src="/stills/bound-tokens.jpg"
-        alt="Two clay tokens bound by an amber-teal glass ring"
-        className={className}
-        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 24, background: "#e8e2d6" }}
-      />
-    );
+    // Mobile / reduced-motion: CSS hero — never a broken photo.
+    return <HeroPills className={className} />;
   }
 
   return (
