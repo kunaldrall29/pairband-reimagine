@@ -17,7 +17,7 @@ export function StepArt({
   alt: string;
   className?: string;
 }) {
-  const [photoOk, setPhotoOk] = useState(true);
+  const [photoOk, setPhotoOk] = useState(false);
 
   return (
     <div
@@ -31,16 +31,19 @@ export function StepArt({
         {kind === "curve" ? <CurveArt /> : null}
         {kind === "book" ? <BookArt /> : null}
       </div>
-      {photoOk ? (
-        <img
-          src={still}
-          alt={alt}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-          decoding="async"
-          onError={() => setPhotoOk(false)}
-        />
-      ) : null}
+      <img
+        src={still}
+        alt={photoOk ? alt : ""}
+        aria-hidden={!photoOk}
+        className={cn(
+          "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+          photoOk ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setPhotoOk(true)}
+        onError={() => setPhotoOk(false)}
+      />
     </div>
   );
 }
