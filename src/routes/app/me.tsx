@@ -140,7 +140,7 @@ function Me() {
                 <span className="flex-1">
                   <span className="block font-medium">{launch.symbol}</span>
                   <span className="block font-mono text-[11px] text-muted">
-                    {formatPriceWad(priceOf(launch))} · {launch.status === "graduated" ? "Book" : "Curve"} · Arc
+                    {formatPriceWad(priceOf(launch))} · {launch.status === "stage_b" ? "Stage B" : launch.status === "stage_a" ? "Stage A" : "Curve"} · Arc
                   </span>
                 </span>
                 <span className="font-mono text-sm tabular">{formatToken(amount)}</span>

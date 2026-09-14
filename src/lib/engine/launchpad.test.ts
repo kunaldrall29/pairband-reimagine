@@ -117,7 +117,7 @@ describe("Launchpad", () => {
     const { state, launch } = createLaunch(s, A, "Helix", "HLX", "A clean pair.");
     s = buy(state, A, launch.id, GRADUATE_AT + 5n * WAD);
     const g = findLaunch(s, launch.id);
-    assert.equal(g.status, "graduated");
+    assert.equal(g.status, "stage_b");
     assert.ok(g.pair);
     assert.ok(g.lpBurned > 0n);
     assert.equal(g.lpSupply, 0n);
@@ -131,7 +131,7 @@ describe("Launchpad", () => {
     s = buy(state, A, launch.id, 40n * WAD);
     assert.equal(findLaunch(s, launch.id).status, "curve");
     s = buy(s, A, launch.id, 50n * WAD);
-    assert.equal(findLaunch(s, launch.id).status, "graduated");
+    assert.equal(findLaunch(s, launch.id).status, "stage_b");
   });
 
   it("curve buy after graduate routes to AMM", () => {
@@ -139,11 +139,11 @@ describe("Launchpad", () => {
     const { state, launch } = createLaunch(s, A, "Helix", "HLX", "A clean pair.");
     s = buy(state, A, launch.id, GRADUATE_AT + 2n * WAD);
     const g = findLaunch(s, launch.id);
-    assert.equal(g.status, "graduated");
+    assert.equal(g.status, "stage_b");
     const r0 = g.reserveUsdc;
     s = buy(s, A, launch.id, 3n * WAD);
     const g2 = findLaunch(s, launch.id);
-    assert.equal(g2.status, "graduated");
+    assert.equal(g2.status, "stage_b");
     assert.ok(g2.reserveUsdc > r0);
   });
 

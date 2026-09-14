@@ -54,6 +54,14 @@ function revive(raw: string): EngineState | null {
     const first = parsed.launches[0];
     if (first && typeof first.lpBurned !== "bigint") return null;
     if (!parsed.books || !parsed.remoteUsdc) return null;
+    for (const l of parsed.launches) {
+      const rawStatus = (l as { status?: string }).status;
+      (l as { status: string }).status =
+        rawStatus === "graduated" ? "stage_b" : rawStatus === "stage_a" || rawStatus === "stage_b" ? rawStatus : "curve";
+      if (!Array.isArray(l.uniqueBuyers)) l.uniqueBuyers = [];
+      if (l.stageAAt === undefined) l.stageAAt = null;
+      if (l.stageBAt === undefined) l.stageBAt = l.graduatedAt ?? null;
+    }
     return stripSeededLaunches(parsed);
   } catch {
     return null;
@@ -174,7 +182,7 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
         launch = findLaunch(state, launch.id);
       }
       persist(state);
-      const graduated = launch.status === "graduated";
+      const graduated = launch.status === "stage_b";
       set({
         engine: state,
         version: get().version + 1,
@@ -193,13 +201,14 @@ export const useLaunchpad = create<LaunchStore>((set, get) => ({
       const state = buy(get().engine, get().account, id, usdcIn, minOut, get().sourceDomain);
       const after = findLaunch(state, id);
       persist(state);
-      const graduated = before.status === "curve" && after.status === "graduated";
+      const graduated = before.status !== "stage_b" && after.status === "stage_b";
+      const openedBook = before.status === "curve" && after.status === "stage_a";
       set({
         engine: state,
         version: get().version + 1,
         lastError: null,
         lastEvent: {
-          kind: graduated ? "graduate" : "trade",
+          kind: graduated ? "stage_b" : openedBook ? "stage_a" : "trade",
           id,
           symbol: after.symbol,
         },

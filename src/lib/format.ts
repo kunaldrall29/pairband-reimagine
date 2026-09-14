@@ -69,6 +69,12 @@ export function errorCopy(code: string | null): string {
       return "Already on Uniswap.";
     case "NotGraduated":
       return "Curve has not filled yet.";
+    case "BookNotOpen":
+      return "Book opens at Stage A.";
+    case "PriceContinuity":
+      return "Graduation price continuity failed.";
+    case "CurveClosed":
+      return "Curve closed after Stage B.";
     case "UnknownLaunch":
       return "Token not found.";
     case "InvalidMeta":

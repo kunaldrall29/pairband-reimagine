@@ -70,7 +70,7 @@ function Trade() {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{l.symbol}</span>
                   <span className="block font-mono text-[11px] text-muted">
-                    {l.status === "graduated" ? "Book" : "Curve"}
+                    {l.status === "stage_b" ? "Stage B" : l.status === "stage_a" ? "Stage A" : "Curve"}
                   </span>
                 </span>
                 <span className="font-mono text-xs tabular">{formatPriceWad(priceOf(l))}</span>
@@ -91,7 +91,7 @@ function Trade() {
                   <span className="text-xl text-muted">USDC</span>
                 </h2>
                 <p className="font-mono text-[11px] text-muted uppercase">
-                  {launch.status === "graduated" ? "On-chain book · Uniswap backstop" : "Bonding curve"}
+                  {launch.status === "stage_b" ? "Book · Uniswap" : launch.status === "stage_a" ? "Book · curve" : "Bonding curve"}
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ function Trade() {
           </div>
           <PriceChart points={series} className="mt-4" />
         </GlassPanel>
-        {launch.status === "graduated" ? (
+        {launch.status === "stage_b" || launch.status === "stage_a" ? (
           <div className="mt-4">
             <PoolCard launch={launch} />
           </div>

@@ -148,6 +148,9 @@ export function seedLaunches(s: EngineState, h: Helpers) {
       lpSupply: 0n,
       lpBurned: 0n,
       graduatedAt: null,
+      stageAAt: null,
+      stageBAt: null,
+      uniqueBuyers: [],
       protocolFees: 0n,
       creatorFees: 0n,
       holders: 0,
@@ -186,8 +189,10 @@ export function seedLaunches(s: EngineState, h: Helpers) {
       launch.lpBurned = liq;
       launch.lpSupply = 0n;
       launch.pair = h.addr("pair", n);
-      launch.status = "graduated";
+      launch.status = "stage_b";
       launch.graduatedAt = createdAt + 70 * 60_000;
+      launch.stageAAt = launch.graduatedAt;
+      launch.stageBAt = launch.graduatedAt;
       launch.realUsdc = 0n;
       h.pushTrade(
         s,

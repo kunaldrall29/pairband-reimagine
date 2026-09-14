@@ -52,7 +52,7 @@ function TokenPage() {
   const held = tokenBalance(engine, id, account);
   const px = priceOf(launch, engine.books[id]);
   const cap = marketCap(launch, engine.books[id]);
-  const raised = launch.status === "graduated" ? launch.reserveUsdc : launch.realUsdc;
+  const raised = launch.status === "stage_b" ? launch.reserveUsdc : launch.realUsdc;
   const holders = holdersOf(engine, id);
   const watched = watchlist.includes(id);
 
@@ -72,7 +72,7 @@ function TokenPage() {
                   {launch.symbol}/<UsdcMark size={12} />USDC
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2 py-0.5 font-mono text-[10px] uppercase dark:bg-paper/10">
-                  {launch.status === "graduated" ? (
+                  {launch.status === "stage_b" ? (
                     <>
                       <ArcMark size={10} /> Graduated · book
                     </>
@@ -161,7 +161,7 @@ function TokenPage() {
             <PriceChart points={priceSeries(engine, id)} className="mt-4" />
             <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
               <Stat label="FDV" value={formatCompact(cap)} />
-              <Stat label={launch.status === "graduated" ? "Pair USDC" : "Raised"} value={formatUsdc(raised)} />
+              <Stat label={launch.status === "stage_b" ? "Pair USDC" : "Raised"} value={formatUsdc(raised)} />
               <Stat label="Holders" value={String(launch.holders)} />
               <Stat label="Volume" value={formatCompact(launch.volumeUsdc)} />
             </dl>
@@ -172,7 +172,7 @@ function TokenPage() {
             ) : null}
           </GlassPanel>
 
-          {launch.status === "graduated" ? (
+          {launch.status === "stage_b" ? (
             <div className="mt-6">
               <PoolCard launch={launch} />
             </div>
