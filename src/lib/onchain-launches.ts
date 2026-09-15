@@ -94,6 +94,7 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       hue: hueOf(symbol),
       creator: g.creator,
       createdAt: firstSeenAt.get(id)!,
+      // Live Arc launchpad is still single-graduate; map graduated → stage_b (no Stage A on-chain yet).
       status: g.graduated ? "stage_b" : "curve",
       virtualUsdc: g.virtualUsdc * USDC_SCALE,
       virtualTokens: g.virtualTokens,

@@ -51,6 +51,12 @@ function BridgePage() {
         the Pairband Settler on Arc (domain 26), then forwards into the market vault in the same transaction.
       </p>
 
+      <p className="mt-4 rounded-2xl border border-amber/30 bg-amber/10 px-4 py-3 text-xs leading-relaxed text-ink dark:border-amber/40 dark:bg-amber/15 dark:text-paper">
+        <span className="font-mono uppercase tracking-wide">Preview</span> — this desk simulates CCTP balance moves
+        in the local engine. It is not a production Circle settle; live burn/mint still goes through the Arc settler
+        path when you trade with a non-Arc source.
+      </p>
+
       <div className="mt-6 flex rounded-2xl bg-ink/5 p-1 dark:bg-paper/10">
         {(
           [

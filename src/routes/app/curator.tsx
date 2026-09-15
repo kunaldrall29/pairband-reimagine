@@ -49,11 +49,12 @@ function VaultAgentPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 pb-28 md:pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-teal">Vault agent · practice desk</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">Vault agent · v2 preview</p>
           <h1 className="mt-1 font-display text-3xl md:text-4xl">Propose. Delay. Execute.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            The vault agent posts a new liquidity band. Curators execute after the delay. Agent proposals cost{" "}
-            {AGENT_FEE_USDC_LABEL} USDC on Arc — same fee as the on-chain desk.
+            Practice desk only — not part of Pairband v1 launch. Agent fees are disabled in the preview engine
+            ({AGENT_FEE_USDC_LABEL} stays documented for the future on-chain desk). Curators can still walk the
+            propose → delay → execute flow here.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

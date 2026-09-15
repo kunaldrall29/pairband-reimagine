@@ -10,7 +10,7 @@ import { CurveMeter } from "@/components/ui/curve-meter";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { UsdcMark } from "@/components/ui/usdc-mark";
-import { ArcMark } from "@/components/ui/arc-mark";
+import { StatusChip } from "@/components/ui/status-chip";
 import { GRADUATE_AT, TOTAL_SUPPLY } from "@/lib/engine/constants.ts";
 import {
   graduateProgress,
@@ -71,15 +71,7 @@ function TokenPage() {
                 <span className="inline-flex items-center gap-1 font-mono text-sm text-muted">
                   {launch.symbol}/<UsdcMark size={12} />USDC
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2 py-0.5 font-mono text-[10px] uppercase dark:bg-paper/10">
-                  {launch.status === "stage_b" ? (
-                    <>
-                      <ArcMark size={10} /> Graduated · book
-                    </>
-                  ) : (
-                    "Bonding curve"
-                  )}
-                </span>
+                <StatusChip status={launch.status} compact />
               </div>
               <p className="mt-1 text-sm text-muted">{launch.description}</p>
               {(launch.website || launch.twitter || launch.telegram || launch.discord) && (
@@ -167,12 +159,15 @@ function TokenPage() {
             </dl>
             {launch.status === "curve" ? (
               <div className="mt-5">
-                <CurveMeter progress={graduateProgress(launch)} label={`To book (${formatUsdc(GRADUATE_AT)})`} />
+                <CurveMeter
+                  progress={graduateProgress(launch)}
+                  label={`To Stage A (${formatUsdc(GRADUATE_AT)} testnet · mainnet $2k / $12k)`}
+                />
               </div>
             ) : null}
           </GlassPanel>
 
-          {launch.status === "stage_b" ? (
+          {launch.status === "stage_a" || launch.status === "stage_b" ? (
             <div className="mt-6">
               <PoolCard launch={launch} />
             </div>

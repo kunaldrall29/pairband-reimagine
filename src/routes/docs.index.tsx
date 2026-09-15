@@ -51,7 +51,7 @@ export function Docs() {
           <h2 className="font-display text-2xl">Fees</h2>
           <ul className="mt-3 space-y-1 font-mono text-sm">
             <li>Launch $1.00 USDC on Arc · one-time at create</li>
-            <li>Vault agent $0.25 USDC per rebalance proposal on Arc</li>
+            <li>Vault agent (v2 preview) — fees off until the on-chain desk ships</li>
             <li>Curve protocol 1.00% · creator 0.50% · paid in USDC</li>
             <li>Uniswap swap 0.30% · stays in the pool</li>
             <li>Cap 2.00% in code · no fee on a failed swap</li>
@@ -96,7 +96,7 @@ export function Docs() {
         <GlassPanel className="mt-6 p-6">
           <h2 className="font-display text-2xl">Vault agent</h2>
           <p className="mt-2 text-sm text-muted">
-            Automate vault rebalances: agent proposes a band, curator executes after a delay. Live on Arc testnet.
+            Optional v2 practice desk: agent proposes a band, curator executes after a delay. Not required for v1 launch or trade.
           </p>
           <Link to="/docs/vault-agent" className="mt-4 inline-block text-sm text-teal underline underline-offset-4">
             Vault agent guide →

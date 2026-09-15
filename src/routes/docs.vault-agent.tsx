@@ -31,11 +31,12 @@ function VaultAgentDocs() {
       </header>
 
       <article className="mx-auto max-w-3xl px-5 pb-24">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-teal">Vault agent</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">Vault agent · v2</p>
         <h1 className="mt-2 font-display text-5xl">Propose. Delay. Execute.</h1>
         <p className="mt-4 text-muted">
-          The vault agent is live on Arc testnet. It posts a new concentrated-liquidity band; the named curator
-          executes after a short delay. Agent proposals cost {AGENT_FEE_USDC_LABEL} USDC — same fee as the on-chain desk.
+          Parked for v2 — not required for Pairband v1 launches or trading. The practice desk still lets you post a
+          concentrated-liquidity band and have a named curator execute after a delay. Agent fees are off in the
+          preview engine ({AGENT_FEE_USDC_LABEL} documents the future on-chain desk).
         </p>
 
         <GlassPanel className="mt-10 p-6">

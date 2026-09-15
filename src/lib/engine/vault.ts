@@ -2,7 +2,7 @@ import { align, shift, validateBand } from "./bandMath.ts";
 import { liquidityForShares, mulDivFloor, sharesForLiquidity } from "./shareMath.ts";
 import { getSqrtRatioAtTick, getTickAtSqrtRatio, Q96 } from "./tickMath.ts";
 import { amountsAtBand, liquidityAtBand, nextSqrtFromInput } from "./liquidity.ts";
-import { AGENT_FEE_VAULT_USDC } from "./constants.ts";
+import { AGENT_FEE_ENABLED, AGENT_FEE_VAULT_USDC } from "./constants.ts";
 import {
   DEAD,
   DEMO_AGENT,
@@ -139,7 +139,7 @@ function pushSpark(state: EngineState) {
 }
 
 function chargeAgentFee(state: EngineState, agent: string) {
-  if (AGENT_FEE_VAULT_USDC <= 0n) return;
+  if (!AGENT_FEE_ENABLED || AGENT_FEE_VAULT_USDC <= 0n) return;
   const w = walletOf(state, agent);
   if (w.t0 < AGENT_FEE_VAULT_USDC) {
     throw new VaultError("InsufficientBalance", "agent fee — need USDC on Arc");
