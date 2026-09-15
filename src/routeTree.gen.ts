@@ -10,204 +10,179 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppRouteRouteImport } from './routes/app/route'
-import { Route as DocsRouteImport } from './routes/docs'
-import { Route as SecurityRouteImport } from './routes/security'
-import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as AppActivityRouteImport } from './routes/app/activity'
-import { Route as AppBridgeRouteImport } from './routes/app/bridge'
-import { Route as AppCreateRouteImport } from './routes/app/create'
-import { Route as AppCuratorRouteImport } from './routes/app/curator'
-import { Route as AppMeRouteImport } from './routes/app/me'
-import { Route as AppTradeRouteImport } from './routes/app/trade'
-import { Route as DocsIndexRouteImport } from './routes/docs.index'
-import { Route as DocsVaultAgentRouteImport } from './routes/docs.vault-agent'
-import { Route as AppTIdRouteImport } from './routes/app/t.$id'
-import { Route as AppPChainIdVaultRouteImport } from './routes/app/p.$chainId.$vault'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ImportRouteImport } from './routes/import'
+import { Route as ListRouteImport } from './routes/list'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MeRouteImport } from './routes/me'
+import { Route as DIdRouteImport } from './routes/d/$id'
+import { Route as ESlugRouteImport } from './routes/e/$slug'
+import { Route as LIdRouteImport } from './routes/l/$id'
+import { Route as PDealRouteImport } from './routes/p/$deal'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as MeProofDealRouteImport } from './routes/me/proof/$deal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
+const ImportRoute = ImportRouteImport.update({
+  id: '/import',
+  path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SecurityRoute = SecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const ListRoute = ListRouteImport.update({
+  id: '/list',
+  path: '/list',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRouteRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppActivityRoute = AppActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppBridgeRoute = AppBridgeRouteImport.update({
-  id: '/bridge',
-  path: '/bridge',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppCreateRoute = AppCreateRouteImport.update({
-  id: '/create',
-  path: '/create',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppCuratorRoute = AppCuratorRouteImport.update({
-  id: '/curator',
-  path: '/curator',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppMeRoute = AppMeRouteImport.update({
+const MeRoute = MeRouteImport.update({
   id: '/me',
   path: '/me',
-  getParentRoute: () => AppRouteRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppTradeRoute = AppTradeRouteImport.update({
-  id: '/trade',
-  path: '/trade',
-  getParentRoute: () => AppRouteRoute,
+const DIdRoute = DIdRouteImport.update({
+  id: '/d/$id',
+  path: '/d/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsIndexRoute = DocsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DocsRoute,
+const ESlugRoute = ESlugRouteImport.update({
+  id: '/e/$slug',
+  path: '/e/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsVaultAgentRoute = DocsVaultAgentRouteImport.update({
-  id: '/vault-agent',
-  path: '/vault-agent',
-  getParentRoute: () => DocsRoute,
+const LIdRoute = LIdRouteImport.update({
+  id: '/l/$id',
+  path: '/l/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppTIdRoute = AppTIdRouteImport.update({
-  id: '/t/$id',
-  path: '/t/$id',
-  getParentRoute: () => AppRouteRoute,
+const PDealRoute = PDealRouteImport.update({
+  id: '/p/$deal',
+  path: '/p/$deal',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppPChainIdVaultRoute = AppPChainIdVaultRouteImport.update({
-  id: '/p/$chainId/$vault',
-  path: '/p/$chainId/$vault',
-  getParentRoute: () => AppRouteRoute,
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeProofDealRoute = MeProofDealRouteImport.update({
+  id: '/proof/$deal',
+  path: '/proof/$deal',
+  getParentRoute: () => MeRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
-  '/docs': typeof DocsRouteWithChildren
-  '/security': typeof SecurityRoute
-  '/app/activity': typeof AppActivityRoute
-  '/app/bridge': typeof AppBridgeRoute
-  '/app/create': typeof AppCreateRoute
-  '/app/curator': typeof AppCuratorRoute
-  '/app/me': typeof AppMeRoute
-  '/app/trade': typeof AppTradeRoute
-  '/docs/vault-agent': typeof DocsVaultAgentRoute
-  '/app/': typeof AppIndexRoute
-  '/docs/': typeof DocsIndexRoute
-  '/app/t/$id': typeof AppTIdRoute
-  '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
+  '/admin': typeof AdminRoute
+  '/import': typeof ImportRoute
+  '/list': typeof ListRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRouteWithChildren
+  '/d/$id': typeof DIdRoute
+  '/e/$slug': typeof ESlugRoute
+  '/l/$id': typeof LIdRoute
+  '/p/$deal': typeof PDealRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/me/proof/$deal': typeof MeProofDealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/security': typeof SecurityRoute
-  '/app/activity': typeof AppActivityRoute
-  '/app/bridge': typeof AppBridgeRoute
-  '/app/create': typeof AppCreateRoute
-  '/app/curator': typeof AppCuratorRoute
-  '/app/me': typeof AppMeRoute
-  '/app/trade': typeof AppTradeRoute
-  '/docs/vault-agent': typeof DocsVaultAgentRoute
-  '/app': typeof AppIndexRoute
-  '/docs': typeof DocsIndexRoute
-  '/app/t/$id': typeof AppTIdRoute
-  '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
+  '/admin': typeof AdminRoute
+  '/import': typeof ImportRoute
+  '/list': typeof ListRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRouteWithChildren
+  '/d/$id': typeof DIdRoute
+  '/e/$slug': typeof ESlugRoute
+  '/l/$id': typeof LIdRoute
+  '/p/$deal': typeof PDealRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/me/proof/$deal': typeof MeProofDealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
-  '/docs': typeof DocsRouteWithChildren
-  '/security': typeof SecurityRoute
-  '/app/activity': typeof AppActivityRoute
-  '/app/bridge': typeof AppBridgeRoute
-  '/app/create': typeof AppCreateRoute
-  '/app/curator': typeof AppCuratorRoute
-  '/app/me': typeof AppMeRoute
-  '/app/trade': typeof AppTradeRoute
-  '/docs/vault-agent': typeof DocsVaultAgentRoute
-  '/app/': typeof AppIndexRoute
-  '/docs/': typeof DocsIndexRoute
-  '/app/t/$id': typeof AppTIdRoute
-  '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
+  '/admin': typeof AdminRoute
+  '/import': typeof ImportRoute
+  '/list': typeof ListRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRouteWithChildren
+  '/d/$id': typeof DIdRoute
+  '/e/$slug': typeof ESlugRoute
+  '/l/$id': typeof LIdRoute
+  '/p/$deal': typeof PDealRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/me/proof/$deal': typeof MeProofDealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
-    | '/docs'
-    | '/security'
-    | '/app/activity'
-    | '/app/bridge'
-    | '/app/create'
-    | '/app/curator'
-    | '/app/me'
-    | '/app/trade'
-    | '/docs/vault-agent'
-    | '/app/'
-    | '/docs/'
-    | '/app/t/$id'
-    | '/app/p/$chainId/$vault'
+    | '/admin'
+    | '/import'
+    | '/list'
+    | '/login'
+    | '/me'
+    | '/d/$id'
+    | '/e/$slug'
+    | '/l/$id'
+    | '/p/$deal'
+    | '/api/auth/$'
+    | '/me/proof/$deal'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/security'
-    | '/app/activity'
-    | '/app/bridge'
-    | '/app/create'
-    | '/app/curator'
-    | '/app/me'
-    | '/app/trade'
-    | '/docs/vault-agent'
-    | '/app'
-    | '/docs'
-    | '/app/t/$id'
-    | '/app/p/$chainId/$vault'
+    | '/admin'
+    | '/import'
+    | '/list'
+    | '/login'
+    | '/me'
+    | '/d/$id'
+    | '/e/$slug'
+    | '/l/$id'
+    | '/p/$deal'
+    | '/api/auth/$'
+    | '/me/proof/$deal'
   id:
     | '__root__'
     | '/'
-    | '/app'
-    | '/docs'
-    | '/security'
-    | '/app/activity'
-    | '/app/bridge'
-    | '/app/create'
-    | '/app/curator'
-    | '/app/me'
-    | '/app/trade'
-    | '/docs/vault-agent'
-    | '/app/'
-    | '/docs/'
-    | '/app/t/$id'
-    | '/app/p/$chainId/$vault'
+    | '/admin'
+    | '/import'
+    | '/list'
+    | '/login'
+    | '/me'
+    | '/d/$id'
+    | '/e/$slug'
+    | '/l/$id'
+    | '/p/$deal'
+    | '/api/auth/$'
+    | '/me/proof/$deal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRouteWithChildren
-  DocsRoute: typeof DocsRouteWithChildren
-  SecurityRoute: typeof SecurityRoute
+  AdminRoute: typeof AdminRoute
+  ImportRoute: typeof ImportRoute
+  ListRoute: typeof ListRoute
+  LoginRoute: typeof LoginRoute
+  MeRoute: typeof MeRouteWithChildren
+  DIdRoute: typeof DIdRoute
+  ESlugRoute: typeof ESlugRoute
+  LIdRoute: typeof LIdRoute
+  PDealRoute: typeof PDealRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,152 +194,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/security': {
-      id: '/security'
-      path: '/security'
-      fullPath: '/security'
-      preLoaderRoute: typeof SecurityRouteImport
+    '/list': {
+      id: '/list'
+      path: '/list'
+      fullPath: '/list'
+      preLoaderRoute: typeof ListRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/activity': {
-      id: '/app/activity'
-      path: '/activity'
-      fullPath: '/app/activity'
-      preLoaderRoute: typeof AppActivityRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/bridge': {
-      id: '/app/bridge'
-      path: '/bridge'
-      fullPath: '/app/bridge'
-      preLoaderRoute: typeof AppBridgeRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/create': {
-      id: '/app/create'
-      path: '/create'
-      fullPath: '/app/create'
-      preLoaderRoute: typeof AppCreateRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/curator': {
-      id: '/app/curator'
-      path: '/curator'
-      fullPath: '/app/curator'
-      preLoaderRoute: typeof AppCuratorRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/me': {
-      id: '/app/me'
+    '/me': {
+      id: '/me'
       path: '/me'
-      fullPath: '/app/me'
-      preLoaderRoute: typeof AppMeRouteImport
-      parentRoute: typeof AppRouteRoute
+      fullPath: '/me'
+      preLoaderRoute: typeof MeRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/trade': {
-      id: '/app/trade'
-      path: '/trade'
-      fullPath: '/app/trade'
-      preLoaderRoute: typeof AppTradeRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/d/$id': {
+      id: '/d/$id'
+      path: '/d/$id'
+      fullPath: '/d/$id'
+      preLoaderRoute: typeof DIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/': {
-      id: '/docs/'
-      path: '/'
-      fullPath: '/docs/'
-      preLoaderRoute: typeof DocsIndexRouteImport
-      parentRoute: typeof DocsRoute
+    '/e/$slug': {
+      id: '/e/$slug'
+      path: '/e/$slug'
+      fullPath: '/e/$slug'
+      preLoaderRoute: typeof ESlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/vault-agent': {
-      id: '/docs/vault-agent'
-      path: '/vault-agent'
-      fullPath: '/docs/vault-agent'
-      preLoaderRoute: typeof DocsVaultAgentRouteImport
-      parentRoute: typeof DocsRoute
+    '/l/$id': {
+      id: '/l/$id'
+      path: '/l/$id'
+      fullPath: '/l/$id'
+      preLoaderRoute: typeof LIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/t/$id': {
-      id: '/app/t/$id'
-      path: '/t/$id'
-      fullPath: '/app/t/$id'
-      preLoaderRoute: typeof AppTIdRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/p/$deal': {
+      id: '/p/$deal'
+      path: '/p/$deal'
+      fullPath: '/p/$deal'
+      preLoaderRoute: typeof PDealRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/p/$chainId/$vault': {
-      id: '/app/p/$chainId/$vault'
-      path: '/p/$chainId/$vault'
-      fullPath: '/app/p/$chainId/$vault'
-      preLoaderRoute: typeof AppPChainIdVaultRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/me/proof/$deal': {
+      id: '/me/proof/$deal'
+      path: '/proof/$deal'
+      fullPath: '/me/proof/$deal'
+      preLoaderRoute: typeof MeProofDealRouteImport
+      parentRoute: typeof MeRoute
     }
   }
 }
 
-interface AppRouteRouteChildren {
-  AppActivityRoute: typeof AppActivityRoute
-  AppBridgeRoute: typeof AppBridgeRoute
-  AppCreateRoute: typeof AppCreateRoute
-  AppCuratorRoute: typeof AppCuratorRoute
-  AppMeRoute: typeof AppMeRoute
-  AppTradeRoute: typeof AppTradeRoute
-  AppIndexRoute: typeof AppIndexRoute
-  AppTIdRoute: typeof AppTIdRoute
-  AppPChainIdVaultRoute: typeof AppPChainIdVaultRoute
+interface MeRouteChildren {
+  MeProofDealRoute: typeof MeProofDealRoute
 }
 
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppActivityRoute: AppActivityRoute,
-  AppBridgeRoute: AppBridgeRoute,
-  AppCreateRoute: AppCreateRoute,
-  AppCuratorRoute: AppCuratorRoute,
-  AppMeRoute: AppMeRoute,
-  AppTradeRoute: AppTradeRoute,
-  AppIndexRoute: AppIndexRoute,
-  AppTIdRoute: AppTIdRoute,
-  AppPChainIdVaultRoute: AppPChainIdVaultRoute,
+const MeRouteChildren: MeRouteChildren = {
+  MeProofDealRoute: MeProofDealRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
-
-interface DocsRouteChildren {
-  DocsVaultAgentRoute: typeof DocsVaultAgentRoute
-  DocsIndexRoute: typeof DocsIndexRoute
-}
-
-const DocsRouteChildren: DocsRouteChildren = {
-  DocsVaultAgentRoute: DocsVaultAgentRoute,
-  DocsIndexRoute: DocsIndexRoute,
-}
-
-const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
+const MeRouteWithChildren = MeRoute._addFileChildren(MeRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRouteWithChildren,
-  DocsRoute: DocsRouteWithChildren,
-  SecurityRoute: SecurityRoute,
+  AdminRoute: AdminRoute,
+  ImportRoute: ImportRoute,
+  ListRoute: ListRoute,
+  LoginRoute: LoginRoute,
+  MeRoute: MeRouteWithChildren,
+  DIdRoute: DIdRoute,
+  ESlugRoute: ESlugRoute,
+  LIdRoute: LIdRoute,
+  PDealRoute: PDealRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

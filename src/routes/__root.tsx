@@ -1,21 +1,23 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { SASH } from "@/lib/sash/constants";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Pairband";
+const APP_NAME = SASH.name;
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: APP_NAME },
+      { title: `${APP_NAME} — ${SASH.tagline}` },
       {
         name: "description",
-        content: "Launch in USDC on Arc. Buyers pay from any CCTP chain. Curve → Stage A book → Stage B locked Uniswap.",
+        content:
+          "Sash locks USDC on Solana until your logo is on event clothes — Token2049 Singapore Oct 7–8.",
       },
-      { name: "theme-color", content: "#F5F5F2" },
+      { name: "theme-color", content: "#6D28D9" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -26,7 +28,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap",
       },
     ],
   }),
@@ -41,7 +43,6 @@ function Root() {
       </head>
       <body className="antialiased">
         <PreviewHostBridge />
-        <div className="grain" aria-hidden />
         <AuthProvider>
           <Outlet />
         </AuthProvider>
