@@ -1,1 +1,0 @@
-How it's made. Settlement and gas on Arc. Liquidity after graduation is a Uniswap-style constant-product pair with burned LP — Uniswap mechanics, Pairband market structure. The stack is launchpad, token, on-chain book, settler, and an app that speaks those contracts. Same bytecode from testnet to mainnet. No proxies on the critical path.

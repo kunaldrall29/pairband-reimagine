@@ -10,3 +10,8 @@ packages/contracts/.deployer.key
 docs-site/node_modules/
 docs-site/build/
 .DS_Store
+
+.vercel/
+screenshots/
+.grok/preview.log
+.grok/preview.pid
