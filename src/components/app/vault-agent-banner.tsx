@@ -52,12 +52,11 @@ export function VaultAgentLaunchBanner() {
           <Bot size={22} />
         </div>
         <h2 id="vault-agent-live-title" className="mt-4 font-display text-2xl">
-          Vault agent is live
+          Vault agent — v2 preview
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Automate vault rebalances on Arc. The agent proposes a new band ({AGENT_FEE_USDC_LABEL} USDC
-          per proposal); the curator executes after the delay. You can also draft token launches with AI
-          on Create.
+          Optional v2 practice desk — not required for v1 launch or trade. Agent fees are disabled in preview.
+          Use Create for launches; open the desk only if you want to try propose → delay → execute.
         </p>
 
         <ul className="mt-4 space-y-2 text-sm">
@@ -71,14 +70,14 @@ export function VaultAgentLaunchBanner() {
           </li>
           <li className="flex gap-2">
             <span className="text-teal">▸</span>
-            On-chain desk fee matches the app: {AGENT_FEE_USDC_LABEL} USDC
+            Fees stay off until v2 ships the on-chain desk
           </li>
         </ul>
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <Link to="/app/curator" className="flex-1" onClick={dismiss}>
             <ClayButton className="w-full">
-              <Bot size={16} /> Open vault agent
+              <Bot size={16} /> Open practice desk
             </ClayButton>
           </Link>
           <Link to="/docs/vault-agent" className="flex-1" onClick={dismiss}>

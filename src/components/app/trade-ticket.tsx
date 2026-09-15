@@ -339,8 +339,10 @@ export function TradeTicket({ launch }: { launch: Launch }) {
       </form>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         {live.status === "curve"
-          ? "1.0% protocol + 0.5% creator in USDC. At $80 the pair mints, LP burns, and an on-chain book opens."
-          : "Market walks the on-chain book (price-time), then Uniswap 0.30%. Limits rest; cancel returns escrow. LP cannot be pulled."}{" "}
+          ? "1.0% protocol + 0.5% creator in USDC. Stage A opens the on-chain book while the curve stays live; Stage B locks Uniswap LP to 0xdead and closes the curve."
+          : live.status === "stage_a"
+            ? "Stage A: market walks the book (price-time); curve still fills. Stage B locks Uniswap and closes minting."
+            : "Stage B: market walks the book, then Uniswap 0.30%. Limits rest; cancel returns escrow. LP cannot be pulled."}{" "}
         {side === "buy" && !isArc(sourceDomain)
           ? `This fill burns USDC on ${chainByDomain(sourceDomain)?.name} (CCTP ${sourceDomain}) and settles on Arc domain ${ARC_CCTP_DOMAIN}.`
           : "Tokens never leave Arc."}

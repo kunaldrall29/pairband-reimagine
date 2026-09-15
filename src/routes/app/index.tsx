@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/")({ component: Discover });
 
-type Filter = "new" | "mcap" | "volume" | "curve" | "uniswap" | "graduating";
+type Filter = "new" | "mcap" | "volume" | "curve" | "stage_a" | "stage_b" | "graduating";
 
 function Discover() {
   const engine = useLaunchpad((s) => s.engine);
@@ -71,7 +71,8 @@ function Discover() {
     }
     list = list.filter((l) => isOnchainLaunchId(l.id));
     if (filter === "curve") list = list.filter((l) => l.status === "curve");
-    if (filter === "uniswap") list = list.filter((l) => l.status === "stage_b");
+    if (filter === "stage_a") list = list.filter((l) => l.status === "stage_a");
+    if (filter === "stage_b") list = list.filter((l) => l.status === "stage_b");
     if (filter === "graduating") {
       list = list.filter((l) => l.status === "curve" && graduateProgress(l) >= 0.6);
       list.sort((a, b) => graduateProgress(b) - graduateProgress(a));
@@ -92,7 +93,9 @@ function Discover() {
               <ArcMark size={12} /> {stats.count} tokens
             </span>
             <span>·</span>
-            <span>{stats.graduated} books</span>
+            <span>{stats.stageA} Stage A</span>
+            <span>·</span>
+            <span>{stats.graduated} Stage B</span>
             <span>·</span>
             <span className="inline-flex items-center gap-1">
               <UsdcMark size={12} /> {formatCompact(stats.volume)} volume
@@ -117,9 +120,10 @@ function Discover() {
               ["new", "New"],
               ["mcap", "Market cap"],
               ["volume", "Volume"],
-              ["graduating", "Near book"],
+              ["graduating", "Near Stage A"],
               ["curve", "Curve"],
-              ["uniswap", "Book"],
+              ["stage_a", "Stage A Book"],
+              ["stage_b", "Stage B Locked"],
             ] as const
           ).map(([id, label]) => (
             <button

@@ -57,6 +57,8 @@ export const DEFAULT_SLIPPAGE_BPS = 50n;
 
 export const ARC_TESTNET_ID = 5042002;
 export const ARC_MAINNET_ID = 5042;
+/** Synthetic chain for unit tests: Stage A opens below Stage B (curve can still raise past A). */
+export const ARC_STAGE_SPLIT_TEST_ID = 5042999;
 export const ARC_USDC = "0x3600000000000000000000000000000000000000";
 
 export const BOOK_MM = "0xB00C00000000000000000000000000000000B00C";
@@ -92,6 +94,16 @@ export function stageThresholds(chainId: number): StageThresholds {
       bUsd: STAGE_B_USD_MAINNET,
       bWalletsMin: STAGE_B_WALLETS_MIN_MAINNET,
       bUsdHard: STAGE_B_USD_HARD_MAINNET,
+    };
+  }
+  // Unit-test only: Stage A at $100 / 2 wallets; Stage B at $350 / 10 (curve tops out ~$400 with current virtuals).
+  if (chainId === ARC_STAGE_SPLIT_TEST_ID) {
+    return {
+      aUsd: 100n * WAD,
+      aWallets: 2n,
+      bUsd: 350n * WAD,
+      bWalletsMin: 10n,
+      bUsdHard: 400n * WAD,
     };
   }
   return {
