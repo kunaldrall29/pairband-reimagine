@@ -6,7 +6,7 @@ import { connectPhantom } from "@/lib/sash/phantom";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { truncateAddr } from "@/lib/sash/ids";
-import type { DealRow } from "@/lib/sash/types";
+import type { MyDealRow } from "@/lib/sash/types";
 
 export const Route = createFileRoute("/me")({
   component: MePage,
@@ -34,14 +34,13 @@ function MePage() {
 function MeInner() {
   const user = useCurrentUser();
   const [wallet, setWallet] = useState<string | null>(null);
-  const [deals, setDeals] = useState<(DealRow & { listing_title: string; zone: string })[]>([]);
+  const [deals, setDeals] = useState<MyDealRow[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
     getMyProfile()
       .then((p) => {
-        const row = p as { wallet_pubkey?: string } | null;
-        if (row?.wallet_pubkey) setWallet(row.wallet_pubkey);
+        if (p?.wallet_pubkey) setWallet(p.wallet_pubkey);
       })
       .catch(() => undefined);
     getMyDeals()
@@ -53,7 +52,7 @@ function MeInner() {
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-10 sm:px-6">
       <div>
         <h1 className="text-3xl">Me</h1>
-        <p className="mt-1 text-muted">{user?.name || user?.email || user?.id}</p>
+        <p className="mt-1 text-muted">{user?.displayName || user?.primaryEmail || user?.id}</p>
       </div>
 
       <div className="rounded-2xl border border-ink/8 bg-paper-2 p-5 space-y-3">

@@ -5,11 +5,11 @@
       "width": 1280,
       "height": 800,
       "status": 200,
-      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "title": "Sash — Your logo on event clothes.",
       "hasCanvas": false,
-      "bodyTextLen": 2272,
-      "bodyTextHash": "1a8f7bf84c02ea5be1777686795d8448cbf3f92a82f58f8d805f69b64a7c07aa",
-      "bodyTextPrefix": "pairband Markets Waitlist Docs Security Waitlist Open app PAIRBA",
+      "bodyTextLen": 1469,
+      "bodyTextHash": "4c2aa90aa8f1ac36e15390419c85bd0bfa6a08d3d98dd78f5de6b50b415d56bc",
+      "bodyTextPrefix": "Sash Token2049 Import Me Sign in BUYSASH.FUN · @BUYSASHDOT Your ",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -19,11 +19,11 @@
       "width": 390,
       "height": 844,
       "status": 200,
-      "title": "Pairband — Launch in USDC. Graduate to Uniswap.",
+      "title": "Sash — Your logo on event clothes.",
       "hasCanvas": false,
-      "bodyTextLen": 2214,
-      "bodyTextHash": "45b0aa483a0b8fa20bd438224790fd7411b451299799857af890f6d138c7a954",
-      "bodyTextPrefix": "pairband Open app PAIRBAND · ARC TESTNET LIVE Pairband Launch in",
+      "bodyTextLen": 1462,
+      "bodyTextHash": "9c90780ac6ddf34b28028c2682c54b7329ad3fda3cd94518556de0d09de997af",
+      "bodyTextPrefix": "Sash Token2049 Me Sign in BUYSASH.FUN · @BUYSASHDOT Your logo on",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -33,6 +33,8 @@
   "brandWarnings": [],
   "authWarnings": [],
   "verdictFile": "/workspace/screenshots/app-builder-built.json",
-  "divergesFromBaseline": false,
-  "baselineReasons": []
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "desktop: body text replaced (similar length, page start changed)"
+  ]
 }

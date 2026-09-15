@@ -9,11 +9,16 @@ import {
 } from "./constants";
 import { newId, parseTweetUrl, sha256Hex } from "./ids";
 import type {
+  AdminOverview,
+  DealDetail,
   DealRow,
   DraftRow,
   EventRow,
+  Json,
   ListingRow,
   ListingWithSlots,
+  MyDealRow,
+  SashUserRow,
   SlotRow,
 } from "./types";
 
@@ -181,45 +186,32 @@ export const getListing = createServerFn({ method: "GET" })
 
 export const getDeal = createServerFn({ method: "GET" })
   .validator((id: string) => id)
-  .handler(async ({ data: id }) => {
+  .handler(async ({ data: id }): Promise<DealDetail | null> => {
     const sql = await getSql();
     const deals = await sql<DealRow>`select * from deals where id = ${id} limit 1`;
     const deal = deals[0];
     if (!deal) return null;
     const slots = await sql<SlotRow>`select * from slots where id = ${deal.slot_id}`;
     const listings = await sql<ListingRow>`select * from listings where id = ${deal.listing_id}`;
-    const proofs = await sql<{
-      id: string;
-      wide_url: string | null;
-      closeup_url: string | null;
-      recap_url: string | null;
-      recap_post_url: string | null;
-      content_hash: string | null;
-      notes: string | null;
-      created_at: string;
-    }>`select * from proofs where deal_id = ${id} order by created_at desc`;
+    const proofs = await sql<DealDetail["proofs"][number]>`
+      select id, wide_url, closeup_url, recap_url, recap_post_url, content_hash, notes, created_at
+      from proofs where deal_id = ${id} order by created_at desc
+    `;
     const reports = await sql<{
       id: string;
-      report: unknown;
+      report: Json;
       model: string | null;
       created_at: string;
-    }>`select * from ai_reports where deal_id = ${id} order by created_at desc`;
-    const disputes = await sql<{
-      id: string;
-      reason: string;
-      status: string;
-      created_at: string;
-    }>`select id, reason, status, created_at from disputes where deal_id = ${id}`;
-    const ledger = await sql<{
-      id: string;
-      kind: string;
-      amount_usdc: string | number;
-      tx_sig: string | null;
-      note: string | null;
-      created_at: string;
-    }>`select id, kind, amount_usdc, tx_sig, note, created_at from ledger_entries where deal_id = ${id} order by created_at`;
+    }>`select id, report, model, created_at from ai_reports where deal_id = ${id} order by created_at desc`;
+    const disputes = await sql<DealDetail["disputes"][number]>`
+      select id, reason, status, created_at from disputes where deal_id = ${id}
+    `;
+    const ledger = await sql<DealDetail["ledger"][number]>`
+      select id, kind, amount_usdc, tx_sig, note, created_at from ledger_entries
+      where deal_id = ${id} order by created_at
+    `;
     return {
-      deal,
+      deal: { ...deal, attestation: (deal.attestation ?? null) as Json | null },
       slot: slots[0] ?? null,
       listing: listings[0] ?? null,
       proofs,
@@ -233,12 +225,14 @@ export const getDeal = createServerFn({ method: "GET" })
 
 export const getDraftByToken = createServerFn({ method: "GET" })
   .validator((token: string) => token)
-  .handler(async ({ data: token }) => {
+  .handler(async ({ data: token }): Promise<DraftRow | null> => {
     const sql = await getSql();
     const rows = await sql<DraftRow>`
       select * from drafts where draft_link_token = ${token} limit 1
     `;
-    return rows[0] ?? null;
+    const row = rows[0];
+    if (!row) return null;
+    return { ...row, ai_payload: (row.ai_payload ?? {}) as Json };
   });
 
 export const importTweetDraft = createServerFn({ method: "POST" })
@@ -285,7 +279,7 @@ export const importTweetDraft = createServerFn({ method: "POST" })
         ${parsed.handle ?? null},
         ${tweetText},
         ${eventSlug},
-        ${JSON.stringify(ai)}::jsonb,
+        ${JSON.stringify(ai as Json)}::jsonb,
         ${"pending"},
         ${token},
         ${botReplied},
@@ -312,7 +306,7 @@ export const upsertMyProfile = createServerFn({ method: "POST" })
       displayName?: string;
     }) => input,
   )
-  .handler(async ({ context, data }) => {
+  .handler(async ({ context, data }): Promise<SashUserRow | null> => {
     const sql = await getSql();
     await sql`
       insert into sash_users (user_id, wallet_pubkey, x_handle, x_user_id, display_name, updated_at)
@@ -331,18 +325,20 @@ export const upsertMyProfile = createServerFn({ method: "POST" })
         display_name = coalesce(${data.displayName ?? null}, sash_users.display_name),
         updated_at = NOW()
     `;
-    const rows = await sql`
-      select * from sash_users where user_id = ${context.userId} limit 1
+    const rows = await sql<SashUserRow>`
+      select user_id, x_user_id, x_handle, display_name, wallet_pubkey, role
+      from sash_users where user_id = ${context.userId} limit 1
     `;
-    return rows[0];
+    return rows[0] ?? null;
   });
 
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<SashUserRow | null> => {
     const sql = await getSql();
-    const rows = await sql`
-      select * from sash_users where user_id = ${context.userId} limit 1
+    const rows = await sql<SashUserRow>`
+      select user_id, x_user_id, x_handle, display_name, wallet_pubkey, role
+      from sash_users where user_id = ${context.userId} limit 1
     `;
     return rows[0] ?? null;
   });
@@ -400,7 +396,7 @@ export const publishDraft = createServerFn({ method: "POST" })
       item_type?: string;
       description?: string;
       slots?: { zone: string; price_usdc: number; pricing_mode: string }[];
-    };
+    } & Json;
     const events = await sql<EventRow>`
       select * from events where slug = ${draft.event_slug ?? "token2049"} limit 1
     `;
@@ -644,7 +640,7 @@ export const runAiProofReport = createServerFn({ method: "POST" })
     if (!proof) throw new Error("No proof uploaded");
 
     const apiKey = process.env.XAI_API_KEY;
-    let report: Record<string, unknown>;
+    let report: Json;
     let model: string;
     if (!apiKey) {
       model = "heuristic-fallback";
@@ -693,7 +689,7 @@ export const runAiProofReport = createServerFn({ method: "POST" })
       };
       const text = body.choices[0]?.message.content ?? "{}";
       const m = text.match(/\{[\s\S]*\}/);
-      report = JSON.parse(m?.[0] ?? '{"pass":false}');
+      report = JSON.parse(m?.[0] ?? '{"pass":false}') as Json;
     }
 
     const reportId = newId("air");
@@ -705,7 +701,7 @@ export const runAiProofReport = createServerFn({ method: "POST" })
     const deadline = new Date(
       Date.now() + CHALLENGE_HOURS * 60 * 60 * 1000,
     ).toISOString();
-    const attestation = {
+    const attestation: Json = {
       reportId,
       signed_by: context.userId,
       signed_at: new Date().toISOString(),
@@ -838,9 +834,9 @@ export const refundDeal = createServerFn({ method: "POST" })
 
 export const getMyDeals = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<MyDealRow[]> => {
     const sql = await getSql();
-    return sql<DealRow & { listing_title: string; zone: string }>`
+    const rows = await sql<MyDealRow>`
       select d.*, l.title as listing_title, s.zone
       from deals d
       join listings l on l.id = d.listing_id
@@ -848,22 +844,21 @@ export const getMyDeals = createServerFn({ method: "GET" })
       where d.buyer_user_id = ${context.userId} or d.seller_user_id = ${context.userId}
       order by d.created_at desc
     `;
+    return rows.map((r) => ({
+      ...r,
+      attestation: (r.attestation ?? null) as Json | null,
+    }));
   });
 
 export const adminOverview = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<AdminOverview> => {
     const sql = await getSql();
     await sql`
       insert into sash_users (user_id, role) values (${context.userId}, ${"user"})
       on conflict (user_id) do nothing
     `;
-    const counts = await sql<{
-      listings: number;
-      deals: number;
-      disputed: number;
-      locked: number;
-    }>`
+    const counts = await sql<AdminOverview["counts"]>`
       select
         (select count(*)::int from listings) as listings,
         (select count(*)::int from deals) as deals,
@@ -873,12 +868,16 @@ export const adminOverview = createServerFn({ method: "GET" })
     const recent = await sql<DealRow>`
       select * from deals order by created_at desc limit 20
     `;
-    const ledger = await sql`
-      select * from ledger_entries order by created_at desc limit 30
+    const ledger = await sql<AdminOverview["ledger"][number]>`
+      select id, deal_id, kind, amount_usdc, tx_sig, note, created_at
+      from ledger_entries order by created_at desc limit 30
     `;
     return {
-      counts: counts[0],
-      recent,
+      counts: counts[0]!,
+      recent: recent.map((r) => ({
+        ...r,
+        attestation: (r.attestation ?? null) as Json | null,
+      })),
       ledger,
       treasury: TREASURY_PUBKEY,
       usdcMint: USDC_MINT,
