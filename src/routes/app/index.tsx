@@ -8,11 +8,11 @@ import { ClayButton } from "@/components/ui/clay-button";
 import { ArcMark } from "@/components/ui/arc-mark";
 import { UsdcMark } from "@/components/ui/usdc-mark";
 import { syncErrorCopy } from "@/lib/arc-rpc";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { isOnchainLaunchId, graduateProgress, marketCap, protocolStats } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { formatCompact, formatUsdc } from "@/lib/format.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
-import { launchFromWire, syncArcLaunches } from "@/lib/onchain-launches.ts";
 import { isLiveFactory } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
 import { cn } from "@/lib/utils";
@@ -39,8 +39,8 @@ function Discover() {
     setSyncing(true);
     setSyncError(null);
     try {
-      const { launches } = await syncArcLaunches();
-      upsertOnchainLaunches(launches.map(launchFromWire));
+      const launches = await pullArcLaunches();
+      upsertOnchainLaunches(launches);
       setLastSync(Date.now());
     } catch (e) {
       setSyncError(syncErrorCopy(e));

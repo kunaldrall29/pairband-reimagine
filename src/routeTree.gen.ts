@@ -22,6 +22,7 @@ import { Route as AppMeRouteImport } from './routes/app/me'
 import { Route as AppTradeRouteImport } from './routes/app/trade'
 import { Route as DocsIndexRouteImport } from './routes/docs.index'
 import { Route as DocsVaultAgentRouteImport } from './routes/docs.vault-agent'
+import { Route as ApiArcLaunchesRouteImport } from './routes/api/arc.launches'
 import { Route as AppTIdRouteImport } from './routes/app/t.$id'
 import { Route as AppPChainIdVaultRouteImport } from './routes/app/p.$chainId.$vault'
 
@@ -90,6 +91,11 @@ const DocsVaultAgentRoute = DocsVaultAgentRouteImport.update({
   path: '/vault-agent',
   getParentRoute: () => DocsRoute,
 } as any)
+const ApiArcLaunchesRoute = ApiArcLaunchesRouteImport.update({
+  id: '/api/arc/launches',
+  path: '/api/arc/launches',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppTIdRoute = AppTIdRouteImport.update({
   id: '/t/$id',
   path: '/t/$id',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app/': typeof AppIndexRoute
   '/docs/': typeof DocsIndexRoute
+  '/api/arc/launches': typeof ApiArcLaunchesRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app': typeof AppIndexRoute
   '/docs': typeof DocsIndexRoute
+  '/api/arc/launches': typeof ApiArcLaunchesRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/docs/vault-agent': typeof DocsVaultAgentRoute
   '/app/': typeof AppIndexRoute
   '/docs/': typeof DocsIndexRoute
+  '/api/arc/launches': typeof ApiArcLaunchesRoute
   '/app/t/$id': typeof AppTIdRoute
   '/app/p/$chainId/$vault': typeof AppPChainIdVaultRoute
 }
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/docs/vault-agent'
     | '/app/'
     | '/docs/'
+    | '/api/arc/launches'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   fileRoutesByTo: FileRoutesByTo
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/docs/vault-agent'
     | '/app'
     | '/docs'
+    | '/api/arc/launches'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   id:
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/docs/vault-agent'
     | '/app/'
     | '/docs/'
+    | '/api/arc/launches'
     | '/app/t/$id'
     | '/app/p/$chainId/$vault'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   DocsRoute: typeof DocsRouteWithChildren
   SecurityRoute: typeof SecurityRoute
+  ApiArcLaunchesRoute: typeof ApiArcLaunchesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsVaultAgentRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/api/arc/launches': {
+      id: '/api/arc/launches'
+      path: '/api/arc/launches'
+      fullPath: '/api/arc/launches'
+      preLoaderRoute: typeof ApiArcLaunchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/t/$id': {
       id: '/app/t/$id'
       path: '/t/$id'
@@ -365,6 +385,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   DocsRoute: DocsRouteWithChildren,
   SecurityRoute: SecurityRoute,
+  ApiArcLaunchesRoute: ApiArcLaunchesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

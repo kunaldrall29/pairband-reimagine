@@ -31,11 +31,12 @@ export function createArcTestnetClient(): PublicClient {
 /** Short, user-facing copy — never dump raw viem HTTP blobs into Discover. */
 export function syncErrorCopy(err: unknown): string {
   const raw = err instanceof Error ? err.message : String(err ?? "Sync failed");
-  if (/failed to fetch|fetch failed|network|timeout|aborted|econnrefused|enotfound/i.test(raw)) {
-    return "Could not reach Arc RPC. Retry sync — preview markets stay available offline.";
-  }
-  if (/http request failed/i.test(raw)) {
-    return "Arc RPC request failed. Retry sync in a moment.";
+  if (
+    /failed to fetch|fetch failed|network|timeout|aborted|econnrefused|enotfound|rpc\.testnet\.arc|launchCount|http request failed/i.test(
+      raw,
+    )
+  ) {
+    return "Could not reach Arc. Tap Sync on-chain to retry — the app talks to Arc through the server, not your browser.";
   }
   return raw.length > 140 ? `${raw.slice(0, 137)}…` : raw;
 }

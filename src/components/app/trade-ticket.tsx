@@ -24,7 +24,7 @@ import { LaunchError, type Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc, impactLabel, toInput } from "@/lib/format.ts";
 import { parseUnits } from "@/lib/utils";
 import { useLiveTrade } from "@/lib/live-trade";
-import { launchFromWire, syncArcLaunches } from "@/lib/onchain-launches.ts";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { toast } from "sonner";
 
 export function TradeTicket({ launch }: { launch: Launch }) {
@@ -86,8 +86,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
 
   async function refreshOnchain() {
     try {
-      const { launches } = await syncArcLaunches();
-      upsertOnchainLaunches(launches.map(launchFromWire));
+      upsertOnchainLaunches(await pullArcLaunches());
     } catch {
       /* Discover sync will catch up */
     }

@@ -1,4 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
 import type { PublicClient } from "viem";
 import { launchpadAbi } from "@/lib/abis/launchpad";
 import { createArcTestnetClient } from "@/lib/arc-rpc";
@@ -199,13 +198,3 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
   return rows;
 }
 
-/**
- * Server-side Arc sync — the Grok preview iframe often cannot reach public RPCs
- * (`Failed to fetch`), while the app server can. Discover / OnchainSync call this.
- */
-export const syncArcLaunches = createServerFn({ method: "GET" }).handler(async () => {
-  if (!ARC_TESTNET_DEPLOYMENT.launchpad) return { launches: [] as LaunchWire[] };
-  const client = createArcTestnetClient();
-  const rows = await fetchOnchainLaunches(client);
-  return { launches: rows.map((r) => launchToWire(r.launch)) };
-});

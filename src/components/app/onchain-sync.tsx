@@ -1,19 +1,15 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { syncErrorCopy } from "@/lib/arc-rpc";
-import { launchFromWire, syncArcLaunches } from "@/lib/onchain-launches.ts";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { isLiveFactory } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
 
 /**
  * Keep the in-browser launch catalog synced with Arc for every /app route.
- * Discover alone used to own this poll, so deep links like /app/t/0 404'd
- * until the user visited Discover first.
- *
- * Uses a same-origin server function so preview iframes that cannot reach
- * public Arc RPCs still get a live catalog.
+ * Uses same-origin /api/arc/launches so the preview iframe never talks to
+ * public Arc RPCs (those calls fail with viem "Failed to fetch").
  */
 export function OnchainSync() {
   const upsertOnchainLaunches = useLaunchpad((s) => s.upsertOnchainLaunches);
@@ -21,11 +17,10 @@ export function OnchainSync() {
   const syncChain = useCallback(async () => {
     if (!isLiveFactory(arcTestnet.id)) return;
     try {
-      const { launches } = await syncArcLaunches();
-      upsertOnchainLaunches(launches.map(launchFromWire));
-    } catch (e) {
-      // Discover still surfaces a short error via its own button; keep quiet here.
-      void syncErrorCopy(e);
+      const launches = await pullArcLaunches();
+      upsertOnchainLaunches(launches);
+    } catch {
+      /* Discover surfaces a short error via its Sync button. */
     }
   }, [upsertOnchainLaunches]);
 

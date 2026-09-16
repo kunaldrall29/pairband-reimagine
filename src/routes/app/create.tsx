@@ -18,7 +18,7 @@ import { useLaunchpad } from "@/lib/engine/store.ts";
 import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
 import { useLiveTrade } from "@/lib/live-trade";
-import { launchFromWire, syncArcLaunches } from "@/lib/onchain-launches.ts";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { verifyTokenWebsite } from "@/lib/verify-website";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
@@ -311,8 +311,7 @@ function Create() {
         // Mirror logo/socials locally without charging the demo launch fee again.
         create(name, symbol, description || `${name} on Arc`, 0n, { ...meta, skipFee: true });
         try {
-          const { launches } = await syncArcLaunches();
-          upsertOnchainLaunches(launches.map(launchFromWire));
+          upsertOnchainLaunches(await pullArcLaunches());
         } catch {
           /* navigate even if index sync lags */
         }
