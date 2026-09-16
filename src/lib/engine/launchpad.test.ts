@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getAmountOut } from "./amm.ts";
 import {
+  ARC_STAGE_SPLIT_TEST_ID,
   CREATOR_FEE_BPS,
   DEMO_USER,
   GRADUATE_AT,
@@ -195,6 +196,26 @@ describe("Launchpad", () => {
       (e: unknown) => e instanceof LaunchError && e.code === "NotGraduated",
     );
   });
+
+
+  it("split thresholds open Stage A without Stage B", () => {
+    let s = fresh();
+    s.chainId = ARC_STAGE_SPLIT_TEST_ID;
+    const { state, launch } = createLaunch(s, A, "Helix", "HLX", "A clean pair.");
+    s = state;
+    // Two non-creator buyers × $60 = $120 → Stage A ($100/2 wallets), below Stage B ($350/10).
+    for (let i = 0; i < 2; i++) {
+      const buyer = `0xB${i.toString(16).padStart(39, "0")}`;
+      s.usdc[buyer] = 500n * WAD;
+      s = buy(s, buyer, launch.id, 60n * WAD);
+    }
+    const g = findLaunch(s, launch.id);
+    assert.equal(g.status, "stage_a");
+    assert.ok(g.book);
+    assert.equal(g.pair, null);
+    assert.ok(g.uniqueBuyers.length >= 2);
+  });
+
 
   it("charges LAUNCH_FEE_USDC to treasury on create", () => {
     const s = fresh();

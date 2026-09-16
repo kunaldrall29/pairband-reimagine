@@ -2,24 +2,24 @@
 
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPublicClient, http } from "viem";
 import { RefreshCw } from "lucide-react";
 import { TokenCard } from "@/components/app/token-card";
 import { ClayButton } from "@/components/ui/clay-button";
 import { ArcMark } from "@/components/ui/arc-mark";
 import { UsdcMark } from "@/components/ui/usdc-mark";
+import { syncErrorCopy } from "@/lib/arc-rpc";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { isOnchainLaunchId, graduateProgress, marketCap, protocolStats } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { formatCompact, formatUsdc } from "@/lib/format.ts";
 import { GRADUATE_AT } from "@/lib/engine/constants.ts";
-import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
-import { ARC_TESTNET_DEPLOYMENT, isLiveFactory } from "@/lib/wagmi.ts";
+import { isLiveFactory } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/")({ component: Discover });
 
-type Filter = "new" | "mcap" | "volume" | "curve" | "uniswap" | "graduating";
+type Filter = "new" | "mcap" | "volume" | "curve" | "stage_a" | "stage_b" | "graduating";
 
 function Discover() {
   const engine = useLaunchpad((s) => s.engine);
@@ -31,22 +31,19 @@ function Discover() {
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<number | null>(null);
-  const stats = protocolStats(engine);
+  const onchain = useMemo(() => engine.launches.filter((l) => isOnchainLaunchId(l.id)), [engine, version]);
+  const stats = protocolStats({ ...engine, launches: onchain });
 
   const syncChain = useCallback(async () => {
     if (!isLiveFactory(arcTestnet.id)) return;
     setSyncing(true);
     setSyncError(null);
     try {
-      const client = createPublicClient({
-        chain: arcTestnet,
-        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
-      });
-      const rows = await fetchOnchainLaunches(client);
-      upsertOnchainLaunches(rows.map((r) => r.launch));
+      const launches = await pullArcLaunches();
+      upsertOnchainLaunches(launches);
       setLastSync(Date.now());
     } catch (e) {
-      setSyncError(e instanceof Error ? e.message : "Sync failed");
+      setSyncError(syncErrorCopy(e));
     } finally {
       setSyncing(false);
     }
@@ -59,7 +56,7 @@ function Discover() {
   }, [syncChain]);
 
   const rows = useMemo(() => {
-    let list = engine.launches.slice();
+    let list = onchain.slice();
     const query = q.trim().toLowerCase();
     if (query) {
       list = list.filter(
@@ -69,9 +66,9 @@ function Discover() {
           l.description.toLowerCase().includes(query),
       );
     }
-    list = list.filter((l) => isOnchainLaunchId(l.id));
     if (filter === "curve") list = list.filter((l) => l.status === "curve");
-    if (filter === "uniswap") list = list.filter((l) => l.status === "stage_b");
+    if (filter === "stage_a") list = list.filter((l) => l.status === "stage_a");
+    if (filter === "stage_b") list = list.filter((l) => l.status === "stage_b");
     if (filter === "graduating") {
       list = list.filter((l) => l.status === "curve" && graduateProgress(l) >= 0.6);
       list.sort((a, b) => graduateProgress(b) - graduateProgress(a));
@@ -79,7 +76,7 @@ function Discover() {
     else if (filter === "volume") list.sort((a, b) => (a.volumeUsdc < b.volumeUsdc ? 1 : -1));
     else list.sort((a, b) => b.createdAt - a.createdAt);
     return list;
-  }, [engine, q, filter, version]);
+  }, [onchain, q, filter]);
 
   return (
     <div className="mx-auto max-w-6xl overflow-x-hidden px-4 py-6">
@@ -92,7 +89,9 @@ function Discover() {
               <ArcMark size={12} /> {stats.count} tokens
             </span>
             <span>·</span>
-            <span>{stats.graduated} books</span>
+            <span>{stats.stageA} Stage A</span>
+            <span>·</span>
+            <span>{stats.graduated} Stage B</span>
             <span>·</span>
             <span className="inline-flex items-center gap-1">
               <UsdcMark size={12} /> {formatCompact(stats.volume)} volume
@@ -117,9 +116,10 @@ function Discover() {
               ["new", "New"],
               ["mcap", "Market cap"],
               ["volume", "Volume"],
-              ["graduating", "Near book"],
+              ["graduating", "Near Stage A"],
               ["curve", "Curve"],
-              ["uniswap", "Book"],
+              ["stage_a", "Stage A Book"],
+              ["stage_b", "Stage B Locked"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -136,7 +136,6 @@ function Discover() {
         </div>
       </div>
 
-
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted">
         <button
           type="button"
@@ -148,15 +147,21 @@ function Discover() {
           {syncing ? "Syncing Arc…" : "Sync on-chain"}
         </button>
         {lastSync ? <span>Updated {new Date(lastSync).toLocaleTimeString()}</span> : null}
-        {syncError ? <span className="text-coral">{syncError}</span> : null}
+        {syncError ? <span className="max-w-xl text-coral">{syncError}</span> : null}
         <span className="inline-flex flex-wrap items-center gap-1">
           <UsdcMark size={12} /> quoted · <ArcMark size={12} /> settled · graduation at{" "}
-          {formatUsdc(GRADUATE_AT)}. Showing on-chain markets only. Sync to pull the latest from Arc.
+          {formatUsdc(GRADUATE_AT)}. Showing on-chain markets only. Sync pulls Arc through the app server.
         </span>
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-16 text-center text-muted">No on-chain markets yet. Create a token or sync Arc.</p>
+        <p className="mt-16 text-center text-muted">
+          {syncError
+            ? "Arc sync failed — retry Sync on-chain, or create a token once the RPC is reachable."
+            : syncing
+              ? "Pulling markets from Arc…"
+              : "No on-chain markets yet. Create a token or sync Arc."}
+        </p>
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {rows.map((l) => (

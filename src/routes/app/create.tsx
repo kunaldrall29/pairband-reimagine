@@ -3,7 +3,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, Copy, ExternalLink, Globe, ImagePlus, Link2, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createPublicClient, http } from "viem";
 import { ClayButton } from "@/components/ui/clay-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TokenGlyph } from "@/components/ui/token-glyph";
@@ -19,7 +18,7 @@ import { useLaunchpad } from "@/lib/engine/store.ts";
 import type { Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatToken, formatUsdc } from "@/lib/format.ts";
 import { useLiveTrade } from "@/lib/live-trade";
-import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { verifyTokenWebsite } from "@/lib/verify-website";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
 import { arcTestnet } from "@/lib/chains";
@@ -312,12 +311,7 @@ function Create() {
         // Mirror logo/socials locally without charging the demo launch fee again.
         create(name, symbol, description || `${name} on Arc`, 0n, { ...meta, skipFee: true });
         try {
-          const client = createPublicClient({
-            chain: arcTestnet,
-            transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
-          });
-          const rows = await fetchOnchainLaunches(client);
-          upsertOnchainLaunches(rows.map((r) => r.launch));
+          upsertOnchainLaunches(await pullArcLaunches());
         } catch {
           /* navigate even if index sync lags */
         }

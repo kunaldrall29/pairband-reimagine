@@ -36,8 +36,9 @@ export const wagmiConfig = createConfig({
   chains: [arcTestnet, arcMainnet],
   connectors,
   transports: {
-    [arcTestnet.id]: http("https://rpc.testnet.arc.io"),
-    [arcMainnet.id]: http("https://rpc.arc.network"),
+    [arcTestnet.id]: http("https://rpc.testnet.arc.io", { timeout: 12_000 }),
+    // Mainnet secondary endpoint kept for wallets; Discover sync uses server fallbacks.
+    [arcMainnet.id]: http("https://rpc.arc.network", { timeout: 12_000 }),
   },
   ssr: true,
 });

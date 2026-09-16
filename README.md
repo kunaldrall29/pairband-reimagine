@@ -20,9 +20,9 @@ Mainnet (`5042`) uses the same bytecode — do not broadcast until testnet is ve
 ```
 create()  →  PairbandToken (minter = launchpad)
 buy/sell  →  bonding curve (1.0% protocol + 0.5% creator, USDC)
-             └─ at $80 real USDC → PairbandAmmFactory.createPair (LP → 0xdead)
-                                   PairbandBook (on-chain CLOB)
-buy/sell  →  book match, then PairbandPair.getAmountOut 0.30%
+             ├─ Stage A (testnet $80 / mainnet $2k + wallets) → on-chain book opens; curve stays live
+             └─ Stage B (testnet $80 / mainnet $12k or $20k hard) → locked Uniswap pair (LP → 0xdead); curve closes
+buy/sell  →  book match, then PairbandPair.getAmountOut 0.30% (Stage B)
 limit     →  rest on PairbandBook; cancel returns escrow
 ```
 

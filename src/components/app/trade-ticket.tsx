@@ -24,10 +24,7 @@ import { LaunchError, type Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc, impactLabel, toInput } from "@/lib/format.ts";
 import { parseUnits } from "@/lib/utils";
 import { useLiveTrade } from "@/lib/live-trade";
-import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
-import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
-import { arcTestnet } from "@/lib/chains";
-import { createPublicClient, http } from "viem";
+import { pullArcLaunches } from "@/lib/pull-arc-launches";
 import { toast } from "sonner";
 
 export function TradeTicket({ launch }: { launch: Launch }) {
@@ -89,12 +86,7 @@ export function TradeTicket({ launch }: { launch: Launch }) {
 
   async function refreshOnchain() {
     try {
-      const client = createPublicClient({
-        chain: arcTestnet,
-        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
-      });
-      const rows = await fetchOnchainLaunches(client);
-      upsertOnchainLaunches(rows.map((r) => r.launch));
+      upsertOnchainLaunches(await pullArcLaunches());
     } catch {
       /* Discover sync will catch up */
     }
@@ -339,8 +331,10 @@ export function TradeTicket({ launch }: { launch: Launch }) {
       </form>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         {live.status === "curve"
-          ? "1.0% protocol + 0.5% creator in USDC. At $80 the pair mints, LP burns, and an on-chain book opens."
-          : "Market walks the on-chain book (price-time), then Uniswap 0.30%. Limits rest; cancel returns escrow. LP cannot be pulled."}{" "}
+          ? "1.0% protocol + 0.5% creator in USDC. Stage A opens the on-chain book while the curve stays live; Stage B locks Uniswap LP to 0xdead and closes the curve."
+          : live.status === "stage_a"
+            ? "Stage A: market walks the book (price-time); curve still fills. Stage B locks Uniswap and closes minting."
+            : "Stage B: market walks the book, then Uniswap 0.30%. Limits rest; cancel returns escrow. LP cannot be pulled."}{" "}
         {side === "buy" && !isArc(sourceDomain)
           ? `This fill burns USDC on ${chainByDomain(sourceDomain)?.name} (CCTP ${sourceDomain}) and settles on Arc domain ${ARC_CCTP_DOMAIN}.`
           : "Tokens never leave Arc."}

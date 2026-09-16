@@ -7,8 +7,10 @@ import { PriceChart } from "@/components/app/price-chart";
 import { Tape } from "@/components/app/tape";
 import { TradeTicket } from "@/components/app/trade-ticket";
 import { GlassPanel } from "@/components/ui/glass-panel";
+import { StatusChip } from "@/components/ui/status-chip";
 import { TokenGlyph } from "@/components/ui/token-glyph";
 import { UsdcMark } from "@/components/ui/usdc-mark";
+import { STAGE_A_USD_TESTNET, STAGE_B_USD_TESTNET } from "@/lib/engine/constants.ts";
 import { priceOf, priceSeries } from "@/lib/engine/launchpad.ts";
 import { useLaunchpad } from "@/lib/engine/store.ts";
 import { formatPriceWad, formatUsdc } from "@/lib/format.ts";
@@ -69,8 +71,8 @@ function Trade() {
                 <TokenGlyph symbol={l.symbol} hue={l.hue} size={32} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{l.symbol}</span>
-                  <span className="block font-mono text-[11px] text-muted">
-                    {l.status === "stage_b" ? "Stage B" : l.status === "stage_a" ? "Stage A" : "Curve"}
+                  <span className="mt-0.5 block">
+                    <StatusChip status={l.status} compact />
                   </span>
                 </span>
                 <span className="font-mono text-xs tabular">{formatPriceWad(priceOf(l))}</span>
@@ -90,9 +92,9 @@ function Trade() {
                   {launch.symbol}/<UsdcMark size={18} />
                   <span className="text-xl text-muted">USDC</span>
                 </h2>
-                <p className="font-mono text-[11px] text-muted uppercase">
-                  {launch.status === "stage_b" ? "Book · Uniswap" : launch.status === "stage_a" ? "Book · curve" : "Bonding curve"}
-                </p>
+                <div className="mt-1">
+                  <StatusChip status={launch.status} compact />
+                </div>
               </div>
             </div>
             <p className="font-mono text-2xl tabular">{formatPriceWad(priceOf(launch))}</p>
@@ -105,7 +107,8 @@ function Trade() {
           </div>
         ) : (
           <p className="mt-4 text-sm text-muted">
-            Raised {formatUsdc(launch.realUsdc)} of $80.00. Next venue is a locked Uniswap pair.
+            Raised {formatUsdc(launch.realUsdc)} of {formatUsdc(STAGE_A_USD_TESTNET)} to Stage A book
+            (testnet Stage B locks at {formatUsdc(STAGE_B_USD_TESTNET)}).
           </p>
         )}
         <h3 className="mt-6 font-medium">Tape</h3>
