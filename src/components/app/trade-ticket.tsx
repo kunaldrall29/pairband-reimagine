@@ -24,10 +24,7 @@ import { LaunchError, type Launch } from "@/lib/engine/types.ts";
 import { errorCopy, formatPriceWad, formatToken, formatUsdc, impactLabel, toInput } from "@/lib/format.ts";
 import { parseUnits } from "@/lib/utils";
 import { useLiveTrade } from "@/lib/live-trade";
-import { fetchOnchainLaunches } from "@/lib/onchain-launches.ts";
-import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi.ts";
-import { arcTestnet } from "@/lib/chains";
-import { createPublicClient, http } from "viem";
+import { launchFromWire, syncArcLaunches } from "@/lib/onchain-launches.ts";
 import { toast } from "sonner";
 
 export function TradeTicket({ launch }: { launch: Launch }) {
@@ -89,12 +86,8 @@ export function TradeTicket({ launch }: { launch: Launch }) {
 
   async function refreshOnchain() {
     try {
-      const client = createPublicClient({
-        chain: arcTestnet,
-        transport: http(ARC_TESTNET_DEPLOYMENT.rpc ?? "https://rpc.testnet.arc.io"),
-      });
-      const rows = await fetchOnchainLaunches(client);
-      upsertOnchainLaunches(rows.map((r) => r.launch));
+      const { launches } = await syncArcLaunches();
+      upsertOnchainLaunches(launches.map(launchFromWire));
     } catch {
       /* Discover sync will catch up */
     }

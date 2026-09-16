@@ -1,5 +1,7 @@
+import { createServerFn } from "@tanstack/react-start";
 import type { PublicClient } from "viem";
 import { launchpadAbi } from "@/lib/abis/launchpad";
+import { createArcTestnetClient } from "@/lib/arc-rpc";
 import type { Launch } from "@/lib/engine/types.ts";
 import { ARC_TESTNET_DEPLOYMENT } from "@/lib/wagmi";
 
@@ -14,6 +16,16 @@ const metaAbi = [
 /** First-seen timestamps so Discover sort stays stable across polls. */
 const firstSeenAt = new Map<string, number>();
 
+/** Optional copy for known Arc demo markets (not stored on-chain). */
+const KNOWN_BLURBS: Record<string, string> = {
+  SMOKE: "First Arc testnet print — curve still open.",
+  HARBOR: "Quiet liquidity. Pay from any CCTP chain.",
+  NORTH: "Directional bid. Settlement stays on Arc.",
+  CLAY: "Warm clay, cold settlement. Quote is always USDC.",
+  HELIX: "Clean USDC curve. Built for the dual-stage handoff.",
+  PAPER: "Office-supply maximalism. One clip, infinite USDC.",
+};
+
 function hueOf(symbol: string): number {
   return [...symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
 }
@@ -22,6 +34,71 @@ export type OnchainLaunchRow = {
   id: string;
   launch: Launch;
 };
+
+/** Wire-safe Launch (bigints as decimal strings) for createServerFn JSON. */
+export type LaunchWire = Omit<
+  Launch,
+  | "virtualUsdc"
+  | "virtualTokens"
+  | "realUsdc"
+  | "tokensSold"
+  | "reserveUsdc"
+  | "reserveToken"
+  | "lpSupply"
+  | "lpBurned"
+  | "protocolFees"
+  | "creatorFees"
+  | "volumeUsdc"
+> & {
+  virtualUsdc: string;
+  virtualTokens: string;
+  realUsdc: string;
+  tokensSold: string;
+  reserveUsdc: string;
+  reserveToken: string;
+  lpSupply: string;
+  lpBurned: string;
+  protocolFees: string;
+  creatorFees: string;
+  volumeUsdc: string;
+};
+
+const BIGINT_KEYS = [
+  "virtualUsdc",
+  "virtualTokens",
+  "realUsdc",
+  "tokensSold",
+  "reserveUsdc",
+  "reserveToken",
+  "lpSupply",
+  "lpBurned",
+  "protocolFees",
+  "creatorFees",
+  "volumeUsdc",
+] as const;
+
+export function launchToWire(launch: Launch): LaunchWire {
+  const wire = { ...launch } as Record<string, unknown>;
+  for (const k of BIGINT_KEYS) wire[k] = launch[k].toString();
+  return wire as LaunchWire;
+}
+
+export function launchFromWire(wire: LaunchWire): Launch {
+  return {
+    ...wire,
+    virtualUsdc: BigInt(wire.virtualUsdc),
+    virtualTokens: BigInt(wire.virtualTokens),
+    realUsdc: BigInt(wire.realUsdc),
+    tokensSold: BigInt(wire.tokensSold),
+    reserveUsdc: BigInt(wire.reserveUsdc),
+    reserveToken: BigInt(wire.reserveToken),
+    lpSupply: BigInt(wire.lpSupply),
+    lpBurned: BigInt(wire.lpBurned),
+    protocolFees: BigInt(wire.protocolFees),
+    creatorFees: BigInt(wire.creatorFees),
+    volumeUsdc: BigInt(wire.volumeUsdc),
+  };
+}
 
 export function isOnchainLaunchId(id: string): boolean {
   return /^\d+$/.test(id);
@@ -90,7 +167,7 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
       book: g.book.toLowerCase() === zero ? null : g.book,
       name,
       symbol,
-      description: "",
+      description: KNOWN_BLURBS[symbol] ?? "",
       hue: hueOf(symbol),
       creator: g.creator,
       createdAt: firstSeenAt.get(id)!,
@@ -121,3 +198,14 @@ export async function fetchOnchainLaunches(client: PublicClient): Promise<Onchai
 
   return rows;
 }
+
+/**
+ * Server-side Arc sync — the Grok preview iframe often cannot reach public RPCs
+ * (`Failed to fetch`), while the app server can. Discover / OnchainSync call this.
+ */
+export const syncArcLaunches = createServerFn({ method: "GET" }).handler(async () => {
+  if (!ARC_TESTNET_DEPLOYMENT.launchpad) return { launches: [] as LaunchWire[] };
+  const client = createArcTestnetClient();
+  const rows = await fetchOnchainLaunches(client);
+  return { launches: rows.map((r) => launchToWire(r.launch)) };
+});
